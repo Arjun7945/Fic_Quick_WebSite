@@ -1,0 +1,324 @@
+'use client';
+
+// =============================================================================
+// Live Search & Discovery — /search
+// Debounced search across live catalog products, recent searches, results grid
+// =============================================================================
+
+import { useMemo, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, Search, SlidersHorizontal, X, TrendingUp, Clock, Loader2 } from 'lucide-react';
+import { useModal } from '@/context/ModalContext';
+import { ProductCard } from '@/components/ui/ProductCard';
+import { TRENDING_TAGS } from '@/config/site';
+import type { Product } from '@/types';
+
+export default function SearchPage() {
+  const router = useRouter();
+  const { openModal } = useModal();
+  const [query, setQuery] = useState('');
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const saved = localStorage.getItem('ficcado-recent-searches');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          return parsed.slice(0, 5);
+        }
+      }
+    } catch {
+      // Ignore error
+    }
+    return [];
+  });
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  // Load live products from /api/products
+  useEffect(() => {
+    let isMounted = true;
+    async function loadProducts() {
+      try {
+        setIsLoading(true);
+        const res = await fetch('/api/products');
+        if (res.ok) {
+          const data = (await res.json()) as Product[];
+          if (isMounted && Array.isArray(data)) {
+            setAllProducts(data);
+          }
+        }
+      } catch (err) {
+        console.warn('[Search] Failed to fetch products:', err);
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    }
+    loadProducts();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  function saveRecentSearch(term: string) {
+    if (!term || !term.trim()) return;
+    const clean = term.trim();
+    setRecentSearches((prev) => {
+      const updated = [clean, ...prev.filter((t) => t.toLowerCase() !== clean.toLowerCase())].slice(0, 5);
+      try {
+        localStorage.setItem('ficcado-recent-searches', JSON.stringify(updated));
+      } catch {
+        // Ignore quota
+      }
+      return updated;
+    });
+  }
+
+  const filteredProducts = useMemo(() => {
+    if (!query.trim()) return [];
+    const q = query.toLowerCase();
+    return allProducts.filter(
+      (p) =>
+        p.name.toLowerCase().includes(q) ||
+        p.category.toLowerCase().includes(q) ||
+        ((p.desc || p.description || '')).toLowerCase().includes(q),
+    );
+  }, [query, allProducts]);
+
+  function applyTag(tag: string) {
+    setQuery(tag);
+    saveRecentSearch(tag);
+  }
+
+  function clearQuery() {
+    setQuery('');
+  }
+
+  function removeRecent(tag: string) {
+    setRecentSearches((prev) => {
+      const updated = prev.filter((t) => t !== tag);
+      try {
+        localStorage.setItem('ficcado-recent-searches', JSON.stringify(updated));
+      } catch {
+        // Ignore quota
+      }
+      return updated;
+    });
+  }
+
+  const showEmpty = query.trim() !== '' && filteredProducts.length === 0;
+
+  return (
+    <div id="search-page" className="flex flex-col" style={{ minHeight: '100%', background: 'var(--bg-app)' }}>
+      {/* Mobile Header (Hidden on Tablet & Desktop) */}
+      <header
+        className="flex md:hidden items-center gap-3 px-4 py-3"
+        style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-light)' }}
+      >
+        <button onClick={() => router.push('/')} className="btn-icon" aria-label="Back to home">
+          <ArrowLeft size={20} style={{ color: 'var(--text-main)' }} />
+        </button>
+        <div
+          className="flex flex-1 items-center gap-2 rounded-2xl px-3 py-2"
+          style={{ background: 'var(--bg-surface-alt)', border: '1.5px solid var(--border-medium)' }}
+        >
+          <Search size={16} style={{ color: 'var(--text-muted)' }} />
+          <input
+            id="mobile-search-input"
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') saveRecentSearch(query);
+            }}
+            placeholder="Search drops, heavyweight tees..."
+            className="flex-1 bg-transparent text-xs sm:text-sm outline-none"
+            style={{ color: 'var(--text-main)' }}
+            autoFocus
+          />
+          {query && (
+            <button onClick={clearQuery} className="cursor-pointer" aria-label="Clear search">
+              <X size={15} style={{ color: 'var(--text-muted)' }} />
+            </button>
+          )}
+        </div>
+        <button
+          onClick={() => openModal('filterModal')}
+          className="btn-icon"
+          style={{ background: 'var(--primary-light)', borderRadius: 'var(--radius-sm)' }}
+          aria-label="Open filters"
+        >
+          <SlidersHorizontal size={17} style={{ color: 'var(--primary)' }} />
+        </button>
+      </header>
+
+      {/* Desktop Heading & Search Bar */}
+      <div className="hidden md:block px-4 md:px-0 pt-6 pb-2 max-w-7xl mx-auto w-full">
+        <div className="flex items-center gap-4 mb-4">
+          <button onClick={() => router.push('/')} className="btn-icon" aria-label="Back to home">
+            <ArrowLeft size={20} style={{ color: 'var(--text-main)' }} />
+          </button>
+          <h1 className="text-2xl font-900 tracking-tight text-[var(--text-main)]">
+            Search Catalog
+          </h1>
+        </div>
+
+        <div
+          className="flex items-center gap-3 rounded-2xl px-4 py-3.5 max-w-2xl"
+          style={{ background: 'var(--bg-surface-alt)', border: '1.5px solid var(--border-light)' }}
+        >
+          <Search size={20} style={{ color: 'var(--text-muted)' }} />
+          <input
+            id="desktop-search-input"
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') saveRecentSearch(query);
+            }}
+            placeholder="Search by product name, category, or fit..."
+            className="flex-1 bg-transparent text-sm outline-none"
+            style={{ color: 'var(--text-main)' }}
+          />
+          {query && (
+            <button onClick={clearQuery} className="cursor-pointer" aria-label="Clear search">
+              <X size={16} style={{ color: 'var(--text-muted)' }} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="no-scrollbar flex-1 overflow-y-auto px-4 md:px-0 max-w-7xl mx-auto w-full py-4 space-y-6">
+        {isLoading && (
+          <div className="flex items-center justify-center py-12 gap-2 text-xs text-[var(--text-muted)]">
+            <Loader2 size={16} className="animate-spin text-[var(--primary)]" />
+            <span>Loading catalog...</span>
+          </div>
+        )}
+
+        {/* Recent Searches */}
+        {!query && recentSearches.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-700 uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                Recent Searches
+              </p>
+              <button
+                onClick={() => {
+                  setRecentSearches([]);
+                  try {
+                    localStorage.removeItem('ficcado-recent-searches');
+                  } catch {
+                    // Ignore
+                  }
+                }}
+                className="text-[11px] font-semibold text-[var(--primary)] hover:underline cursor-pointer"
+              >
+                Clear all
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {recentSearches.map((term) => (
+                <div
+                  key={term}
+                  className="flex items-center gap-1.5 rounded-full px-3 py-1 text-xs"
+                  style={{ background: 'var(--bg-surface-alt)', border: '1px solid var(--border-light)', color: 'var(--text-secondary)' }}
+                >
+                  <Clock size={11} style={{ color: 'var(--text-light)' }} />
+                  <button
+                    onClick={() => applyTag(term)}
+                    className="hover:underline cursor-pointer"
+                  >
+                    {term}
+                  </button>
+                  <button
+                    onClick={() => removeRecent(term)}
+                    className="ml-1 cursor-pointer"
+                    aria-label={`Remove ${term}`}
+                  >
+                    <X size={11} style={{ color: 'var(--text-light)' }} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Trending Tags */}
+        {!query && (
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-1.5">
+              <TrendingUp size={13} style={{ color: 'var(--primary)' }} />
+              <p className="text-xs font-700 uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                Trending Searches
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {TRENDING_TAGS.map((tag) => (
+                <button
+                  key={tag}
+                  id={`trending-${tag.toLowerCase().replace(/\s+/g, '-')}`}
+                  onClick={() => applyTag(tag)}
+                  className="rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all active:scale-95 cursor-pointer"
+                  style={{
+                    background: 'var(--bg-surface)',
+                    border: '1.5px solid var(--border-light)',
+                    color: 'var(--text-main)',
+                  }}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Search Results */}
+        {query.trim() !== '' && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-700" style={{ color: 'var(--text-muted)' }}>
+                {filteredProducts.length} result{filteredProducts.length !== 1 ? 's' : ''} for &ldquo;{query}&rdquo;
+              </p>
+              {filteredProducts.length > 0 && (
+                <button
+                  onClick={clearQuery}
+                  className="text-xs font-semibold"
+                  style={{ color: 'var(--primary)', cursor: 'pointer' }}
+                >
+                  Clear search
+                </button>
+              )}
+            </div>
+
+            {/* Product Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5 pb-6">
+              {filteredProducts.map((p) => (
+                <ProductCard key={p.id} product={p} priority={true} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {showEmpty && !isLoading && (
+          <div className="flex flex-col items-center justify-center py-16 text-center space-y-3">
+            <span className="text-4xl">🔍</span>
+            <p className="text-base font-800" style={{ color: 'var(--text-main)' }}>
+              No matches found
+            </p>
+            <p className="text-xs max-w-[260px]" style={{ color: 'var(--text-muted)' }}>
+              We couldn&apos;t find anything matching &ldquo;{query}&rdquo;. Try another term or explore our unisex drops.
+            </p>
+            <button
+              onClick={clearQuery}
+              className="btn-primary text-xs py-2 px-4 mt-2"
+            >
+              Browse All Drops
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

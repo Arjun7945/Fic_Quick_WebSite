@@ -1,0 +1,35 @@
+# Environment files
+.env*
+!.env.example
+ficcado-website-frontend/.env*
+!ficcado-website-frontend/.env.example
+
+# Service account credentials & secrets
+credentials/
+*.pem
+*.key
+
+# Dependencies & build
+node_modules/
+ficcado-website-frontend/node_modules/
+.next/
+ficcado-website-frontend/.next/
+build/
+dist/
+coverage/
+
+# Generated files
+ficcado-website-frontend/src/generated/
+
+# OS & debug logs
+.DS_Store
+*.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+ficcado-website-frontend/next-env.d.ts

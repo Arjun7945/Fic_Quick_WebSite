@@ -1,0 +1,236 @@
+// =============================================================================
+// Product & Catalog Data Layer — /src/lib/products.ts
+// Single source of truth for items is Google Sheets 'Item Management'.
+// Dynamic header resolution, no dummy fallbacks, and resilient cache per R5.
+// =============================================================================
+
+import fs from 'node:fs';
+import path from 'node:path';
+import { isCategoryLive } from '@/config/categories';
+import { slugify } from '@/lib/slugify';
+import {
+  getItemImages,
+  getPrimaryItemImage,
+  getSecondaryItemImage,
+} from '@/lib/itemImages';
+import { getSheetValues } from '@/lib/sheets/client';
+import type { ClothingCategory, Product, SizeOption } from '@/types';
+
+const CACHE_FILE = path.join(process.cwd(), 'src', 'generated', 'products-cache.json');
+
+function parsePrice(val: unknown): number {
+  if (typeof val === 'number') return Math.max(0, Math.round(val));
+  if (!val) return 0;
+  const cleaned = String(val).replace(/[^0-9.]/g, '');
+  const num = parseFloat(cleaned);
+  return isNaN(num) ? 0 : Math.max(0, Math.round(num));
+}
+
+function parseBoolean(val: unknown, defaultVal = true): boolean {
+  if (typeof val === 'boolean') return val;
+  if (!val) return defaultVal;
+  const str = String(val).trim().toUpperCase();
+  if (str === 'TRUE' || str === '1' || str === 'YES') return true;
+  if (str === 'FALSE' || str === '0' || str === 'NO') return false;
+  return defaultVal;
+}
+
+function typeToCategorySlug(typeStr: string): ClothingCategory | null {
+  const normalized = (typeStr || '').trim().toLowerCase();
+  if (normalized.includes('combo')) return 'combos';
+  if (normalized.includes('t-shirt') || normalized === 'tshirts') return 't-shirts';
+  if (normalized.includes('shirt')) return 'shirts';
+  if (normalized.includes('hoodie')) return 'hoodies';
+  if (normalized.includes('pant') || normalized.includes('jean')) return 'pants';
+  if (normalized.includes('sneaker') || normalized.includes('shoe')) return 'sneakers';
+  return null;
+}
+
+function parseSizes(sizesStr?: string): SizeOption[] {
+  if (!sizesStr) return ['S', 'M', 'L', 'XL'];
+  const split = sizesStr
+    .split(',')
+    .map((s) => s.trim().toUpperCase())
+    .filter(Boolean);
+  return Array.from(new Set(split)) as SizeOption[];
+}
+
+function parseColors(colorsStr?: string): string[] {
+  if (!colorsStr) return [];
+  const split = colorsStr
+    .split(',')
+    .map((c) => c.trim())
+    .filter(Boolean);
+  return Array.from(new Set(split));
+}
+
+function readCache(): Product[] {
+  try {
+    if (fs.existsSync(CACHE_FILE)) {
+      const data = fs.readFileSync(CACHE_FILE, 'utf8');
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed as Product[];
+      }
+    }
+  } catch (err) {
+    console.warn('[Catalog] Error reading product cache:', (err as Error).message);
+  }
+  return [];
+}
+
+function writeCache(products: Product[]): void {
+  try {
+    const dir = path.dirname(CACHE_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(CACHE_FILE, JSON.stringify(products, null, 2), 'utf8');
+  } catch (err) {
+    console.warn('[Catalog] Error writing product cache:', (err as Error).message);
+  }
+}
+
+/**
+ * Fetches catalog products directly from the Google Sheets 'Item Management' tab.
+ * Dynamically resolves columns by header name to allow safe column reordering.
+ * Skips rows with invalid prices, missing names, or unapproved types per R5.2.
+ */
+export async function getProducts(): Promise<Product[]> {
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+
+  if (sheetId) {
+    try {
+      const rows = await getSheetValues(sheetId, "'Item Management'!A1:Z100");
+      if (rows && rows.length > 1) {
+        const headers = rows[0].map((h) => h.trim().toLowerCase());
+        const getColIdx = (name: string) => headers.indexOf(name.toLowerCase());
+
+        const idIdx = getColIdx('id');
+        const nameIdx = getColIdx('item_name');
+        const typeIdx = getColIdx('type');
+        const priceIdx = getColIdx('price');
+        const sizesIdx = getColIdx('sizes');
+        const ratingIdx = getColIdx('average_rating');
+        const reviewCountIdx = getColIdx('review_count');
+        const colorsIdx = getColIdx('colors');
+        const descIdx = getColIdx('description');
+        const slugIdx = getColIdx('slug');
+        const inStockIdx = getColIdx('in_stock');
+        const featuredIdx = getColIdx('featured');
+        const activeIdx = getColIdx('active');
+        const sortOrderIdx = getColIdx('sort_order');
+
+        const products: Product[] = [];
+
+        for (let i = 1; i < rows.length; i++) {
+          const row = rows[i];
+          if (!row || row.length === 0) continue;
+
+          // Must be active
+          const rawActive = activeIdx !== -1 ? row[activeIdx] : 'TRUE';
+          if (!parseBoolean(rawActive, true)) continue;
+
+          // Must have valid item name
+          const rawName = nameIdx !== -1 ? (row[nameIdx] || '').trim() : '';
+          if (!rawName) continue;
+
+          // Must have valid category type
+          const rawType = typeIdx !== -1 ? (row[typeIdx] || '').trim() : '';
+          const category = typeToCategorySlug(rawType);
+          if (!category) {
+            console.warn(`[Catalog] Row ${i} (${rawName}) skipped: unknown type "${rawType}"`);
+            continue;
+          }
+
+          // Must have valid positive price
+          const price = priceIdx !== -1 ? parsePrice(row[priceIdx]) : 0;
+          if (price <= 0) {
+            console.warn(`[Catalog] Row ${i} (${rawName}) skipped: invalid price "${row[priceIdx]}"`);
+            continue;
+          }
+
+          const rawId = idIdx !== -1 && row[idIdx] ? row[idIdx].trim() : String(i);
+          const rawSlug = slugIdx !== -1 && row[slugIdx] && row[slugIdx].trim()
+            ? slugify(row[slugIdx].trim())
+            : slugify(rawName);
+
+          const isLive = isCategoryLive(category);
+          const inStock = isLive && (inStockIdx !== -1 ? parseBoolean(row[inStockIdx], true) : true);
+
+          // Ratings only set if positive numbers exist in sheet, never defaulted to fake values
+          const rawRating = ratingIdx !== -1 && row[ratingIdx] ? parseFloat(row[ratingIdx]) : 0;
+          const rawReviews = reviewCountIdx !== -1 && row[reviewCountIdx] ? parseInt(row[reviewCountIdx], 10) : 0;
+          const rating = isNaN(rawRating) || rawRating <= 0 ? 0 : Math.min(5, Math.max(0, rawRating));
+          const reviews = isNaN(rawReviews) || rawReviews <= 0 ? 0 : rawReviews;
+
+          const sizes = sizesIdx !== -1 ? parseSizes(row[sizesIdx]) : ['S', 'M', 'L', 'XL'];
+          const colors = colorsIdx !== -1 ? parseColors(row[colorsIdx]) : [];
+          const desc = descIdx !== -1 ? row[descIdx] || '' : '';
+          const featured = featuredIdx !== -1 ? parseBoolean(row[featuredIdx], false) : false;
+          const sortOrder = sortOrderIdx !== -1 ? parseInt(row[sortOrderIdx], 10) || i : i;
+
+          const images = getItemImages(rawSlug);
+          const primaryImg = getPrimaryItemImage(rawSlug);
+          const secondaryImg = getSecondaryItemImage(rawSlug);
+
+          products.push({
+            id: isNaN(Number(rawId)) ? rawId : Number(rawId),
+            name: rawName,
+            slug: rawSlug,
+            type: rawType,
+            category,
+            price,
+            rating,
+            reviews,
+            sizes,
+            colors,
+            desc,
+            description: desc,
+            img: primaryImg,
+            flatImg: secondaryImg,
+            images,
+            inStock,
+            featured,
+            active: true,
+            sort_order: sortOrder,
+          });
+        }
+
+        if (products.length > 0) {
+          const sorted = products.sort((a, b) => (a.sort_order || 99) - (b.sort_order || 99));
+          // Persist real sheet data to cache for serverless resiliency per R5.2
+          writeCache(sorted);
+          return sorted;
+        }
+      }
+    } catch (err) {
+      console.warn('[Catalog] Google Sheets catalog read failed, checking real cache:', (err as Error).message);
+    }
+  }
+
+  // Fallback: serve last successfully fetched real data (no dummy/handcrafted products)
+  const cached = readCache();
+  if (cached.length > 0) {
+    return cached;
+  }
+
+  // Return empty array if unreachable and no real cache exists
+  return [];
+}
+
+/**
+ * Returns single product by id.
+ */
+export async function getProductById(id: number | string): Promise<Product | undefined> {
+  const products = await getProducts();
+  return products.find((p) => String(p.id) === String(id));
+}
+
+/**
+ * Returns single product by slug.
+ */
+export async function getProductBySlug(slug: string): Promise<Product | undefined> {
+  const products = await getProducts();
+  return products.find((p) => p.slug === slug);
+}

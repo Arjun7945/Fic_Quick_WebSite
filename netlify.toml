@@ -1,0 +1,11 @@
+# =============================================================================
+# Root Netlify Configuration — Delegating to ficcado-website-frontend
+# =============================================================================
+
+[build]
+  base = "ficcado-website-frontend"
+  command = "npm run build"
+  publish = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
