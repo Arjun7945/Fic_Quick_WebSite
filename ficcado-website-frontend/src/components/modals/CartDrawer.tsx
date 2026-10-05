@@ -27,7 +27,12 @@ export function CartDrawer() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-6 pointer-events-none">
+    <div
+      className="fixed inset-0 h-[100dvh] max-h-[100dvh] z-50 flex items-end md:items-center justify-center p-3 sm:p-4 md:p-6 pointer-events-none"
+      style={{
+        paddingBottom: 'calc(var(--ios-bottom-bar-clearance, 0px) + max(0.75rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem)))',
+      }}
+    >
       {/* Backdrop */}
       <div
         className="overlay animate-backdrop-in pointer-events-auto"
@@ -41,13 +46,18 @@ export function CartDrawer() {
         role="dialog"
         aria-modal="true"
         aria-label={`Shopping bag${totalItemsCount > 0 ? `, ${totalItemsCount} item${totalItemsCount !== 1 ? 's' : ''}` : ''}`}
-        className="animate-sheet-in md:animate-modal-in relative w-full max-w-[440px] md:max-w-xl lg:max-w-2xl flex flex-col pointer-events-auto overflow-hidden rounded-t-[28px] md:rounded-3xl shadow-2xl"
+        className="animate-sheet-in md:animate-modal-in relative w-full max-w-[440px] md:max-w-xl lg:max-w-2xl flex flex-col pointer-events-auto overflow-hidden rounded-[28px] sm:rounded-3xl md:rounded-3xl shadow-2xl border border-[var(--border-light)]"
         style={{
-          maxHeight: '90vh',
+          maxHeight: 'min(82dvh, calc(100dvh - 3.5rem - var(--ios-bottom-bar-clearance, 0px)))',
           background: 'var(--bg-surface)',
           zIndex: 'var(--z-modal)',
         }}
       >
+        {/* Drag handle (Mobile only) */}
+        <div className="flex md:hidden justify-center pt-3 pb-1 shrink-0">
+          <div style={{ width: '36px', height: '4px', borderRadius: '2px', background: 'var(--border-medium)' }} />
+        </div>
+
         {/* Header */}
         <div
           className="flex items-center justify-between px-5 py-4 shrink-0"
@@ -92,7 +102,7 @@ export function CartDrawer() {
         ) : (
           <>
             {/* Cart items */}
-            <div className="no-scrollbar flex-1 overflow-y-auto px-5 py-3 space-y-3">
+            <div className="flex-1 min-h-0 overflow-y-auto px-5 py-3 space-y-3 overscroll-contain">
               {items.map((item, index) => (
                 <div
                   key={`${item.id}-${item.size}-${item.color}-${index}`}
@@ -163,11 +173,11 @@ export function CartDrawer() {
 
             {/* Order summary */}
             <div
-              className="shrink-0 px-5 pt-3 pb-5"
+              className="shrink-0 px-5 pt-3 pb-4 md:pb-5 bg-[var(--bg-surface)]"
               style={{ borderTop: '1px solid var(--border-light)' }}
             >
-              <div className="space-y-2 mb-4">
-                <div className="flex justify-between items-center py-2">
+              <div className="space-y-2 mb-3">
+                <div className="flex justify-between items-center py-1">
                   <span className="text-base font-600" style={{ fontWeight: 600, color: 'var(--text-main)' }}>Subtotal</span>
                   <span className="text-xl font-800" style={{ fontWeight: 800, color: 'var(--primary)' }}>₹{subtotalAmount.toLocaleString('en-IN')}</span>
                 </div>
@@ -176,7 +186,7 @@ export function CartDrawer() {
               <button
                 id="goto-checkout-btn"
                 onClick={handleCheckout}
-                className="btn-primary w-full"
+                className="btn-primary w-full py-3.5 text-base font-bold shadow-lg rounded-2xl cursor-pointer"
               >
                 Go To Checkout →
               </button>

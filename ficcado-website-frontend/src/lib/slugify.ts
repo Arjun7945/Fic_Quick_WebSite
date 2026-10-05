@@ -8,7 +8,7 @@
  * 4. Replace every run of characters that are not a-z or 0-9 with a single -.
  * 5. Trim leading/trailing -.
  *
- * Example: 'Colorado Heavyweight Tee' -> 'colorado-heavyweight-tee'
+ * Example: 'Colorado Tee' -> 'colorado-tee'
  */
 export function slugify(text: string): string {
   if (!text) return '';

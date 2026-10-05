@@ -9,6 +9,7 @@ import React, {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -90,6 +91,27 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
     },
     [],
   );
+
+  // Lock background body scroll and dismiss on Escape key when any modal is open
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (activeModal) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          closeModal();
+        }
+      };
+      window.addEventListener('keydown', handleKeyDown);
+
+      return () => {
+        document.body.style.overflow = originalOverflow;
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [activeModal, closeModal]);
 
   const value = useMemo<ModalContextValue>(
     () => ({

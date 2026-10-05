@@ -3,7 +3,7 @@
 // Single source of truth for all FAQ questions and answers.
 // Compliant with Section 0 Anti-Hallucination protocol, Section R6,
 // and Store Owner directives:
-// - Real founders: Ganga Lakshmi, Rohith Murali, Sinan (Est. 2025)
+// - Real founders: Sinan MS, Ganga, Rohith Murali (Est. 2025)
 // - Real selling status: Currently selling T-Shirts ONLY; others coming in future
 // - Full coverage of Terms, Policies, Returns, Replacements, Damages & Privacy
 // =============================================================================
@@ -105,28 +105,28 @@ export const FAQ_ITEMS: FAQItem[] = [
     group: 'about-ficcado',
     question: 'What is Ficcado?',
     answer:
-      'Ficcado is an independent Indian clothing brand currently selling signature heavyweight unisex T-shirts. We focus on structured heavyweight tees designed for everyday wear, superior comfort, and lasting durability. All other apparel wears — including combos, hoodies, shirts, and pants — are coming in future drops.',
+      'Ficcado is an independent Indian clothing brand currently selling signature high quality unisex T-shirts. We focus on structured tees designed for everyday wear, superior comfort, and lasting durability.',
   },
   {
     id: 'who-founded-ficcado',
     group: 'about-ficcado',
     question: 'Who founded Ficcado?',
     answer:
-      'Ficcado was founded in 2025 by three close friends: Ganga Lakshmi, Rohith Murali, and Sinan. Frustrated by flimsy fast fashion and overpriced designer markup, they united to build an authentic clothing brand focused on fabric integrity and honest design.',
+      'Ficcado was founded in 2025 by three close friends: Sinan MS, Ganga Lakshmi, and Rohith Murali. Frustrated by flimsy fast fashion and overpriced designer markup, they united to build an authentic clothing brand focused on fabric integrity and honest design.',
   },
   {
     id: 'what-is-the-ficcado-story',
     group: 'about-ficcado',
     question: 'What is the founding story behind Ficcado?',
     answer:
-      'In late 2024 and early 2025, three friends—Ganga Lakshmi, Rohith Murali, and Sinan—decided to stop searching for quality apparel and create it themselves. They pooled their savings, visited textile mills, engineered custom heavy knits, and officially unveiled Ficcado in 2025 with a "Peoples’ own brand" philosophy: honest materials, zero shortcuts, and personal customer service.',
+      'In late 2024 and early 2025, three friends—Sinan MS, Ganga Lakshmi, and Rohith Murali—decided to stop searching for quality apparel and create it themselves. They pooled their savings, visited textile mills, engineered custom high quality knits, and officially unveiled Ficcado in 2025 with a "Peoples’ own brand" philosophy: honest materials, zero shortcuts, and personal customer service.',
   },
   {
     id: 'who-are-the-founders-and-their-roles',
     group: 'about-ficcado',
     question: 'Who are the founders and what are their roles at Ficcado?',
     answer:
-      'Ganga Lakshmi serves as Co-Founder & Creative Director, leading apparel design, silhouette geometry, and capsule vision. Rohith Murali serves as Co-Founder & Head of Sourcing & Production, overseeing textile engineering, ethical manufacturing, and seam quality. Sinan serves as Co-Founder & Head of Product & Experience, championing digital experience, community trust, and direct customer care.',
+      'Sinan MS serves as Co-Founder & CEO, leading ultimate decision-making, strategic vision, and team direction. Ganga Lakshmi serves as Co-Founder & Operations & Creative Officer, turning concepts and thoughts into design campaigns and managing operations. Rohith Murali serves as Co-Founder & CFO, directing financial budgeting, capital planning, and team fiscal grounding.',
   },
   {
     id: 'is-ficcado-an-indian-brand',
@@ -179,7 +179,7 @@ export const FAQ_ITEMS: FAQItem[] = [
     group: 'products-categories',
     question: 'Which product categories are currently available for purchase?',
     answer:
-      'Currently, Ficcado sells T-Shirts ONLY. We are dedicated to perfecting our signature heavyweight unisex tees first. All other apparel categories—including Combos, Shirts, Hoodies, Pants, and Sneakers—are currently under development and will be released in future drops.',
+      'Currently, Ficcado sells T-Shirts ONLY. We are dedicated to perfecting our signature high quality unisex tees first. All other apparel categories—including Combos, Shirts, Hoodies, Pants, and Sneakers—are currently under development and will be released in future drops.',
   },
   {
     id: 'will-ficcado-sell-other-clothes-in-future',

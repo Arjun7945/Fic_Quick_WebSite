@@ -5,10 +5,20 @@
 // Organic morphing aura canvas, textile lab science, and editorial drop stories.
 // =============================================================================
 
-import { useState } from 'react';
+import { useState, useEffect, useSyncExternalStore } from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+
+const emptySubscribe = () => () => {};
+function useMounted() {
+  return useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+}
 import {
   ArrowLeft,
   Sparkles,
@@ -40,47 +50,47 @@ interface Article {
 const JOURNAL_ARTICLES: Article[] = [
   {
     slug: 'the-2025-founding-story',
-    title: 'How 3 Friends Reimagined Heavyweight T-Shirts in 2025',
+    title: 'How 3 Friends Reimagined High Quality T-Shirts in 2025',
     category: "Founders' Log",
     readTime: '4 min read',
     date: 'Sep 2026',
-    author: 'Ganga Lakshmi, Rohith Murali & Sinan',
-    image: '/assets/hero_model.jpg',
+    author: 'Sinan MS, Ganga Lakshmi & Rohith Murali',
+    image: '/images/journal/hero_model.jpg',
     excerpt:
-      'Tired of paper-thin high-street drops, we set out to build heavyweight apparel with uncompromising textile honesty. Here is the untold story of late nights, mill visits, and the birth of Ficcado.',
+      'Tired of paper-thin high-street drops, we set out to build high quality apparel with uncompromising textile honesty. Here is the untold story of late nights, mill visits, and the birth of Ficcado.',
     sections: [
       {
         heading: 'The Late-Night Frustration',
-        body: 'In late 2024 and early 2025, three friends — Ganga Lakshmi, Rohith Murali, and Sinan — found themselves having the same recurring conversation: why was it nearly impossible to find streetwear that possessed genuine structural weight, rich tailored colors, and real durability without an exorbitant 400% designer markup? Fast-fashion had flooded the market with paper-thin polyester-heavy tees that lost their shape and curled at the collar after two washes.',
+        body: 'In late 2024 and early 2025, three friends — Sinan MS, Ganga Lakshmi, and Rohith Murali — found themselves having the same recurring conversation: why was it nearly impossible to find streetwear that possessed genuine structural weight, rich tailored colors, and real durability without an exorbitant 400% designer markup? Fast-fashion had flooded the market with paper-thin polyester-heavy tees that lost their shape and curled at the collar after two washes.',
       },
       {
         heading: 'Sourcing From Ground Zero',
-        body: 'We refused to buy white-label blanks off the shelf. We pooled our personal savings, visited textile and spinning mills directly across the subcontinent, and tested dozens of yarn counts. Rohith took charge of textile engineering, insisting on 380 GSM ring-spun combed cotton with dense gauge knitting that breathes naturally while hanging with undeniable presence.',
+        body: 'We refused to buy white-label blanks off the shelf. We pooled our personal savings, visited textile and spinning mills directly across the subcontinent, and tested dozens of yarn counts. Rohith took charge of textile engineering, insisting on 230 GSM ring-spun combed cotton with dense gauge knitting that breathes naturally while hanging with undeniable presence.',
       },
       {
         heading: 'Architectural Silhouettes & Direct Community Care',
-        body: 'Ganga directed the silhouette geometry — crafting our signature drop-shoulder proportions, high-density 1x1 ribbed collar that refuses to sag, and unisex drape. Meanwhile, Sinan architected our transparent operations, direct WhatsApp ordering system, and zero-barrier customer service where real humans answer queries and confirm orders.',
+        body: 'Ganga Lakshmi directed the silhouette geometry and creative operations — crafting our signature drop-shoulder proportions, high-density 1x1 ribbed collar that refuses to sag, and unisex drape. Meanwhile, Sinan MS led strategic operations, executive decision-making, and direct customer care where real humans answer queries and confirm orders.',
       },
       {
         heading: 'Our Current Focus: T-Shirts First',
-        body: 'Ficcado currently sells T-Shirts ONLY. We believe in mastering one silhouette completely before expanding. While upcoming drops on our roadmap will introduce apparel combos, structured overshirts, hoodies, and bottoms, our current catalog is 100% dedicated to perfecting the heavyweight t-shirt.',
+        body: 'Ficcado currently sells T-Shirts ONLY. We believe in mastering one silhouette completely before expanding. While upcoming drops on our roadmap will introduce apparel combos, structured overshirts, hoodies, and bottoms, our current catalog is 100% dedicated to perfecting the high quality t-shirt.',
       },
     ],
   },
   {
-    slug: 'anatomy-of-380-gsm-cotton',
-    title: '380 GSM Heavyweight Cotton: The Anatomy of Our Colorado Cut',
+    slug: 'anatomy-of-230-gsm-cotton',
+    title: '230 GSM High Quality Cotton: The Anatomy of Our Colorado Cut',
     category: 'Textile Lab',
     readTime: '6 min read',
     date: 'Aug 2026',
     author: 'Rohith Murali',
-    image: '/assets/product_1_colorado.jpg',
+    image: '/images/journal/product_1_colorado.jpg',
     excerpt:
       'Why does fabric weight matter? We break down yarn count, combed ring-spun cotton jersey, and why structural drape outlasts fast-fashion trends.',
     sections: [
       {
-        heading: 'The 380 GSM Difference',
-        body: 'Most mass-market t-shirts sit between 160 and 200 GSM (grams per square meter). At 380 GSM, our cotton jersey provides more than double the structural substance. This creates an architectural drape that stays away from the body, providing exceptional airflow and a bold, sculpted silhouette.',
+        heading: 'The 230 GSM Difference',
+        body: 'Most mass-market t-shirts sit between 140 and 180 GSM (grams per square meter). At 230 GSM, our cotton jersey provides balanced, substantial weight. This creates an architectural drape that stays away from the body, providing exceptional airflow and a bold, sculpted silhouette.',
       },
       {
         heading: 'The Anti-Bacon Ribbed Collar',
@@ -103,7 +113,7 @@ const JOURNAL_ARTICLES: Article[] = [
     readTime: '3 min read',
     date: 'Aug 2026',
     author: 'Ganga Lakshmi',
-    image: '/assets/product_3_overshirt.jpg',
+    image: '/images/journal/product_3_overshirt.jpg',
     excerpt:
       'We never mass-produce thousands of identical items. Every season is designed in numbered batches, preserving uniqueness for our community.',
     sections: [
@@ -128,20 +138,40 @@ const JOURNAL_ARTICLES: Article[] = [
 ];
 
 const COLOR_MOODS = [
-  { name: 'Royal Ficcado', hex: '#2B62C6', secondary: '#B4D1EF', vibe: 'Signature Heavyweight T-Shirt Energy' },
+  { name: 'Royal Ficcado', hex: '#2B62C6', secondary: '#B4D1EF', vibe: 'Signature High Quality T-Shirt Energy' },
   { name: 'Citrus Dawn', hex: '#FF6B00', secondary: '#FDBA74', vibe: 'Bold High-Contrast Drop' },
   { name: 'Sage Mint', hex: '#9FD2C7', secondary: '#E6F4F1', vibe: 'Understated Architectural Minimal' },
-  { name: 'Nocturne Black', hex: '#111827', secondary: '#374151', vibe: 'Heavyweight Midnight Silhouette' },
+  { name: 'Nocturne Black', hex: '#111827', secondary: '#374151', vibe: 'High Quality Midnight Silhouette' },
 ];
 
 export default function JournalPage() {
   const router = useRouter();
+  const mounted = useMounted();
   const { openModal } = useModal();
   const { showToast } = useToast();
   const [activeMood, setActiveMood] = useState(COLOR_MOODS[0]);
   const [blobSpeed, setBlobSpeed] = useState<'gentle' | 'pulse'>('gentle');
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [newsletterEmail, setNewsletterEmail] = useState('');
+
+  // Lock background body scroll and listen for Escape key when article modal is open
+  useEffect(() => {
+    if (!selectedArticle) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedArticle(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedArticle]);
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -209,7 +239,7 @@ export default function JournalPage() {
         <div className="max-w-5xl mx-auto space-y-4 text-center">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[var(--primary-light)] text-[var(--primary)] text-xs font-800 uppercase tracking-wider border border-[var(--primary)]/20 shadow-xs">
             <Sparkles size={14} />
-            <span>Ficcado Design Chronicles & 380 GSM Cotton Science</span>
+            <span>Ficcado Design Chronicles & 230 GSM Cotton Science</span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-900 text-[var(--text-main)] tracking-tight">
@@ -217,7 +247,7 @@ export default function JournalPage() {
           </h1>
 
           <p className="text-sm md:text-base text-[var(--text-secondary)] max-w-2xl mx-auto leading-relaxed">
-            Welcome to the aesthetic core of Ficcado. Explore our interactive color palettes, organic silhouettes, and deep-dive chronicles into 380 GSM cotton engineering, our founding ethos, and future wear roadmap.
+            Welcome to the aesthetic core of Ficcado. Explore our interactive color palettes, organic silhouettes, and deep-dive chronicles into 230 GSM cotton engineering and our founding ethos.
           </p>
 
           {/* Interactive Mood Selector */}
@@ -293,7 +323,7 @@ export default function JournalPage() {
                 Designed for Movement
               </h3>
               <p className="text-xs text-gray-200 max-w-sm mt-1">
-                Heavyweight 380 GSM combed cotton cut with architectural drape and effortless street presence.
+                High Quality 230 GSM combed cotton cut with architectural drape and effortless street presence.
               </p>
             </div>
           </div>
@@ -333,6 +363,7 @@ export default function JournalPage() {
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 400px"
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  unoptimized
                 />
                 <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-white uppercase tracking-wider">
                   {article.category}
@@ -409,22 +440,30 @@ export default function JournalPage() {
         </div>
       </section>
 
-      {/* Interactive Full Article Reading Modal */}
-      {selectedArticle && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+      {/* Interactive Full Article Reading Modal mounted via React Portal to document.body */}
+      {mounted && selectedArticle && typeof document !== 'undefined' && createPortal(
+        <div
+          id="article-reading-modal"
+          className="fixed inset-0 flex items-center justify-center p-3 sm:p-6 pointer-events-none"
+          style={{ zIndex: 'var(--z-modal)' }}
+        >
+          {/* Backdrop */}
           <div
-            className="overlay animate-backdrop-in"
+            className="overlay animate-backdrop-in pointer-events-auto"
             onClick={() => setSelectedArticle(null)}
             aria-hidden="true"
           />
 
+          {/* Modal Dialog Card */}
           <div
-            className="relative z-10 w-full max-w-2xl max-h-[85vh] bg-[var(--bg-surface)] rounded-3xl border border-[var(--border-light)] shadow-2xl flex flex-col overflow-hidden animate-sheet-in"
             role="dialog"
             aria-modal="true"
+            aria-label={selectedArticle.title}
+            className="animate-modal-in relative w-full max-w-2xl max-h-[88vh] bg-[var(--bg-surface)] rounded-3xl border border-[var(--border-light)] shadow-2xl flex flex-col overflow-hidden pointer-events-auto my-auto"
+            style={{ zIndex: 10 }}
           >
             {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-[var(--border-light)] flex items-center justify-between bg-[var(--bg-surface-alt)]">
+            <div className="shrink-0 p-4 sm:p-5 border-b border-[var(--border-light)] flex items-center justify-between bg-[var(--bg-surface-alt)]">
               <div className="flex items-center gap-2">
                 <span className="px-2.5 py-0.5 rounded-full bg-[var(--primary-light)] text-[var(--primary)] text-[10px] font-bold uppercase tracking-wider">
                   {selectedArticle.category}
@@ -446,22 +485,23 @@ export default function JournalPage() {
                 </button>
                 <button
                   onClick={() => setSelectedArticle(null)}
-                  className="flex items-center justify-center h-8 w-8 rounded-full bg-white border border-[var(--border-light)] text-[var(--text-main)] hover:bg-gray-100 transition-colors cursor-pointer"
+                  className="flex items-center justify-center h-8 w-8 rounded-full bg-transparent hover:bg-black/10 dark:hover:bg-white/15 text-[var(--text-main)] transition-all cursor-pointer active:scale-90"
                   aria-label="Close article"
                 >
-                  <X size={16} />
+                  <X size={18} />
                 </button>
               </div>
             </div>
 
             {/* Modal Scrollable Article Body */}
-            <div className="p-6 sm:p-8 overflow-y-auto no-scrollbar space-y-6">
-              <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden bg-gray-100 shadow-xs">
+            <div className="p-6 sm:p-8 flex-1 min-h-0 overflow-y-auto space-y-6 overscroll-contain">
+              <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden bg-gray-100 shadow-xs shrink-0">
                 <Image
                   src={selectedArticle.image}
                   alt={selectedArticle.title}
                   fill
                   className="object-cover"
+                  unoptimized
                 />
               </div>
 
@@ -505,12 +545,13 @@ export default function JournalPage() {
                   onClick={() => setSelectedArticle(null)}
                   className="btn-primary py-2 px-5 text-xs font-bold rounded-xl"
                 >
-                  Shop Heavyweight Tees 🔥
+                  Shop High Quality Tees 🔥
                 </Link>
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

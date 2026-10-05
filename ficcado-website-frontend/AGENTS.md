@@ -12,5 +12,5 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 When migrating the application from HTML (`beforeMigration/`) to Next.js 16 (`frontend/ficcado-website-frontend/`):
 - **Canonical Blueprint**: Refer to [MIGRATION_ARCHITECTURE_SPEC.md](file:///e:/fic-website-repo/Ficcado-website/docs/MIGRATION_ARCHITECTURE_SPEC.md) for the complete list of 11 views, 11 modals, route transitions, and component contracts.
 - **Scope**: Focus exclusively on frontend Next.js pages and components. Keep the Spring Boot backend (`backend/ficcado-website-backend`) untouched for this phase.
-- **Assets**: Production images are available under `/public/assets/`.
+- **Assets**: Production images are available under `/public/images/`.
 - **Styling**: Use Tailwind CSS v4 and the brand design tokens (`#2B62C6`, `#B4D1EF`) specified in the architecture document.

@@ -15,7 +15,7 @@
 Phase 1 refactored the entire Ficcado storefront into a production-hardened web application backed solely by Google Sheets and local item images. 
 
 Following direct owner feedback, the following key corrections and verifications were applied:
-1. **Founders & Story Maintained (True & Authentic):** Verified and retained the complete founding story of Ficcado (established in 2025 by three close friends: Ganga Lakshmi, Rohith Murali, and Sinan) across `/about`, the About Modal, and the FAQ. The founder profile image directory `public/assets/founders_profile_pic/` (`Ganga Lakshmi.jpg`, `Rohith Murali.jpg`, `Sinan.jpg`) is kept intact so the owner only needs to replace the image files before publishing.
+1. **Founders & Story Maintained (True & Authentic):** Verified and retained the complete founding story of Ficcado (established in 2025 by three close friends: Ganga Lakshmi, Rohith Murali, and Sinan) across `/about`, the About Modal, and the FAQ. The founder profile image directory `public/images/founders/` (`Ganga Lakshmi.jpg`, `Rohith Murali.jpg`, `Sinan.jpg`) is kept intact so the owner only needs to replace the image files before publishing.
 2. **Current Catalog Reality (T-Shirts Only):** Updated the application and FAQ to reflect that Ficcado currently sells **T-Shirts ONLY**. All other categories (Combos, Shirts, Hoodies, Pants, Sneakers) are classified as coming soon for future batch drops.
 3. **Comprehensive Terms & Policies in FAQ:** Expanded the FAQ to 14 groups covering the founders, the 2025 genesis story, active collections, size guidance, order processes, courier delivery, 7-day doorstep returns, 100% free transit damage replacements, fabric wash care, commercial terms, and privacy protections.
 4. **Deterministic Local Image Architecture:** Standardized on native `next/image` with a deterministic folder structure: `public/images/items/<item-slug>/image-N.webp` mapped via build-time manifest `src/generated/item-images.json`.
@@ -208,7 +208,7 @@ Following direct owner feedback, the following key corrections and verifications
 
 | Action | Path | Reason |
 |---|---|---|
-| **Preserved** | `public/assets/founders_profile_pic/` (3 images) | Kept placeholder images so owner can simply replace files before publishing |
+| **Preserved** | `public/images/founders/` (3 images) | Kept placeholder images so owner can simply replace files before publishing |
 | **Updated** | `src/config/categories.ts` | Set `Combos` status to `coming-soon` per owner directive (T-shirts only currently live) |
 | **Updated** | `src/components/home/HomeView.tsx` | Category pills dynamically derived from live categories; updated hero copy |
 | **Updated** | `src/content/faq.ts` & `content/faq.ts` | 14 groups featuring verified founders, 2025 story, T-shirts only status, and all terms/policies |
@@ -259,7 +259,7 @@ Every removed component, mock dataset, and utility was verified via rip-grep bef
 4. **Starter / Dead Routes:**
    - `src/app/blog/`: Removed starter blog page. Redirected to `/faq` in `next.config.ts`.
 5. **Assets Clarification:**
-   - `public/assets/founders_profile_pic`: Preserved with placeholder images (`Ganga Lakshmi.jpg`, `Rohith Murali.jpg`, `Sinan.jpg`) so the store owner can easily replace the image files without code edits.
+   - `public/images/founders`: Preserved with placeholder images (`Ganga Lakshmi.jpg`, `Rohith Murali.jpg`, `Sinan.jpg`) so the store owner can easily replace the image files without code edits.
 
 ---
 
@@ -291,7 +291,7 @@ Every removed component, mock dataset, and utility was verified via rip-grep bef
 - Images are numbered sequentially starting at `image-1.webp` (primary image used in product cards and listings).
 - Zero remote image URLs or unverified external CDNs are permitted.
 - If an item has no image folder, the single neutral fallback `public/images/placeholder.webp` is served.
-- Founder profile images live under `public/assets/founders_profile_pic/` (`Ganga Lakshmi.jpg`, `Rohith Murali.jpg`, `Sinan.jpg`).
+- Founder profile images live under `public/images/founders/` (`Ganga Lakshmi.jpg`, `Rohith Murali.jpg`, `Sinan.jpg`).
 
 ### 6.2 Image Manifest Generator Output
 ```text
@@ -470,7 +470,7 @@ The following environment variables are required in production (e.g. Netlify App
 
 ## 12. Deploy Notes for Owner
 
-1. **Founder Images Replacement:** Before deployment, place your real photos in `public/assets/founders_profile_pic/` with the exact filenames:
+1. **Founder Images Replacement:** Before deployment, place your real photos in `public/images/founders/` with the exact filenames:
    - `Ganga Lakshmi.jpg`
    - `Rohith Murali.jpg`
    - `Sinan.jpg`
@@ -527,7 +527,7 @@ The following environment variables are required in production (e.g. Netlify App
 - `src/app/settings/page.tsx`: Updated collection description to `Browse T-Shirts and upcoming category drops`.
 - `src/components/modals/AboutModal.tsx`: Updated copy to clarify T-shirts today and future unisex silhouettes in upcoming drops.
 - `src/app/layout.tsx`: Updated metadata descriptions to emphasize T-shirts currently and future drops.
-- `src/app/about/page.tsx`: Refined textile narrative to focus on 380 GSM combed cotton.
+- `src/app/about/page.tsx`: Refined textile narrative to focus on 230 GSM combed cotton.
 
 ### 14.4 Complete Retrieval & Showcase of The Journal (Issue 4)
 - Recovered the full authentic Journal content and interactive aura canvas from the original codebase.
@@ -536,7 +536,7 @@ The following environment variables are required in production (e.g. Netlify App
   - Organic morphing SVG aura canvas with gentle float and dynamic pulse intensity toggles.
   - All 3 authentic articles with complete narratives:
     1. *The 2025 Founding Story: How 3 Friends Reimagined Everyday Streetwear in 2025* (Ganga Lakshmi, Rohith Murali, Sinan)
-    2. *Textile Lab: 380 GSM Heavyweight Cotton — The Anatomy of Our Colorado Cut* (Rohith Murali)
+    2. *Textile Lab: 230 GSM Heavyweight Cotton — The Anatomy of Our Colorado Cut* (Rohith Murali)
     3. *Design Philosophy: Capsule Philosophy — Why Scarcity and Small Batches Beat Mass Production* (Ganga Lakshmi)
   - Interactive Article Modal allowing users to read the full story of any article directly on page, share links, and explore founders.
   - Streetwear Community Drop Notification subscription with toast confirmation.

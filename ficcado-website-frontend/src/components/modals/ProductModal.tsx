@@ -67,7 +67,12 @@ export function ProductModal() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-6 pointer-events-none">
+    <div
+      className="fixed inset-0 h-[100dvh] max-h-[100dvh] z-50 flex items-end md:items-center justify-center p-3 sm:p-4 md:p-6 pointer-events-none"
+      style={{
+        paddingBottom: 'calc(var(--ios-bottom-bar-clearance, 0px) + max(0.75rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem)))',
+      }}
+    >
       {/* Backdrop */}
       <div
         className="overlay animate-backdrop-in pointer-events-auto"
@@ -81,9 +86,9 @@ export function ProductModal() {
         role="dialog"
         aria-modal="true"
         aria-label={`Product details: ${product.name}`}
-        className="animate-sheet-in md:animate-modal-in relative w-full max-w-[440px] md:max-w-3xl lg:max-w-4xl flex flex-col pointer-events-auto overflow-hidden rounded-t-[28px] md:rounded-3xl shadow-2xl"
+        className="animate-sheet-in md:animate-modal-in relative w-full max-w-[440px] md:max-w-3xl lg:max-w-4xl flex flex-col pointer-events-auto overflow-hidden rounded-[28px] sm:rounded-3xl md:rounded-3xl shadow-2xl border border-[var(--border-light)]"
         style={{
-          maxHeight: '90vh',
+          maxHeight: 'min(82dvh, calc(100dvh - 3.5rem - var(--ios-bottom-bar-clearance, 0px)))',
           background: 'var(--bg-surface)',
           zIndex: 'var(--z-modal)',
         }}
@@ -97,17 +102,17 @@ export function ProductModal() {
         <button
           onClick={closeModal}
           id="close-product-modal-btn"
-          className="absolute right-3.5 top-3.5 z-30 flex items-center justify-center h-9 w-9 rounded-full bg-white/90 dark:bg-gray-900/90 hover:bg-white border border-[var(--border-light)] shadow-md backdrop-blur-md transition-transform active:scale-95 cursor-pointer"
+          className="absolute right-3.5 top-3.5 z-30 flex items-center justify-center h-9 w-9 rounded-full bg-transparent hover:bg-black/10 dark:hover:bg-white/15 text-[var(--text-main)] transition-all active:scale-90 cursor-pointer"
           aria-label="Close product details"
         >
-          <X size={18} style={{ color: 'var(--text-main)' }} />
+          <X size={20} style={{ color: 'var(--text-main)' }} />
         </button>
 
         {/* Content Container */}
-        <div className="no-scrollbar overflow-y-auto flex-1 md:grid md:grid-cols-2">
+        <div className="overflow-y-auto flex-1 min-h-0 md:grid md:grid-cols-2 overscroll-contain">
           {/* Left Column: Product Image Gallery */}
           <div className="flex flex-col bg-[var(--bg-surface-alt)] border-b md:border-b-0 md:border-r border-[var(--border-light)]">
-            <div className="relative aspect-square md:aspect-auto md:flex-1 min-h-[300px] overflow-hidden">
+            <div className="relative aspect-[4/3] md:aspect-auto md:flex-1 md:min-h-[300px] overflow-hidden">
               <Image
                 src={activeImage}
                 alt={product.name}
@@ -255,13 +260,13 @@ export function ProductModal() {
               )}
             </div>
 
-            {/* CTA in Right Column */}
-            <div className="pt-4 mt-4 border-t border-[var(--border-light)]">
+            {/* CTA in Right Column (Tablet & Desktop Only) */}
+            <div className="hidden md:block pt-4 mt-4 border-t border-[var(--border-light)]">
               <button
                 id="add-to-cart-btn"
                 onClick={handleAddToCart}
                 disabled={!isLive}
-                className={`btn-primary w-full py-3.5 text-sm font-bold shadow-md rounded-2xl ${
+                className={`btn-primary w-full py-3.5 text-sm font-bold shadow-md rounded-2xl cursor-pointer ${
                   !isLive ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
@@ -269,6 +274,34 @@ export function ProductModal() {
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Pinned Mobile Sticky Action Bar — Guaranteed visibility, one-tap add to bag */}
+        <div
+          className="shrink-0 md:hidden px-5 py-3.5 bg-[var(--bg-surface)] border-t border-[var(--border-light)] shadow-[0_-8px_24px_rgba(0,0,0,0.08)] flex items-center justify-between gap-3"
+        >
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Total</span>
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[var(--bg-surface-alt)] text-[var(--text-main)] border border-[var(--border-light)]">
+                Size {selectedSize}
+              </span>
+            </div>
+            <span className="text-xl font-900 text-[var(--primary)] leading-tight mt-0.5">
+              ₹{product.price.toLocaleString('en-IN')}
+            </span>
+          </div>
+
+          <button
+            id="mobile-add-to-cart-btn"
+            onClick={handleAddToCart}
+            disabled={!isLive}
+            className={`btn-primary flex-1 py-3 px-4 text-sm font-bold shadow-md rounded-2xl cursor-pointer ${
+              !isLive ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          >
+            {isLive ? 'Add To Bag →' : 'Coming Soon'}
+          </button>
         </div>
       </div>
     </div>

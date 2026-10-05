@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const isLive = isCategoryLive(slug);
 
   return {
-    title: `${category.name} | Ficcado Clothings`,
+    title: category.name,
     description: category.description,
     robots: isLive ? { index: true, follow: true } : { index: false, follow: false },
   };

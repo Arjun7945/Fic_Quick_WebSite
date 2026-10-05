@@ -20,7 +20,7 @@ import React, {
 import type { CartItem, Product, SizeOption } from '@/types';
 
 const STORAGE_KEY = 'ficcado-bag-v3';
-const LEGACY_KEYS = ['f' + 'ikado-bag-v2', 'f' + 'ikado-bag', 'f' + 'ikado-bag-v1'];
+const LEGACY_KEYS = ['f' + 'iccado-bag-v2', 'f' + 'iccado-bag', 'f' + 'iccado-bag-v1'];
 
 // ---------------------------------------------------------------------------
 // State Shape

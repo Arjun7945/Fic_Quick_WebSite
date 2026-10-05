@@ -131,7 +131,7 @@ export default function SearchPage() {
             onKeyDown={(e) => {
               if (e.key === 'Enter') saveRecentSearch(query);
             }}
-            placeholder="Search drops, heavyweight tees..."
+            placeholder="Search drops, high quality tees..."
             className="flex-1 bg-transparent text-xs sm:text-sm outline-none"
             style={{ color: 'var(--text-main)' }}
             autoFocus

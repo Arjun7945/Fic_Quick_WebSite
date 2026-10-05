@@ -44,6 +44,33 @@ export function ViewportProvider({ children }: { children: React.ReactNode }) {
 
     handleResize();
     window.addEventListener('resize', handleResize);
+
+    // Platform sync: ensure iOS / Android flags are correctly aligned on client
+    try {
+      const ua = navigator.userAgent || '';
+      const search = window.location.search || '';
+      const isAndroid = /Android/i.test(ua) || search.indexOf('_mvua=mv-android') !== -1;
+      if (isAndroid) {
+        document.documentElement.classList.remove('is-ios');
+        document.documentElement.removeAttribute('data-platform');
+        document.documentElement.style.setProperty('--ios-bottom-bar-clearance', '0px');
+      } else {
+        const isIOS = /iPad|iPhone|iPod/i.test(ua) ||
+          (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ||
+          search.indexOf('_mvua=mv-ios') !== -1 ||
+          (window.name && /iphone|ios|ipad/i.test(window.name)) ||
+          sessionStorage.getItem('fc_is_ios') === '1' ||
+          (typeof CSS !== 'undefined' && CSS.supports && CSS.supports('-webkit-touch-callout', 'none'));
+        if (isIOS) {
+          document.documentElement.classList.add('is-ios');
+          document.documentElement.setAttribute('data-platform', 'ios');
+          document.documentElement.style.setProperty('--ios-bottom-bar-clearance', '5.5rem');
+        }
+      }
+    } catch {
+      // Ignored in non-browser or sandbox environments
+    }
+
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 

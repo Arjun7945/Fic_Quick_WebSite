@@ -3,7 +3,7 @@
 // =============================================================================
 // About Us — /about
 // The 2025 Founding Story of Ficcado by 3 Friends
-// Founders: Ganga Lakshmi, Rohith Murali, Sinan
+// Founders: Sinan MS, Ganga, Rohith Murali
 // Inspiring customer trust, craftsmanship transparency & first-order confidence
 // =============================================================================
 
@@ -25,35 +25,35 @@ import { useModal } from '@/context/ModalContext';
 
 const FOUNDERS = [
   {
+    name: 'Sinan MS',
+    role: 'CEO',
+    designation: 'Co-Founder & Chief Executive Officer',
+    image: '/images/founders/Sinan.jpeg',
+    bio: 'The ultimate decision-maker of the team. Hyperactive, constantly brainstorming, and occasionally takes approximately 47 business days to make one decision',
+    highlights: ['Chief Executive', 'Hyperactive Brainstorming', 'Strategic Direction'],
+  },
+  {
     name: 'Ganga Lakshmi',
-    role: 'Co-Founder & Creative Director',
-    designation: 'Lead Apparel Designer & Aesthetic Visionary',
-    image: '/assets/founders_profile_pic/Ganga Lakshmi.jpg',
-    bio: 'Obsessed with silhouette geometry, architectural drapes, and precision-cut apparel design. Ganga personally directs every cut, ensuring our heavyweight T-shirts balance bold structural presence with effortless everyday wearability.',
-    highlights: ['Silhouette Geometry', 'Capsule Design', 'Color Dynamics'],
+    role: 'Operations & Creative officer',
+    designation: 'Co-Founder & Operations & Creative Officer',
+    image: '/images/founders/Ganga Lakshmi.jpeg',
+    bio: 'Turns random thoughts into designs, concepts and campaigns, connects all the dots, and somehow knows what needs to happen next. Basically, where “let’s actually do this” begins.',
+    highlights: ['Creative Direction', 'Operations & Concepts', 'Campaigns & Design'],
   },
   {
     name: 'Rohith Murali',
-    role: 'Co-Founder & Head of Sourcing & Production',
-    designation: 'Textile Engineering & Ethical Manufacturing Lead',
-    image: '/assets/founders_profile_pic/Rohith Murali.jpg',
-    bio: 'Traversing vetted textile mills to engineer our signature 380 GSM combed cotton and heavyweight textiles. Rohith oversees ethical supply lines, sustainable dyeing, and indestructible double-needle seam stitching.',
-    highlights: ['380 GSM Combed Cotton', 'Ethical Mill Partners', 'Zero Stitch Defects'],
-  },
-  {
-    name: 'Sinan',
-    role: 'Co-Founder & Head of Product & Experience',
-    designation: 'Digital Architect & Community Trust Lead',
-    image: '/assets/founders_profile_pic/Sinan.jpg',
-    bio: 'Championing total brand transparency, customer-first policies, and real-time parcel visibility. Sinan ensures that from your first tap to unboxing at your doorstep, the Ficcado experience inspires absolute trust.',
-    highlights: ['Transparent Operations', 'WhatsApp Updates', 'Direct Customer Care'],
+    role: 'CFO',
+    designation: 'Co-Founder & Chief Financial Officer',
+    image: '/images/founders/Rohith Murali.jpeg',
+    bio: 'Manages FICCADO’s finances, budgets and expenses, while keeping the team financially grounded and occasionally asking, “Do we really need this?”',
+    highlights: ['Financial Strategy', 'Budgets & Expenses', 'Team Grounding'],
   },
 ];
 
 const TRUST_METRICS = [
   {
     icon: Award,
-    title: '380 GSM Heavyweight',
+    title: '230 GSM High Quality',
     desc: 'Dense custom combed cotton weaves that keep structure wash after wash.',
   },
   {
@@ -118,7 +118,7 @@ export default function AboutPage() {
           </h1>
 
           <p className="text-base md:text-lg text-[var(--text-secondary)] max-w-2xl mx-auto leading-relaxed">
-            Ficcado was founded in 2025 by three close friends who refused to accept paper-thin fast fashion and overpriced synthetic apparel. We set out to build the clothing brand we always wished existed — starting with the perfect heavyweight T-shirt.
+            Ficcado was founded in 2025 by three close friends who refused to accept paper-thin fast fashion and overpriced synthetic apparel. We set out to build the clothing brand we always wished existed — starting with the perfect high quality T-shirt.
           </p>
 
           <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
@@ -152,46 +152,72 @@ export default function AboutPage() {
             </div>
 
             <p className="text-sm md:text-base text-[var(--text-secondary)] leading-relaxed">
-              In late 2024 and early 2025, three friends — <strong>Ganga Lakshmi</strong>, <strong>Rohith Murali</strong>, and <strong>Sinan</strong> — found themselves repeatedly having the same conversation: why was it so hard to find heavyweight t-shirts that possessed true structural weight, rich tailored colors, and durability without a 400% designer markup?
+              In late 2024 and early 2025, three friends — <strong>Sinan MS</strong>, <strong>Ganga Lakshmi</strong>, and <strong>Rohith Murali</strong> — found themselves repeatedly having the same conversation: why was it so hard to find high quality t-shirts that possessed true structural weight, rich tailored colors, and durability without a 400% designer markup?
             </p>
 
             <p className="text-sm md:text-base text-[var(--text-secondary)] leading-relaxed">
-              We decided to stop searching and start building. We pooled our savings, visited spinning mills across the subcontinent, and spent months prototyping custom 380 GSM combed cotton and relaxed drop-shoulder patterns.
+              We decided to stop searching and start building. We pooled our savings, visited spinning mills across the subcontinent, and spent months prototyping custom 230 GSM combed cotton and relaxed drop-shoulder patterns.
             </p>
 
             <p className="text-sm md:text-base text-[var(--text-secondary)] leading-relaxed">
               Ficcado was officially unveiled in <strong>2025</strong> with a singular ethos: <em>Peoples’ own brand</em> — transparent materials, limited capsule drops, and garments engineered to become the favorite piece in your wardrobe.
             </p>
 
-            <div className="p-4 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-light)] shadow-xs space-y-2">
-              <div className="flex items-center gap-2 text-xs font-800 text-[var(--primary)]">
+            <div
+              className="p-5 rounded-2xl border space-y-2 shadow-xs transition-all"
+              style={{
+                background: 'var(--bg-surface)',
+                borderColor: 'var(--border-light)',
+              }}
+            >
+              <div className="flex items-center gap-2 text-xs font-800" style={{ color: 'var(--primary)' }}>
                 <CheckCircle2 size={16} />
                 <span>Our Founding Commitment to Every Customer</span>
               </div>
-              <p className="text-xs text-[var(--text-muted)] leading-relaxed">
+              <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                 We never cut corners on yarn weight, stitch density, or ethical wages. When you wear Ficcado, you wear our personal guarantee of quality.
               </p>
             </div>
           </div>
 
           <div className="lg:col-span-6 relative">
-            <div className="card p-6 md:p-8 bg-gradient-to-br from-[#1E293B] to-[#0F172A] text-white shadow-xl rounded-3xl relative overflow-hidden">
+            <div
+              className="p-7 md:p-9 text-white rounded-3xl relative overflow-hidden border border-[#334155]/60"
+              style={{
+                background: 'linear-gradient(145deg, #131D2E 0%, #0B111E 100%)',
+                boxShadow: '0 20px 45px -12px rgba(15, 23, 42, 0.45)',
+              }}
+            >
               <Quote className="absolute -bottom-6 -right-6 w-36 h-36 text-white/5 pointer-events-none" />
               <div className="space-y-6 relative z-10">
-                <div className="w-12 h-12 rounded-2xl bg-[var(--primary)] flex items-center justify-center font-black text-lg">
-                  FC
+                <div
+                  className="relative w-12 h-12 rounded-2xl bg-white flex items-center justify-center p-1.5 shadow-md overflow-hidden"
+                >
+                  <Image
+                    src="/images/brand_logo/Ficcado Brand Logo.jpeg"
+                    alt="Ficcado Brand Emblem"
+                    fill
+                    sizes="48px"
+                    className="object-contain p-1"
+                  />
                 </div>
 
-                <p className="text-lg md:text-xl font-medium leading-relaxed italic text-gray-200">
+                <p className="text-lg md:text-xl font-medium leading-relaxed italic text-slate-100">
                   “We built Ficcado because clothing shouldn’t be disposable. It should feel reassuringly heavy when you put it on, look effortless on the street, and stay just as vibrant years later.”
                 </p>
 
-                <div className="pt-4 border-t border-white/15 flex items-center justify-between text-xs">
+                <div
+                  className="pt-4 flex items-center justify-between text-xs"
+                  style={{ borderTop: '1px solid rgba(255, 255, 255, 0.15)' }}
+                >
                   <div>
-                    <span className="font-800 block text-white">The Founding Trio</span>
-                    <span className="text-gray-400">Ganga, Rohith & Sinan • Ficcado 2025</span>
+                    <span className="font-800 block text-white text-sm">The Founding Trio</span>
+                    <span className="text-slate-300 text-xs">Sinan MS, Ganga &amp; Rohith Murali • Ficcado 2025</span>
                   </div>
-                  <span className="px-3 py-1 rounded-full bg-white/10 text-[#B4D1EF] font-bold">
+                  <span
+                    className="px-3.5 py-1 rounded-full font-bold text-xs"
+                    style={{ background: 'rgba(255, 255, 255, 0.12)', color: '#93C5FD' }}
+                  >
                     Est. 2025
                   </span>
                 </div>
@@ -201,18 +227,18 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* The 3 Founders Section (Ganga Lakshmi, Rohith Murali, Sinan) */}
-      <section className="bg-[var(--bg-surface)] py-14 md:py-20 border-y border-[var(--border-light)]">
+      {/* The 3 Founders Section (Sinan MS, Ganga, Rohith Murali) */}
+      <section className="py-14 md:py-20 border-y" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-light)' }}>
         <div className="max-w-6xl mx-auto px-4 md:px-8 space-y-12">
           <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="text-xs font-800 uppercase tracking-widest text-[var(--primary)]">
+            <span className="text-xs font-800 uppercase tracking-widest" style={{ color: 'var(--primary)' }}>
               Leadership & Craft
             </span>
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-900 text-[var(--text-main)]">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-900" style={{ color: 'var(--text-main)' }}>
               Meet The Partners Behind Ficcado
             </h2>
-            <p className="text-sm md:text-base text-[var(--text-muted)]">
-              Three friends combining creative flair, textile engineering, and transparent customer operations.
+            <p className="text-sm md:text-base" style={{ color: 'var(--text-muted)' }}>
+              Three friends combining executive vision, creative design &amp; operations, and grounded financial leadership.
             </p>
           </div>
 
@@ -220,7 +246,12 @@ export default function AboutPage() {
             {FOUNDERS.map((founder) => (
               <div
                 key={founder.name}
-                className="card group flex flex-col bg-[var(--bg-surface)] border border-[var(--border-light)] hover:border-[var(--primary)]/40 transition-all duration-300 shadow-sm hover:shadow-hover rounded-3xl overflow-hidden"
+                className="group flex flex-col transition-all duration-300 rounded-3xl overflow-hidden border"
+                style={{
+                  background: 'var(--bg-surface)',
+                  borderColor: 'var(--border-light)',
+                  boxShadow: 'var(--shadow-card)',
+                }}
               >
                 {/* Image Container with aspect ratio and smooth zoom on hover */}
                 <div className="relative w-full aspect-[4/5] bg-gray-100 overflow-hidden">
@@ -231,13 +262,14 @@ export default function AboutPage() {
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 400px"
                     className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
                     priority
+                    unoptimized
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
-                  <div className="absolute bottom-3 left-4 right-4 text-white">
-                    <span className="text-xs font-semibold text-[#B4D1EF] block uppercase tracking-wider">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
+                  <div className="absolute bottom-3.5 left-4 right-4 text-white">
+                    <span className="text-xs font-bold text-[#93C5FD] block uppercase tracking-wider">
                       {founder.role}
                     </span>
-                    <h3 className="text-xl font-900 leading-tight drop-shadow-sm">
+                    <h3 className="text-xl font-900 leading-tight drop-shadow-sm text-white">
                       {founder.name}
                     </h3>
                   </div>
@@ -246,20 +278,28 @@ export default function AboutPage() {
                 {/* Content */}
                 <div className="p-5 md:p-6 flex-1 flex flex-col justify-between space-y-4">
                   <div className="space-y-2">
-                    <p className="text-xs font-bold text-[var(--primary)]">
+                    <p className="text-xs font-bold" style={{ color: 'var(--primary)' }}>
                       {founder.designation}
                     </p>
-                    <p className="text-xs md:text-sm text-[var(--text-secondary)] leading-relaxed">
+                    <p className="text-xs md:text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                       {founder.bio}
                     </p>
                   </div>
 
                   {/* Highlights Tags */}
-                  <div className="pt-2 border-t border-[var(--border-light)] flex flex-wrap gap-1.5">
+                  <div
+                    className="pt-3 flex flex-wrap gap-1.5"
+                    style={{ borderTop: '1px solid var(--border-light)' }}
+                  >
                     {founder.highlights.map((tag) => (
                       <span
                         key={tag}
-                        className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-[var(--bg-surface-alt)] text-[var(--text-muted)] border border-[var(--border-light)]"
+                        className="text-[11px] font-semibold px-2.5 py-1 rounded-lg border"
+                        style={{
+                          background: 'var(--bg-surface-alt)',
+                          color: 'var(--text-muted)',
+                          borderColor: 'var(--border-light)',
+                        }}
                       >
                         {tag}
                       </span>
@@ -275,13 +315,13 @@ export default function AboutPage() {
       {/* Trust & Transparency Pillars (Inspiring First Orders) */}
       <section className="max-w-6xl mx-auto px-4 md:px-8 py-14 md:py-20 space-y-12">
         <div className="text-center max-w-2xl mx-auto space-y-3">
-          <span className="text-xs font-800 uppercase tracking-widest text-[var(--primary)]">
+          <span className="text-xs font-800 uppercase tracking-widest" style={{ color: 'var(--primary)' }}>
             Built For Trust
           </span>
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-900 text-[var(--text-main)]">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-900" style={{ color: 'var(--text-main)' }}>
             Why You Can Order With Absolute Confidence
           </h2>
-          <p className="text-sm text-[var(--text-muted)]">
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
             Every order is backed by direct founder accountability and people-first transparency.
           </p>
         </div>
@@ -292,15 +332,25 @@ export default function AboutPage() {
             return (
               <div
                 key={metric.title}
-                className="card p-6 bg-[var(--bg-surface)] border border-[var(--border-light)] rounded-2xl space-y-3 shadow-xs hover:shadow-card transition-all"
+                className="p-6 rounded-2xl space-y-3 transition-all border shadow-xs hover:shadow-card"
+                style={{
+                  background: 'var(--bg-surface)',
+                  borderColor: 'var(--border-light)',
+                }}
               >
-                <div className="w-12 h-12 rounded-xl bg-[var(--primary-light)] text-[var(--primary)] flex items-center justify-center font-bold">
+                <div
+                  className="w-12 h-12 rounded-xl flex items-center justify-center font-bold"
+                  style={{
+                    background: 'var(--primary-light)',
+                    color: 'var(--primary)',
+                  }}
+                >
                   <Icon size={22} />
                 </div>
-                <h4 className="text-base font-800 text-[var(--text-main)]">
+                <h4 className="text-base font-800" style={{ color: 'var(--text-main)' }}>
                   {metric.title}
                 </h4>
-                <p className="text-xs text-[var(--text-muted)] leading-relaxed">
+                <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
                   {metric.desc}
                 </p>
               </div>
@@ -309,22 +359,35 @@ export default function AboutPage() {
         </div>
 
         {/* First Order Callout Card */}
-        <div className="card p-8 md:p-10 bg-gradient-to-r from-[var(--primary)] to-[#1E40AF] text-white rounded-3xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+        <div
+          className="p-8 md:p-10 text-white rounded-3xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, #2B62C6 0%, #163888 100%)',
+            boxShadow: '0 20px 45px -10px rgba(43, 98, 198, 0.4)',
+          }}
+        >
           <div className="space-y-2 text-center md:text-left">
-            <span className="text-xs font-800 uppercase tracking-wider text-amber-300">
+            <span
+              className="text-xs font-800 uppercase tracking-wider px-3 py-1 rounded-full inline-block"
+              style={{ background: 'rgba(255, 255, 255, 0.18)', color: '#FFD700' }}
+            >
               Risk-Free Shopping Experience
             </span>
-            <h3 className="text-xl md:text-2xl font-900">
-              Ready to feel the difference of authentic 380 GSM heavyweight cotton?
+            <h3 className="text-xl md:text-2xl font-900 text-white">
+              Ready to feel the difference of authentic 230 GSM high quality cotton?
             </h3>
-            <p className="text-xs md:text-sm text-blue-100 max-w-xl">
+            <p className="text-xs md:text-sm text-blue-100 max-w-xl leading-relaxed">
               Experience our signature quality, custom knit fabrics, and relaxed unisex silhouettes. Fully covered by our 7-day hassle-free doorstep return policy.
             </p>
           </div>
 
           <Link
             href="/categories"
-            className="shrink-0 px-7 py-3.5 rounded-xl bg-white text-[var(--primary)] font-bold text-sm shadow-md hover:bg-gray-50 transition-all hover:scale-105"
+            className="shrink-0 px-7 py-3.5 rounded-xl font-bold text-sm shadow-md hover:bg-white/95 transition-all hover:scale-105"
+            style={{
+              background: '#FFFFFF',
+              color: '#163888',
+            }}
           >
             Shop Current Drops 🛍️
           </Link>

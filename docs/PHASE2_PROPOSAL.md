@@ -82,7 +82,7 @@ export default function robots(): MetadataRoute.Robots {
 > Ficcado is an independent Indian contemporary unisex streetwear brand founded in 2025 by three close friends: Ganga Lakshmi (Creative Director), Rohith Murali (Production & Sourcing), and Sinan (Product & Experience). Ficcado operates as a direct-to-consumer online storefront with assisted ordering via WhatsApp.
 
 ## Active Shop Collection
-- [T-Shirts](https://ficcado.store/categories/t-shirts): Unisex graphic, oversized, and heavyweight everyday t-shirts (Currently selling).
+- [T-Shirts](https://ficcado.store/categories/t-shirts): Unisex graphic, oversized, and H everyday t-shirts (Currently selling).
 
 ## Upcoming Roadmap Collections (Coming Soon)
 - [Combos](https://ficcado.store/categories/combos): Coordinated two-piece sets and multi-item packs.

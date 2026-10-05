@@ -7,7 +7,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Grid2X2, ShoppingBag, LifeBuoy, Menu, type LucideProps } from 'lucide-react';
+import { Home, Grid2X2, ShoppingBag, LifeBuoy, BookOpen, type LucideProps } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useModal } from '@/context/ModalContext';
 
@@ -30,10 +30,10 @@ const NAV_ITEMS: NavItem[] = [
 export function BottomNav({ isFixed = false }: { isFixed?: boolean }) {
   const pathname = usePathname();
   const { totalItemsCount } = useCart();
-  const { openModal } = useModal();
+  const { openModal, activeModal } = useModal();
 
-  // Hide on onboarding
-  if (HIDDEN_ROUTES.some((route) => pathname.startsWith(route))) {
+  // Hide on onboarding or when any modal/drawer is active
+  if (HIDDEN_ROUTES.some((route) => pathname.startsWith(route)) || activeModal !== null) {
     return null;
   }
 
@@ -123,25 +123,27 @@ export function BottomNav({ isFixed = false }: { isFixed?: boolean }) {
           </span>
         </button>
 
-        {/* Menu / Explore button (opens MobileNavDrawer) */}
-        <button
-          id="nav-menu-btn"
-          onClick={() => openModal('mobileMenuDrawer')}
-          className="flex flex-col items-center gap-0.5 px-3 py-1 transition-transform active:scale-90 cursor-pointer"
-          aria-label="Open navigation menu and all site features"
+        {/* Journal Link */}
+        <Link
+          id="nav-journal"
+          href="/journal"
+          className="flex flex-col items-center gap-0.5 px-3 py-1 transition-transform active:scale-90"
+          aria-current={isActive('/journal') ? 'page' : undefined}
         >
-          <Menu
-            size={22}
-            strokeWidth={1.75}
-            style={{ color: 'var(--text-muted)' }}
-          />
+          <div className="relative">
+            <BookOpen
+              size={22}
+              strokeWidth={isActive('/journal') ? 2.5 : 1.75}
+              style={{ color: isActive('/journal') ? 'var(--primary)' : 'var(--text-muted)' }}
+            />
+          </div>
           <span
             className="text-[10px] font-semibold tracking-wide"
-            style={{ color: 'var(--text-muted)' }}
+            style={{ color: isActive('/journal') ? 'var(--primary)' : 'var(--text-muted)' }}
           >
-            Menu
+            Journal
           </span>
-        </button>
+        </Link>
       </div>
     </nav>
   );

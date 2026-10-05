@@ -8,15 +8,13 @@ This directory holds all static and product image assets for the Ficcado web app
 public/
   images/
     brand/            # Logo, favicon sources, and Open Graph share cards
-    hero/             # Responsive homepage campaign drops & banners
-    products/         # Product-specific folders keyed by product slug
-      <product-slug>/ # e.g. colorado-heavyweight-tee/
-        main.webp     # Main hero display image
-        flat.webp     # Flat lay thumbnail for shopping bag & invoices
-        alt-1.webp    # Detail angles / model styling
-        alt-2.webp
-    categories/       # Category directory preview tiles (6 silhouettes)
-    placeholders/     # Shared neutral fallback SVG/WebP and blurDataURLs
+    categories/       # Category preview tiles (combos, hoodies, pants, shirts, sneakers, t-shirts)
+    founders/         # Founder profile photos (Ganga Lakshmi.jpg, Rohith Murali.jpg, Sinan.jpg)
+    hero/             # Homepage hero drop banners & model showcases
+    items/            # Catalog item folders discovered by build-item-image-manifest.mjs
+    journal/          # Editorial & journal story visuals
+    walkthrough/      # Onboarding walkthrough intro slides
+    placeholder.webp  # Shared neutral fallback image
 ```
 
 ## Naming & Formatting Rules

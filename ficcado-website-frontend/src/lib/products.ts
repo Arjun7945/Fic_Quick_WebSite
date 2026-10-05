@@ -64,13 +64,24 @@ function parseColors(colorsStr?: string): string[] {
   return Array.from(new Set(split));
 }
 
+function normalizeProductDescription(desc: string): string {
+  if (!desc) return '';
+  return desc
+    .replace(/380\s*gsm/gi, '230 GSM')
+    .replace(/380/g, '230')
+    .replace(/heavyweight/gi, 'high quality');
+}
+
 function readCache(): Product[] {
   try {
     if (fs.existsSync(CACHE_FILE)) {
       const data = fs.readFileSync(CACHE_FILE, 'utf8');
       const parsed = JSON.parse(data);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed as Product[];
+        return (parsed as Product[]).map((p) => {
+          const d = normalizeProductDescription(p.desc || p.description || '');
+          return { ...p, desc: d, description: d };
+        });
       }
     }
   } catch (err) {
@@ -166,7 +177,7 @@ export async function getProducts(): Promise<Product[]> {
 
           const sizes = sizesIdx !== -1 ? parseSizes(row[sizesIdx]) : ['S', 'M', 'L', 'XL'];
           const colors = colorsIdx !== -1 ? parseColors(row[colorsIdx]) : [];
-          const desc = descIdx !== -1 ? row[descIdx] || '' : '';
+          const desc = normalizeProductDescription(descIdx !== -1 ? row[descIdx] || '' : '');
           const featured = featuredIdx !== -1 ? parseBoolean(row[featuredIdx], false) : false;
           const sortOrder = sortOrderIdx !== -1 ? parseInt(row[sortOrderIdx], 10) || i : i;
 

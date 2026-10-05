@@ -89,7 +89,7 @@ export default function ReturnsRefundsPage() {
           </h1>
 
           <p className="text-sm md:text-base text-[var(--text-secondary)] max-w-3xl leading-relaxed">
-            We want you to love the feel of our heavyweight textiles. If the silhouette isn’t your exact fit or drape, we make returns straightforward, honest, and completely fee-free.
+            We want you to love the feel of our high quality textiles. If the silhouette isn’t your exact fit or drape, we make returns straightforward, honest, and completely fee-free.
           </p>
 
           {/* Quick Policy Switcher Tabs */}

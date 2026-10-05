@@ -5,7 +5,9 @@
 // Provides access to Drops, Categories, Story, FAQ, Support, Bag, and Policies
 // =============================================================================
 
+import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
   X,
@@ -33,63 +35,83 @@ export function MobileNavDrawer() {
   const { activeModal, closeModal, openModal } = useModal();
   const pathname = usePathname();
   const { totalItemsCount, subtotalAmount } = useCart();
+  const [isClosing, setIsClosing] = useState(false);
 
   const isOpen = activeModal === 'mobileMenuDrawer';
 
-  if (!isOpen) return null;
+  if (!isOpen && !isClosing) return null;
+
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsClosing(false);
+      closeModal();
+    }, 300);
+  };
 
   const navigateTo = () => {
-    closeModal();
+    handleClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex pointer-events-auto">
-      {/* Backdrop */}
+    <div
+      className="fixed inset-0 flex pointer-events-none"
+      style={{ zIndex: 'var(--z-drawer)' }}
+    >
+      {/* Backdrop with smooth fade in/out */}
       <div
-        className="overlay animate-backdrop-in"
-        onClick={closeModal}
+        className={`overlay pointer-events-auto ${
+          isClosing ? 'animate-backdrop-out' : 'animate-backdrop-in'
+        }`}
+        onClick={handleClose}
         aria-hidden="true"
       />
 
-      {/* Drawer Body — slides smoothly from left */}
+      {/* Drawer Body — smooth slide in & out with luxury curved edges */}
       <div
-        className="relative z-10 w-full max-w-[320px] sm:max-w-sm h-full bg-[var(--bg-surface)] shadow-2xl flex flex-col animate-slide-from-left overflow-hidden border-r border-[var(--border-light)]"
+        className={`relative w-[calc(100%-2rem)] max-w-[320px] sm:max-w-sm my-2.5 sm:my-3.5 ml-2.5 sm:ml-3.5 h-[calc(100%-1.25rem-var(--ios-bottom-bar-clearance,0px))] sm:h-[calc(100%-1.75rem-var(--ios-bottom-bar-clearance,0px))] bg-[var(--bg-surface)] shadow-[0_20px_60px_-10px_rgba(0,0,0,0.35)] flex flex-col overflow-hidden rounded-[28px] sm:rounded-[32px] border border-[var(--border-light)] pointer-events-auto ${
+          isClosing ? 'animate-drawer-left-out' : 'animate-drawer-left-in'
+        }`}
+        style={{ zIndex: 10 }}
         role="dialog"
         aria-modal="true"
         aria-label="Navigation Menu"
       >
         {/* Drawer Header */}
-        <div className="p-4 border-b border-[var(--border-light)] flex items-center justify-between bg-[var(--bg-surface-alt)]">
+        <div className="p-4 border-b border-[var(--border-light)] flex items-center justify-between bg-[var(--bg-surface-alt)] rounded-t-[28px] sm:rounded-t-[32px]">
           <Link href="/" onClick={navigateTo} className="flex items-center gap-2.5 group">
             <div
-              className="flex h-9 w-9 items-center justify-center rounded-xl text-white font-black text-xs tracking-wider shadow-sm"
-              style={{
-                background: 'linear-gradient(135deg, #2B62C6 0%, #1D4ED8 100%)',
-              }}
+              className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-white border border-[var(--border-light)] overflow-hidden p-0.5 shadow-2xs"
             >
-              FC
+              <Image
+                src="/images/brand_logo/Ficcado Brand Logo.jpeg"
+                alt="Ficcado Logo"
+                fill
+                sizes="36px"
+                className="object-contain p-0.5"
+              />
             </div>
             <div>
               <span className="text-base font-900 tracking-tight leading-none block text-[var(--text-main)]">
                 FICCADO
               </span>
               <span className="text-[9px] font-800 tracking-widest text-[var(--primary)] uppercase block mt-0.5">
-                Heavyweight Unisex T-Shirts
+                High Quality Unisex Wears
               </span>
             </div>
           </Link>
 
           <button
-            onClick={closeModal}
-            className="flex items-center justify-center h-8 w-8 rounded-full bg-white border border-[var(--border-light)] text-[var(--text-main)] hover:bg-gray-100 transition-colors shadow-2xs cursor-pointer"
+            onClick={handleClose}
+            className="flex items-center justify-center h-8 w-8 rounded-full bg-transparent hover:bg-black/10 dark:hover:bg-white/15 text-[var(--text-main)] transition-all cursor-pointer active:scale-90"
             aria-label="Close navigation menu"
           >
-            <X size={16} />
+            <X size={18} />
           </button>
         </div>
 
         {/* Scrollable Navigation Sections */}
-        <div className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-6">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-6">
           {/* Main Collections & Pages */}
           <div className="space-y-1">
             <p className="text-[10px] font-800 uppercase tracking-widest text-[var(--text-muted)] px-3 mb-2">
@@ -205,8 +227,8 @@ export function MobileNavDrawer() {
 
             <button
               onClick={() => {
-                closeModal();
-                openModal('cartDrawer');
+                handleClose();
+                setTimeout(() => openModal('cartDrawer'), 310);
               }}
               className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold text-[var(--text-main)] hover:bg-[var(--bg-surface-alt)] transition-colors text-left cursor-pointer"
             >
@@ -300,7 +322,7 @@ export function MobileNavDrawer() {
         </div>
 
         {/* Drawer Footer with Direct Support */}
-        <div className="p-4 border-t border-[var(--border-light)] bg-[var(--bg-surface-alt)]">
+        <div className="p-4 border-t border-[var(--border-light)] bg-[var(--bg-surface-alt)] rounded-b-[28px] sm:rounded-b-[32px]">
           <div className="flex items-center justify-between text-xs">
             <span className="text-[var(--text-muted)] font-medium">Need immediate help?</span>
             <a

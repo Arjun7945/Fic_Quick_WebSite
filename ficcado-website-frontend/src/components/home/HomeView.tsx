@@ -55,10 +55,16 @@ export function HomeView({ initialProducts }: HomeViewProps) {
           </button>
           <Link href="/" className="flex items-center gap-2">
             <div
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-white font-black text-[10px]"
-              style={{ background: 'linear-gradient(135deg, #2B62C6 0%, #1D4ED8 100%)' }}
+              className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-white border border-[var(--border-light)] overflow-hidden p-0.5 shadow-2xs"
             >
-              FC
+              <Image
+                src="/images/brand_logo/Ficcado Brand Logo.jpeg"
+                alt="Ficcado Logo"
+                fill
+                sizes="32px"
+                className="object-contain p-0.5"
+                priority
+              />
             </div>
             <span className="text-sm font-900 tracking-tight text-[var(--text-main)]">FICCADO</span>
           </Link>
@@ -111,11 +117,12 @@ export function HomeView({ initialProducts }: HomeViewProps) {
         >
           <Image
             src="/images/hero/main-hero.jpg"
-            alt="Ficcado Drop — Unisex Heavyweight T-Shirts"
+            alt="Ficcado Drop — High Quality Unisex Wears"
             fill
             sizes="(max-width: 768px) 100vw, 1200px"
             className="object-cover object-top"
             priority
+            unoptimized
           />
           {/* Gradient overlay */}
           <div
@@ -137,10 +144,10 @@ export function HomeView({ initialProducts }: HomeViewProps) {
               className="text-2xl md:text-4xl lg:text-5xl font-900 leading-tight text-white tracking-tight"
               style={{ fontWeight: 900 }}
             >
-              Heavyweight T-Shirts
+              High Quality Unisex Wears
             </h1>
             <p className="text-xs md:text-sm text-white/90 mt-1.5 mb-4 leading-relaxed">
-              Ficcado sells signature heavyweight T-shirts now. All other apparel wears will be available in future drops.
+              Ficcado crafts signature high quality unisex streetwear with premium 230 GSM cotton and lasting comfort.
             </p>
             <div className="flex items-center gap-3">
               {heroFeaturedProduct && (

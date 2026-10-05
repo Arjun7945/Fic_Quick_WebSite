@@ -7,6 +7,7 @@
 
 import { X, ArrowRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useModal } from '@/context/ModalContext';
 import { BRAND } from '@/config/site';
 
@@ -25,24 +26,27 @@ export function AboutModal() {
 
   return (
     <div
-      className="overlay animate-backdrop-in flex items-end sm:items-center justify-center p-0 sm:p-4 pointer-events-auto"
-      onClick={closeModal}
-      aria-hidden="true"
-      style={{ zIndex: 'var(--z-modal)' }}
+      className="fixed inset-0 h-[100dvh] max-h-[100dvh] flex items-end sm:items-center justify-center p-3 sm:p-4 pointer-events-none"
+      style={{
+        zIndex: 'var(--z-modal)',
+        paddingBottom: 'calc(var(--ios-bottom-bar-clearance, 0px) + max(0.75rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem)))',
+      }}
     >
+      <div
+        className="overlay animate-backdrop-in pointer-events-auto"
+        onClick={closeModal}
+        aria-hidden="true"
+      />
       <div
         id="aboutModal"
         role="dialog"
         aria-modal="true"
         aria-label="About Ficcado Clothings"
-        onClick={(e) => e.stopPropagation()}
-        className="animate-modal-in flex flex-col w-full sm:max-w-[480px] md:max-w-[540px]"
+        className="animate-sheet-in sm:animate-modal-in relative w-full sm:max-w-[480px] md:max-w-[540px] flex flex-col pointer-events-auto rounded-[28px] sm:rounded-3xl shadow-2xl border border-[var(--border-light)] overflow-hidden"
         style={{
-          maxHeight: '85vh',
-          borderRadius: '28px',
+          maxHeight: 'min(82dvh, calc(100dvh - 3.5rem - var(--ios-bottom-bar-clearance, 0px)))',
           background: 'var(--bg-surface)',
-          boxShadow: 'var(--shadow-modal)',
-          overflow: 'hidden',
+          zIndex: 10,
         }}
       >
         {/* Header */}
@@ -53,16 +57,22 @@ export function AboutModal() {
           <div className="flex items-start justify-between">
             <div>
               <div
-                className="flex h-12 w-12 items-center justify-center rounded-2xl text-white font-black text-base mb-3"
-                style={{ background: 'var(--primary)', boxShadow: 'var(--shadow-btn)' }}
+                className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-white border border-[var(--border-light)] overflow-hidden p-1.5 mb-3"
+                style={{ boxShadow: '0 4px 16px rgba(43, 98, 198, 0.15)' }}
               >
-                FC
+                <Image
+                  src="/images/brand_logo/Ficcado Brand Logo.jpeg"
+                  alt="Ficcado Logo"
+                  fill
+                  sizes="48px"
+                  className="object-contain p-1"
+                />
               </div>
               <h2 className="text-xl font-900 leading-tight" style={{ fontWeight: 900, color: 'var(--text-main)' }}>
                 {BRAND.name}
               </h2>
               <span className="text-xs font-bold text-[var(--primary)] block mt-0.5 tracking-wide">
-                Heavyweight T-Shirts (All Wears in Future)
+                High Quality Unisex Wears
               </span>
             </div>
             <button onClick={closeModal} className="btn-icon" aria-label="Close about dialog">
@@ -72,7 +82,7 @@ export function AboutModal() {
         </div>
 
         {/* Scrollable body */}
-        <div className="no-scrollbar flex-1 overflow-y-auto px-6 py-4 space-y-5">
+        <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-5">
           {/* Brand Introduction */}
           <div className="p-4 rounded-2xl bg-[var(--bg-surface-alt)] border border-[var(--border-light)] space-y-2">
             <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--primary)]">
@@ -80,7 +90,7 @@ export function AboutModal() {
               <span>About Ficcado</span>
             </div>
             <p className="text-xs md:text-sm leading-relaxed text-[var(--text-secondary)]">
-              Ficcado sells signature heavyweight T-shirts now. All other apparel categories and wears will be available in future drops. We combine thoughtful design with personal WhatsApp-assisted ordering.
+              Ficcado crafts signature high quality unisex streetwear with premium 230 GSM combed cotton. We combine thoughtful design with personal WhatsApp-assisted ordering.
             </p>
           </div>
 

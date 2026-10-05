@@ -6,9 +6,12 @@
 // =============================================================================
 
 import Link from 'next/link';
-import { Sparkles, MessageCircle, Mail, ShieldCheck } from 'lucide-react';
+import Image from 'next/image';
+import { Sparkles, MessageCircle, Mail, ShieldCheck, Settings, Menu } from 'lucide-react';
+import { useModal } from '@/context/ModalContext';
 
 export function DesktopFooter() {
+  const { openModal } = useModal();
   return (
     <footer className="w-full bg-[var(--bg-surface)] border-t border-[var(--border-light)] mt-12 md:mt-16 text-[var(--text-secondary)] pb-24 md:pb-0">
       {/* Brand value props banner */}
@@ -17,7 +20,7 @@ export function DesktopFooter() {
           <div className="flex flex-col items-center gap-1.5">
             <Sparkles size={20} className="text-[var(--primary)]" />
             <span className="text-xs font-bold text-[var(--text-main)]">Limited Unisex Drops</span>
-            <span className="text-[11px] text-[var(--text-muted)]">Precision-tailored heavyweight cotton for everyone</span>
+            <span className="text-[11px] text-[var(--text-muted)]">Precision-tailored high quality cotton for everyone</span>
           </div>
           <div className="flex flex-col items-center gap-1.5 border-y md:border-y-0 md:border-x border-[var(--border-light)] py-4 md:py-0 px-4">
             <MessageCircle size={20} className="text-[var(--primary)]" />
@@ -38,10 +41,15 @@ export function DesktopFooter() {
         <div className="space-y-4">
           <div className="flex items-center gap-3">
             <div
-              className="flex h-9 w-9 items-center justify-center rounded-xl text-white font-black text-xs"
-              style={{ background: 'var(--primary)' }}
+              className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-white border border-[var(--border-light)] overflow-hidden p-1 shadow-2xs"
             >
-              FC
+              <Image
+                src="/images/brand_logo/Ficcado Brand Logo.jpeg"
+                alt="Ficcado Logo"
+                fill
+                sizes="40px"
+                className="object-contain p-0.5"
+              />
             </div>
             <div>
               <span className="text-base font-900 tracking-tight leading-none block text-[var(--text-main)]">
@@ -53,13 +61,31 @@ export function DesktopFooter() {
             </div>
           </div>
           <p className="text-xs leading-relaxed text-[var(--text-muted)]">
-            Ficcado sells signature heavyweight T-shirts now. All other apparel wears and silhouettes will be available in future drops.
+            Ficcado sells signature high quality wears now. Current new drops are T-shirts and all other apparel wears and silhouettes will be available in future drops.
           </p>
           <div className="flex items-center gap-2 text-xs font-semibold text-[var(--primary)]">
             <Mail size={14} />
             <a href="mailto:support@ficcado.store" className="hover:underline">
               support@ficcado.store
             </a>
+          </div>
+
+          {/* Quick Hub: Settings & Slide Menu under support mail */}
+          <div className="pt-2 flex flex-col gap-2 border-t border-[var(--border-light)]/60">
+            <Link
+              href="/settings"
+              className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
+            >
+              <Settings size={14} className="text-[var(--primary)]" />
+              <span>Settings & Brand Hub</span>
+            </Link>
+            <button
+              onClick={() => openModal('mobileMenuDrawer')}
+              className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--text-main)] hover:text-[var(--primary)] transition-colors text-left cursor-pointer"
+            >
+              <Menu size={14} className="text-[var(--primary)]" />
+              <span>Open Slide Navigation Menu</span>
+            </button>
           </div>
         </div>
 
@@ -92,7 +118,7 @@ export function DesktopFooter() {
           </ul>
         </div>
 
-        {/* Col 3: Customer Care & Experience */}
+        {/* Col 3: Customer Care */}
         <div>
           <h4 className="text-xs font-800 uppercase tracking-wider text-[var(--text-main)] mb-4">
             Customer Care
@@ -164,8 +190,21 @@ export function DesktopFooter() {
       {/* Bottom Bar */}
       <div className="border-t border-[var(--border-light)] py-5 text-center text-xs text-[var(--text-light)] bg-[var(--bg-surface-alt)]">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] text-[var(--text-muted)]">
-          <p>© 2026 Ficcado Clothings. All rights reserved. • T-Shirts Now, All Wears in Future</p>
-          <div className="flex items-center gap-2 font-medium">
+          <p>© 2026 Ficcado Clothings. All rights reserved.</p>
+          <div className="flex flex-wrap items-center justify-center md:justify-end gap-3.5 font-medium">
+            <Link href="/settings" className="hover:text-[var(--primary)] transition-colors flex items-center gap-1">
+              <Settings size={12} />
+              <span>Settings</span>
+            </Link>
+            <span>•</span>
+            <button
+              onClick={() => openModal('mobileMenuDrawer')}
+              className="hover:text-[var(--primary)] transition-colors flex items-center gap-1 cursor-pointer"
+            >
+              <Menu size={12} />
+              <span>Slide Menu</span>
+            </button>
+            <span>•</span>
             <span>Direct WhatsApp Ordering & Verification • All Transactions in INR (₹)</span>
           </div>
         </div>

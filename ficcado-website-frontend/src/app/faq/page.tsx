@@ -10,9 +10,9 @@ import { HelpCircle, ChevronRight, ArrowLeft } from 'lucide-react';
 import { FAQ_GROUPS, FAQ_ITEMS, FAQ_LAST_UPDATED } from '@/content/faq';
 
 export const metadata: Metadata = {
-  title: 'Frequently Asked Questions (FAQ) | Ficcado Clothings',
+  title: "FAQ's",
   description:
-    'Comprehensive answers to frequently asked questions about Ficcado — currently selling heavyweight T-shirts, with all other wears coming in future drops. Covers ordering via WhatsApp, sizing, delivery, returns, and customer support.',
+    'Comprehensive answers to frequently asked questions about Ficcado. Covers our high quality 230 GSM unisex T-shirts, ordering via WhatsApp, sizing, delivery, returns, and customer support.',
 };
 
 export default function FAQPage() {
@@ -39,7 +39,7 @@ export default function FAQPage() {
           </h1>
 
           <p className="text-sm md:text-base text-[var(--text-secondary)] max-w-2xl leading-relaxed">
-            Find clear answers about Ficcado — currently selling heavyweight unisex T-shirts (all other wears coming in future drops), our WhatsApp ordering workflow, size guidance, delivery times, and store policies.
+            Find clear answers about Ficcado — our high quality 230 GSM unisex T-shirts, our WhatsApp ordering workflow, size guidance, delivery times, and store policies.
           </p>
 
           <p className="text-xs text-[var(--text-muted)] pt-1">

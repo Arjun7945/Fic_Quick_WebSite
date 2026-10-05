@@ -78,7 +78,12 @@ export function FilterModal() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-6 pointer-events-none">
+    <div
+      className="fixed inset-0 h-[100dvh] max-h-[100dvh] z-50 flex items-end md:items-center justify-center p-3 sm:p-4 md:p-6 pointer-events-none"
+      style={{
+        paddingBottom: 'calc(var(--ios-bottom-bar-clearance, 0px) + max(0.75rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem)))',
+      }}
+    >
       <div className="overlay animate-backdrop-in pointer-events-auto" onClick={closeModal} aria-hidden="true" />
 
       <div
@@ -86,9 +91,9 @@ export function FilterModal() {
         role="dialog"
         aria-modal="true"
         aria-label="Filter products"
-        className="animate-sheet-in md:animate-modal-in relative w-full max-w-[440px] md:max-w-lg lg:max-w-xl flex flex-col pointer-events-auto overflow-hidden rounded-t-[28px] md:rounded-3xl shadow-2xl"
+        className="animate-sheet-in md:animate-modal-in relative w-full max-w-[440px] md:max-w-lg lg:max-w-xl flex flex-col pointer-events-auto overflow-hidden rounded-[28px] sm:rounded-3xl md:rounded-3xl shadow-2xl border border-[var(--border-light)]"
         style={{
-          maxHeight: '88vh',
+          maxHeight: 'min(84dvh, calc(100dvh - 3.5rem - var(--ios-bottom-bar-clearance, 0px)))',
           background: 'var(--bg-surface)',
           zIndex: 'var(--z-modal)',
         }}
@@ -110,7 +115,7 @@ export function FilterModal() {
         </div>
 
         {/* Scrollable filter content */}
-        <div className="no-scrollbar flex-1 overflow-y-auto px-5 space-y-6 pb-2">
+        <div className="flex-1 min-h-0 overflow-y-auto px-5 space-y-6 pb-2 overscroll-contain">
 
           {/* Price Range */}
           <section>
@@ -221,8 +226,7 @@ export function FilterModal() {
 
         {/* Actions */}
         <div
-          className="shrink-0 flex gap-3 px-5 py-4"
-          style={{ borderTop: '1px solid var(--border-light)' }}
+          className="shrink-0 flex gap-3 px-5 py-3.5 bg-[var(--bg-surface)] border-t border-[var(--border-light)]"
         >
           <button
             id="filter-reset-btn"

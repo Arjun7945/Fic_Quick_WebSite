@@ -7,9 +7,10 @@ import type { FilterState, WalkthroughSlide } from '@/types';
 
 export const BRAND = {
   name: 'Ficcado',
-  tagline: 'Heavyweight T-Shirts (All Wears in Future)',
+  tagline: 'High Quality Unisex Wears',
+  logo: '/images/brand_logo/Ficcado Brand Logo.jpeg',
   description:
-    'Ficcado sells signature heavyweight T-shirts now. All other apparel categories and wears will be available in future drops.',
+    'Ficcado crafts signature high quality unisex streetwear with 230 GSM combed cotton. Direct WhatsApp ordering and verified pan-India dispatch.',
   support: 'support@ficcado.store',
   phone: '+91 94971 44795',
   whatsapp: '919497144795',
@@ -26,7 +27,7 @@ export const DEFAULT_FILTER_STATE: FilterState = {
 };
 
 export const TRENDING_TAGS: string[] = [
-  'Heavyweight T-Shirt',
+  'High Quality T-Shirt',
   'Oversized Drop',
   'Upcoming Combos',
   'Boxy Fit',
@@ -38,19 +39,19 @@ export const WALKTHROUGH_DATA: WalkthroughSlide[] = [
   {
     title: 'Ficcado T-Shirt Drops',
     subtitle:
-      'Explore curated heavyweight unisex t-shirts today. All other apparel silhouettes and wears will be available in future drops.',
-    img: '/assets/ficcado_walkthrough_1.jpg',
+      'Explore curated high quality unisex t-shirts today with signature architectural drapes and premium comfort.',
+    img: '/images/walkthrough/ficcado_walkthrough_1.jpg',
   },
   {
     title: 'Engineered For Contemporary Living',
     subtitle:
-      'Premium heavyweight cotton, precision tailored silhouettes, and unisex comfort crafted for longevity.',
-    img: '/assets/ficcado_walkthrough_2.jpg',
+      'Premium high quality 230 GSM cotton, precision tailored silhouettes, and unisex comfort crafted for longevity.',
+    img: '/images/walkthrough/ficcado_walkthrough_2.jpg',
   },
   {
     title: 'Direct WhatsApp Ordering',
     subtitle:
       'Browse our drops, configure your bag, and connect directly with our team on WhatsApp for sizing care and fulfillment.',
-    img: '/assets/ficcado_walkthrough_3.jpg',
+    img: '/images/walkthrough/ficcado_walkthrough_3.jpg',
   },
 ];

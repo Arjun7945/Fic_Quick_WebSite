@@ -6,6 +6,7 @@
 // =============================================================================
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
@@ -19,7 +20,9 @@ import {
   ExternalLink,
   PhoneCall,
   Star,
+  Menu,
 } from 'lucide-react';
+import { useModal } from '@/context/ModalContext';
 
 const QUICK_LINKS = [
   { label: 'Shop T-Shirts', href: '/categories/t-shirts', icon: ShoppingBag, desc: 'Browse available drops' },
@@ -32,14 +35,15 @@ const QUICK_LINKS = [
 ];
 
 const BRAND_PILLARS = [
-  { label: 'T-Shirts Now', detail: 'Currently selling heavyweight unisex T-shirts (380 GSM)' },
-  { label: 'All Wears in Future', detail: 'Combos, hoodies, shirts, pants & sneakers coming soon' },
-  { label: 'Founded 2025', detail: 'By Ganga Lakshmi, Rohith Murali & Sinan' },
+  { label: 'T-Shirts Live', detail: 'Signature high quality unisex T-shirts (230 GSM)' },
+  { label: 'Premium Cotton', detail: '230 GSM ring-spun combed cotton with dense gauge weave' },
+  { label: 'Founded 2025', detail: 'By Sinan MS, Ganga Lakshmi & Rohith Murali' },
   { label: 'Pan-India Dispatch', detail: 'Verified courier delivery across all of India' },
 ];
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { openModal } = useModal();
 
   return (
     <div id="settings-page" className="min-h-full pb-16 animate-fade-in" style={{ background: 'var(--bg-app)' }}>
@@ -56,32 +60,81 @@ export default function SettingsPage() {
             Settings & Brand Hub
           </h1>
         </div>
+        <button
+          onClick={() => openModal('mobileMenuDrawer')}
+          className="flex items-center justify-center h-8 w-8 rounded-xl bg-[var(--bg-surface-alt)] border border-[var(--border-light)] text-[var(--text-main)] active:scale-95 cursor-pointer"
+          aria-label="Open navigation menu"
+        >
+          <Menu size={16} />
+        </button>
       </header>
 
-      <div className="max-w-3xl mx-auto px-4 md:px-8 py-10 md:py-14 space-y-10">
+      <div className="max-w-3xl mx-auto px-4 md:px-8 py-8 md:py-12 space-y-8">
+        {/* Desktop / Tablet Section Breadcrumb Header */}
+        <div className="hidden md:flex items-center justify-between pb-3 border-b border-[var(--border-light)]">
+          <div className="flex items-center gap-2.5">
+            <button
+              onClick={() => router.back()}
+              className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors cursor-pointer"
+            >
+              <ArrowLeft size={16} />
+              <span>Back</span>
+            </button>
+            <span className="text-[var(--border-medium)]">/</span>
+            <span className="text-xs font-bold text-[var(--primary)]">Settings & Brand Hub</span>
+          </div>
+          <button
+            onClick={() => openModal('mobileMenuDrawer')}
+            className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-main)] hover:text-[var(--primary)] px-3.5 py-1.5 rounded-xl bg-[var(--bg-surface-alt)] hover:bg-[var(--border-light)] border border-[var(--border-light)] cursor-pointer transition-colors shadow-2xs"
+          >
+            <Menu size={14} />
+            <span>Open Slide Menu</span>
+          </button>
+        </div>
 
         {/* Brand Identity Card */}
-        <section className="card p-7 md:p-10 bg-gradient-to-br from-[var(--primary)] to-[#1E40AF] text-white rounded-3xl shadow-xl space-y-4">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center font-black text-xl">
-              FC
+        <section
+          className="p-7 md:p-10 text-white rounded-3xl shadow-xl space-y-4 relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, #2B62C6 0%, #1D4ED8 60%, #1E40AF 100%)',
+            boxShadow: '0 20px 40px -12px rgba(43, 98, 198, 0.35)',
+          }}
+        >
+          {/* Subtle Ambient Decorative Glow */}
+          <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-white/10 blur-2xl pointer-events-none" />
+
+          <div className="flex items-center gap-4 relative z-10">
+            <div className="relative w-14 h-14 rounded-2xl bg-white border border-white/40 overflow-hidden p-1 flex items-center justify-center shadow-md shrink-0">
+              <Image
+                src="/images/brand_logo/Ficcado Brand Logo.jpeg"
+                alt="Ficcado Logo"
+                fill
+                sizes="56px"
+                className="object-contain p-1"
+              />
             </div>
             <div>
-              <h1 className="text-2xl font-900 tracking-tight">Ficcado Clothings</h1>
-              <p className="text-sm text-blue-100 font-medium mt-0.5">
-                Heavyweight T-Shirts Now · All Wears in Future
+              <h1 className="text-2xl font-900 tracking-tight text-white">Ficcado Clothings</h1>
+              <p className="text-sm text-blue-100 font-semibold mt-0.5">
+                High Quality Unisex Wears
               </p>
             </div>
           </div>
-          <p className="text-xs md:text-sm text-blue-100 leading-relaxed">
-            Ficcado was founded in 2025 by three friends — Ganga Lakshmi, Rohith Murali, and Sinan —
-            dedicated to crafting heavyweight, honest apparel. We currently sell signature unisex
-            T-shirts. All other wears (combos, hoodies, shirts, pants) are coming in future drops.
+          <p className="text-xs md:text-sm text-blue-50 leading-relaxed relative z-10 font-normal">
+            Ficcado was founded in 2025 by three friends — Sinan MS, Ganga Lakshmi, and Rohith Murali —
+            dedicated to crafting high quality, honest apparel. We currently sell signature unisex
+            T-shirts crafted with premium 230 GSM combed cotton.
           </p>
-          <div className="flex flex-wrap gap-2 pt-1">
-            <span className="px-3 py-1 rounded-full bg-white/15 text-xs font-bold text-white">Est. 2025</span>
-            <span className="px-3 py-1 rounded-full bg-white/15 text-xs font-bold text-white">T-Shirts Now 🔥</span>
-            <span className="px-3 py-1 rounded-full bg-white/15 text-xs font-bold text-white">All Wears In Future</span>
+          <div className="flex flex-wrap gap-2 pt-1 relative z-10">
+            <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold text-white border border-white/20">
+              Est. 2025
+            </span>
+            <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold text-white border border-white/20">
+              T-Shirts Live 🔥
+            </span>
+            <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold text-white border border-white/20">
+              230 GSM Cotton
+            </span>
           </div>
         </section>
 
