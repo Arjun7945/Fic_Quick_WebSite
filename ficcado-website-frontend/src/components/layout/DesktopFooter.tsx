@@ -190,7 +190,7 @@ export function DesktopFooter() {
       {/* Bottom Bar */}
       <div className="border-t border-[var(--border-light)] py-5 text-center text-xs text-[var(--text-light)] bg-[var(--bg-surface-alt)]">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] text-[var(--text-muted)]">
-          <p>© 2026 Ficcado Clothings. All rights reserved.</p>
+          <p>© 2026 Ficcado. All rights reserved. • <a href="/humans.txt" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--primary)] transition-colors">Crafted by Arjun PS</a></p>
           <div className="flex flex-wrap items-center justify-center md:justify-end gap-3.5 font-medium">
             <Link href="/settings" className="hover:text-[var(--primary)] transition-colors flex items-center gap-1">
               <Settings size={12} />

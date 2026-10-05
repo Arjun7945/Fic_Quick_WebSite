@@ -2,6 +2,7 @@
   "name": "ficcado-website-frontend",
   "version": "0.1.0",
   "private": true,
+  "author": "Arjun PS",
   "scripts": {
     "dev": "next dev",
     "prebuild": "npm run sheets:bootstrap && node scripts/build-item-image-manifest.mjs",
@@ -9,7 +10,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "node --test scripts/tests/order-system.test.mjs",
+    "test": "node --test scripts/tests/*.test.mjs",
     "sheets:bootstrap": "node scripts/bootstrap-sheets.mjs",
     "check:brand": "node scripts/check-brand.mjs",
     "check:devices": "node scripts/device-checker.mjs"

@@ -4,6 +4,7 @@
 // =============================================================================
 
 import type { FilterState, WalkthroughSlide } from '@/types';
+import { getSiteUrl } from '@/lib/siteUrl';
 
 export const BRAND = {
   name: 'Ficcado',
@@ -11,6 +12,9 @@ export const BRAND = {
   logo: '/images/brand_logo/Ficcado Brand Logo.jpeg',
   description:
     'Ficcado crafts signature high quality unisex streetwear with 230 GSM combed cotton. Direct WhatsApp ordering and verified pan-India dispatch.',
+  get url() {
+    return getSiteUrl();
+  },
   support: 'support@ficcado.store',
   phone: '+91 94971 44795',
   whatsapp: '919497144795',

@@ -21,8 +21,10 @@ import {
   PhoneCall,
   Star,
   Menu,
+  AtSign,
 } from 'lucide-react';
 import { useModal } from '@/context/ModalContext';
+import { getSiteUrl, getDomainName } from '@/lib/siteUrl';
 
 const QUICK_LINKS = [
   { label: 'Shop T-Shirts', href: '/categories/t-shirts', icon: ShoppingBag, desc: 'Browse available drops' },
@@ -190,9 +192,9 @@ export default function SettingsPage() {
         {/* Contact */}
         <section className="space-y-3">
           <h2 className="text-xs font-800 uppercase tracking-widest text-[var(--text-muted)]">Contact & Socials</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <a
-              href="https://wa.me/919497144795"
+              href="https://wa.me/916282000729"
               target="_blank"
               rel="noopener noreferrer"
               id="settings-whatsapp-btn"
@@ -201,22 +203,22 @@ export default function SettingsPage() {
               <PhoneCall size={18} className="text-green-500 shrink-0" />
               <div>
                 <p className="text-xs font-800 text-[var(--text-main)]">WhatsApp</p>
-                <p className="text-[11px] text-[var(--text-muted)]">+91 94971 44795</p>
+                <p className="text-[11px] text-[var(--text-muted)]">+91 6282 000 729</p>
               </div>
             </a>
             <a
-              href="mailto:support@ficcado.store"
+              href="mailto:ficcado.clothing@gmail.com"
               id="settings-email-btn"
               className="card p-4 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-light)] flex items-center gap-3 hover:border-[var(--primary)]/40 transition-all group"
             >
               <Mail size={18} className="text-[var(--primary)] shrink-0" />
               <div>
                 <p className="text-xs font-800 text-[var(--text-main)]">Email</p>
-                <p className="text-[11px] text-[var(--text-muted)]">support@ficcado.store</p>
+                <p className="text-[11px] text-[var(--text-muted)]">ficcado.clothing@gmail.com</p>
               </div>
             </a>
             <a
-              href="https://instagram.com/ficcado.store"
+              href="https://www.instagram.com/ficcado.clothing"
               target="_blank"
               rel="noopener noreferrer"
               id="settings-instagram-btn"
@@ -225,7 +227,20 @@ export default function SettingsPage() {
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-pink-500 shrink-0"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
               <div>
                 <p className="text-xs font-800 text-[var(--text-main)]">Instagram</p>
-                <p className="text-[11px] text-[var(--text-muted)]">@ficcado.store</p>
+                <p className="text-[11px] text-[var(--text-muted)]">@ficcado.clothing</p>
+              </div>
+            </a>
+            <a
+              href="https://www.threads.com/@ficcado.clothing"
+              target="_blank"
+              rel="noopener noreferrer"
+              id="settings-threads-btn"
+              className="card p-4 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-light)] flex items-center gap-3 hover:border-[var(--primary)]/40 transition-all group"
+            >
+              <AtSign size={18} className="text-[var(--text-main)] shrink-0" />
+              <div>
+                <p className="text-xs font-800 text-[var(--text-main)]">Threads</p>
+                <p className="text-[11px] text-[var(--text-muted)]">@ficcado.clothing</p>
               </div>
             </a>
           </div>
@@ -234,17 +249,17 @@ export default function SettingsPage() {
         {/* App Info */}
         <footer className="text-center space-y-1 pt-4">
           <p className="text-xs text-[var(--text-muted)] font-medium">
-            Ficcado Clothings · Est. 2025 · T-Shirts Now, All Wears in Future
+            Ficcado · Est. 2025 · T-Shirts Now, All Wears in Future
           </p>
           <p className="text-[11px] text-[var(--text-muted)]">
             Official Store ·{' '}
             <a
-              href="https://www.ficcado.store"
+              href={getSiteUrl()}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-[var(--primary)] transition-colors"
             >
-              ficcado.store
+              {getDomainName()}
             </a>
           </p>
         </footer>

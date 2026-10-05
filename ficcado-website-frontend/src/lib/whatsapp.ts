@@ -1,7 +1,17 @@
 // =============================================================================
 // WhatsApp Ordering Helper — /src/lib/whatsapp.ts
 // Formats structured order message and builds direct WhatsApp URL.
-// =============================================================================
+
+function resolveDefaultSiteUrl(): string {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (raw && raw.length > 0) {
+    const withProtocol = raw.startsWith('http://') || raw.startsWith('https://')
+      ? raw
+      : `https://${raw}`;
+    return withProtocol.replace(/\/+$/, '');
+  }
+  return 'https://ficcado.store';
+}
 
 export interface CustomerDeliveryDetails {
   fullName: string;
@@ -77,7 +87,7 @@ export function buildOrderMessage({
   subtotal,
   total,
   date = new Date(),
-  siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ficcado.store',
+  siteUrl = resolveDefaultSiteUrl(),
   isOfflineFallback = false,
 }: BuildOrderMessageParams): string {
   const formattedDate = formatISTDate(date);

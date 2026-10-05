@@ -8,6 +8,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { HelpCircle, ChevronRight, ArrowLeft } from 'lucide-react';
 import { FAQ_GROUPS, FAQ_ITEMS, FAQ_LAST_UPDATED } from '@/content/faq';
+import { getSiteUrl } from '@/lib/siteUrl';
 
 export const metadata: Metadata = {
   title: "FAQ's",
@@ -16,8 +17,28 @@ export const metadata: Metadata = {
 };
 
 export default function FAQPage() {
+  const siteUrl = getSiteUrl();
+
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    '@id': `${siteUrl}/faq#faqpage`,
+    mainEntity: FAQ_ITEMS.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer,
+      },
+    })),
+  };
+
   return (
     <div id="faq-page" className="min-h-full py-8 md:py-14 px-4 md:px-8 max-w-5xl mx-auto space-y-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       {/* Top Header */}
       <header className="space-y-4">
         <Link

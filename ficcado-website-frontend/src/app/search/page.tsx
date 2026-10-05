@@ -5,7 +5,7 @@
 // Debounced search across live catalog products, recent searches, results grid
 // =============================================================================
 
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Search, SlidersHorizontal, X, TrendingUp, Clock, Loader2 } from 'lucide-react';
 import { useModal } from '@/context/ModalContext';
@@ -13,27 +13,67 @@ import { ProductCard } from '@/components/ui/ProductCard';
 import { TRENDING_TAGS } from '@/config/site';
 import type { Product } from '@/types';
 
+const emptySubscribe = () => () => {};
+
+let recentListeners: Array<() => void> = [];
+function subscribeRecent(listener: () => void) {
+  recentListeners.push(listener);
+  return () => {
+    recentListeners = recentListeners.filter((l) => l !== listener);
+  };
+}
+
+let cachedRecent: string[] = [];
+let lastRawRecent: string | null = null;
+
+function getRecentSnapshot(): string[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem('ficcado-recent-searches');
+    if (raw !== lastRawRecent) {
+      lastRawRecent = raw;
+      cachedRecent = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(cachedRecent)) cachedRecent = [];
+    }
+  } catch {
+    cachedRecent = [];
+  }
+  return cachedRecent;
+}
+
+const SERVER_EMPTY: string[] = [];
+function getServerSnapshot(): string[] {
+  return SERVER_EMPTY;
+}
+
+function notifyRecent() {
+  recentListeners.forEach((l) => l());
+}
+
 export default function SearchPage() {
   const router = useRouter();
   const { openModal } = useModal();
   const [query, setQuery] = useState('');
-  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
-    if (typeof window === 'undefined') return [];
-    try {
-      const saved = localStorage.getItem('ficcado-recent-searches');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          return parsed.slice(0, 5);
-        }
-      }
-    } catch {
-      // Ignore error
-    }
-    return [];
-  });
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  // Hydration-safe client detection and synchronized local storage
+  const isClient = useSyncExternalStore(emptySubscribe, () => true, () => false);
+  const recentSearches = useSyncExternalStore(subscribeRecent, getRecentSnapshot, getServerSnapshot);
+
+  // Sync initial query from URL search parameters asynchronously after mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const q = (params.get('q') || params.get('search') || '').trim();
+        if (q) setQuery(q);
+      } catch {
+        // Ignore
+      }
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Load live products from /api/products
   useEffect(() => {
@@ -45,7 +85,7 @@ export default function SearchPage() {
         if (res.ok) {
           const data = (await res.json()) as Product[];
           if (isMounted && Array.isArray(data)) {
-            setAllProducts(data);
+            setAllProducts(data.filter((p) => p.inStock));
           }
         }
       } catch (err) {
@@ -63,15 +103,14 @@ export default function SearchPage() {
   function saveRecentSearch(term: string) {
     if (!term || !term.trim()) return;
     const clean = term.trim();
-    setRecentSearches((prev) => {
-      const updated = [clean, ...prev.filter((t) => t.toLowerCase() !== clean.toLowerCase())].slice(0, 5);
-      try {
-        localStorage.setItem('ficcado-recent-searches', JSON.stringify(updated));
-      } catch {
-        // Ignore quota
-      }
-      return updated;
-    });
+    const current = getRecentSnapshot();
+    const updated = [clean, ...current.filter((t) => t.toLowerCase() !== clean.toLowerCase())].slice(0, 5);
+    try {
+      localStorage.setItem('ficcado-recent-searches', JSON.stringify(updated));
+      notifyRecent();
+    } catch {
+      // Ignore quota
+    }
   }
 
   const filteredProducts = useMemo(() => {
@@ -95,15 +134,23 @@ export default function SearchPage() {
   }
 
   function removeRecent(tag: string) {
-    setRecentSearches((prev) => {
-      const updated = prev.filter((t) => t !== tag);
-      try {
-        localStorage.setItem('ficcado-recent-searches', JSON.stringify(updated));
-      } catch {
-        // Ignore quota
-      }
-      return updated;
-    });
+    const current = getRecentSnapshot();
+    const updated = current.filter((t) => t !== tag);
+    try {
+      localStorage.setItem('ficcado-recent-searches', JSON.stringify(updated));
+      notifyRecent();
+    } catch {
+      // Ignore quota
+    }
+  }
+
+  function clearAllRecent() {
+    try {
+      localStorage.removeItem('ficcado-recent-searches');
+      notifyRecent();
+    } catch {
+      // Ignore quota
+    }
   }
 
   const showEmpty = query.trim() !== '' && filteredProducts.length === 0;
@@ -197,21 +244,14 @@ export default function SearchPage() {
         )}
 
         {/* Recent Searches */}
-        {!query && recentSearches.length > 0 && (
+        {!query && isClient && recentSearches.length > 0 && (
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <p className="text-xs font-700 uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
                 Recent Searches
               </p>
               <button
-                onClick={() => {
-                  setRecentSearches([]);
-                  try {
-                    localStorage.removeItem('ficcado-recent-searches');
-                  } catch {
-                    // Ignore
-                  }
-                }}
+                onClick={clearAllRecent}
                 className="text-[11px] font-semibold text-[var(--primary)] hover:underline cursor-pointer"
               >
                 Clear all

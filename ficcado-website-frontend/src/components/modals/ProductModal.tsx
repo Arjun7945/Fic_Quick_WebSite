@@ -15,6 +15,7 @@ import { useToast } from '@/context/ToastContext';
 import { RatingStars } from '@/components/ui/RatingStars';
 import { getItemImages, PLACEHOLDER_IMAGE } from '@/lib/itemImages';
 import { isCategoryLive } from '@/config/categories';
+import { getSiteUrl } from '@/lib/siteUrl';
 import type { Product, SizeOption } from '@/types';
 
 const DEFAULT_SIZES: SizeOption[] = ['S', 'M', 'L', 'XL'];
@@ -66,6 +67,56 @@ export function ProductModal() {
     openModal('cartDrawer');
   }
 
+  const siteUrl = getSiteUrl();
+
+  const productJsonLd: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    '@id': `${siteUrl}/#product-${product.id}`,
+    name: product.name,
+    image: images.map((img) =>
+      img.startsWith('http') ? img : `${siteUrl}${img.startsWith('/') ? '' : '/'}${img}`
+    ),
+    description:
+      product.desc ||
+      product.description ||
+      `Signature unisex ${product.name} crafted by Ficcado.`,
+    sku: String(product.id),
+    brand: {
+      '@type': 'Brand',
+      name: 'Ficcado',
+    },
+    offers: {
+      '@type': 'Offer',
+      url: `${siteUrl}/categories/${product.category}`,
+      priceCurrency: 'INR',
+      price: String(product.price),
+      availability: product.inStock
+        ? 'https://schema.org/InStock'
+        : 'https://schema.org/OutOfStock',
+      itemCondition: 'https://schema.org/NewCondition',
+      seller: {
+        '@type': 'Organization',
+        name: 'Ficcado',
+      },
+    },
+  };
+
+  if (
+    typeof product.rating === 'number' &&
+    product.rating > 0 &&
+    typeof product.reviews === 'number' &&
+    product.reviews > 0
+  ) {
+    productJsonLd.aggregateRating = {
+      '@type': 'AggregateRating',
+      ratingValue: String(product.rating),
+      reviewCount: String(product.reviews),
+      bestRating: '5',
+      worstRating: '1',
+    };
+  }
+
   return (
     <div
       className="fixed inset-0 h-[100dvh] max-h-[100dvh] z-50 flex items-end md:items-center justify-center p-3 sm:p-4 md:p-6 pointer-events-none"
@@ -73,6 +124,10 @@ export function ProductModal() {
         paddingBottom: 'calc(var(--ios-bottom-bar-clearance, 0px) + max(0.75rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem)))',
       }}
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       {/* Backdrop */}
       <div
         className="overlay animate-backdrop-in pointer-events-auto"

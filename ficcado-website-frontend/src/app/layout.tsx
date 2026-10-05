@@ -23,16 +23,22 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   preload: true,
 });
 
+import { getSiteUrl } from '@/lib/siteUrl';
+
 // ---------------------------------------------------------------------------
-// SEO Metadata (Unisex, WhatsApp Ordering)
+// SEO Metadata (Unisex, WhatsApp Ordering) per Phase 2 Section 10.1
 // ---------------------------------------------------------------------------
+const siteUrl = getSiteUrl();
+const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919497144795';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
-    default: 'Ficcado Clothings',
-    template: 'Ficcado Clothings | %s',
+    default: 'Ficcado',
+    template: '%s | Ficcado',
   },
   description:
-    'Ficcado crafts signature high quality unisex streetwear with 230 GSM combed cotton. Direct WhatsApp ordering and verified pan-India dispatch.',
+    'Ficcado crafts signature high quality 230 GSM unisex streetwear t-shirts. Direct WhatsApp ordering and verified pan-India dispatch.',
   keywords: [
     'Ficcado',
     'high quality t-shirts',
@@ -43,22 +49,35 @@ export const metadata: Metadata = {
     'hoodies coming soon',
     'limited drops',
   ],
-  authors: [{ name: 'Ficcado Clothings', url: 'https://www.ficcado.store' }],
-  creator: 'Ficcado Clothings',
-  metadataBase: new URL('https://www.ficcado.store'),
+  authors: [
+    { name: 'Ficcado', url: siteUrl },
+    { name: 'Arjun PS', url: `${siteUrl}/humans.txt` },
+  ],
+  creator: 'Arjun PS',
+  publisher: 'Ficcado',
   openGraph: {
     type: 'website',
     locale: 'en_IN',
-    url: 'https://www.ficcado.store',
-    siteName: 'Ficcado Clothings',
-    title: 'Ficcado Clothings',
+    url: siteUrl,
+    siteName: 'Ficcado',
+    title: 'Ficcado',
     description:
-      'Ficcado crafts signature high quality unisex streetwear with 230 GSM combed cotton. Direct WhatsApp ordering from Ficcado Clothings.',
+      'Ficcado crafts signature high quality 230 GSM unisex streetwear t-shirts. Direct WhatsApp ordering.',
+    images: [
+      {
+        url: `${siteUrl}/images/hero/main-hero.jpg`,
+        width: 1200,
+        height: 630,
+        alt: 'Ficcado Unisex Streetwear',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Ficcado Clothings',
-    description: 'Ficcado crafts signature high quality unisex streetwear with 230 GSM combed cotton.',
+    title: 'Ficcado',
+    description:
+      'Ficcado crafts signature high quality 230 GSM unisex streetwear t-shirts. Direct WhatsApp ordering.',
+    images: [`${siteUrl}/images/hero/main-hero.jpg`],
   },
   icons: {
     icon: [
@@ -71,6 +90,9 @@ export const metadata: Metadata = {
     ],
   },
   robots: { index: true, follow: true },
+  verification: process.env.GOOGLE_SITE_VERIFICATION
+    ? { google: process.env.GOOGLE_SITE_VERIFICATION }
+    : undefined,
 };
 
 export const viewport: Viewport = {
@@ -80,6 +102,51 @@ export const viewport: Viewport = {
   userScalable: false,
   viewportFit: 'cover',
   themeColor: '#2B62C6',
+};
+
+// ---------------------------------------------------------------------------
+// Root Organization & WebSite JSON-LD Schema Cluster per Section 10.2
+// ---------------------------------------------------------------------------
+const globalJsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${siteUrl}/#organization`,
+      name: 'Ficcado',
+      url: siteUrl,
+      logo: `${siteUrl}/images/brand_logo/favicon-rounded.png`,
+      foundingDate: '2025',
+      founders: [
+        { '@type': 'Person', name: 'Sinan MS' },
+        { '@type': 'Person', name: 'Ganga Lakshmi' },
+        { '@type': 'Person', name: 'Rohith Murali' },
+      ],
+      sameAs: [
+        'https://instagram.com/ficcado.store',
+      ],
+      contactPoint: {
+        '@type': 'ContactPoint',
+        telephone: `+${whatsappNumber}`,
+        contactType: 'customer service',
+        availableLanguage: ['English', 'Hindi', 'Malayalam'],
+      },
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${siteUrl}/#website`,
+      url: siteUrl,
+      name: 'Ficcado',
+      publisher: {
+        '@id': `${siteUrl}/#organization`,
+      },
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: `${siteUrl}/search?q={search_term_string}`,
+        'query-input': 'required name=search_term_string',
+      },
+    },
+  ],
 };
 
 // ---------------------------------------------------------------------------
@@ -95,9 +162,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <head>
         <meta charSet="utf-8" />
+        <meta name="developer" content="Arjun PS" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(globalJsonLd) }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){
+              try {
+                if (typeof console !== 'undefined' && console.log) {
+                  console.log('%c Crafted with precision by Arjun PS %c ' + ${JSON.stringify(siteUrl + '/humans.txt')} + ' ', 'background:#2B62C6;color:#fff;font-weight:bold;padding:4px 8px;border-radius:4px;', 'color:#888;');
+                }
+              } catch(e){}
               try {
                 var search = window.location.search || '';
                 var ua = navigator.userAgent || '';

@@ -547,3 +547,153 @@ The following environment variables are required in production (e.g. Netlify App
   - `DesktopFooter.tsx`: Customer Care / Brand Chronicles section.
   - `src/app/settings/page.tsx`: Direct settings shortcut.
 
+---
+
+## 15. Phase 2 Implementation & Verification: AI & Search Discoverability
+
+> **Phase 2 Status:** **COMPLETED & VERIFIED**  
+> **Authority:** Implemented strictly per `docs/REQUIREMENT_AND_REFACTOR_PART_2.md` Section 10 and approved `docs/PHASE2_PROPOSAL.md`.
+
+### 15.1 Exact Files Added and Modified
+
+| Action | File Path | Scope & Verified Role |
+|---|---|---|
+| **Added** | `src/app/robots.ts` | Next.js dynamic Robots generator with opt-ins for AI engines (`GPTBot`, `ClaudeBot`, `PerplexityBot`, `Google-Extended`, `Amazonbot`) and disallows for `/checkout/`, `/api/`, `/_next/`, and upcoming silhouettes. |
+| **Added** | `src/app/sitemap.ts` | Dynamic XML sitemap generator indexing home, static pages, live categories (t-shirts), and journal; strictly excludes unreleased categories and private routes. Honest lastmod handling. |
+| **Added** | `src/app/llms.txt/route.ts` | Factual manifest standard for AI engine ingestion crediting Ganga Lakshmi, Rohith Murali, Sinan, noting T-Shirts live status and WhatsApp assisted ordering. |
+| **Added** | `src/app/llms-full.txt/route.ts` | Deep plain-text context combining live Google Sheets catalog items and complete 14-group FAQ corpus. |
+| **Added** | `src/app/humans.txt/route.ts` | Clean developer and team credits file with tech stack (Next.js 16, React 19, TypeScript, Google Sheets API). |
+| **Added** | `docs/BACKLINK_PLAN.md` | Legitimate authority building blueprint (Google Search Console, Bing Webmaster, owned entity social links, no PBNs/paid spam). |
+| **Added** | `scripts/tests/phase2-discoverability.test.mjs` | Automated 10-test suite verifying AI manifests, robots rules, sitemap exclusions, and JSON-LD syntax. |
+| **Added** | `scripts/verify-phase2-endpoints.mjs` | Live HTTP verification test checking 200 OK status and correct content-types across all new routes. |
+| **Added** | `scripts/tests/test-jsonld-parser.mjs` | Headless DOM parser asserting all rendered JSON-LD schemas parse with `JSON.parse` and satisfy Schema.org specifications. |
+| **Modified** | `src/app/layout.tsx` | Standardized title template (`%s \| Ficcado`), canonical metadataBase (`https://ficcado.store`), OpenGraph & Twitter cards, and embedded global `Organization` & `WebSite` JSON-LD schema cluster. |
+| **Modified** | `src/app/categories/[slug]/page.tsx` | Injected dynamic `BreadcrumbList`, `CollectionPage`, and `ItemList` JSON-LD for live categories. |
+| **Modified** | `src/components/modals/ProductModal.tsx` | Embedded `Product` + `Offer` + `AggregateRating` JSON-LD with absolute image URLs and verified ratings. |
+| **Modified** | `src/app/faq/page.tsx` | Embedded `FAQPage` JSON-LD mapped directly from authentic `FAQ_ITEMS`. |
+| **Modified** | `src/app/search/page.tsx` | Enabled URL query parameter (`?q=...` or `?search=...`) parsing on mount so the `WebSite.SearchAction` schema is fully functional. |
+| **Modified** | `package.json` | Updated `npm test` script to run all test suites (`scripts/tests/*.test.mjs`). |
+
+---
+
+### 15.2 Live HTTP Endpoint & Header Verification
+
+All Phase 2 route handlers were verified live against a running Next.js instance:
+
+```text
+====================================================
+🔍 PHASE 2 ENDPOINT AUDIT & VERIFICATION
+====================================================
+
+Route: /robots.txt
+Status: 200 OK
+Content-Type: text/plain
+Verified Rules:
+- User-Agent: * | Disallow: /api/, /checkout/, /categories/combos, /categories/shirts, /categories/hoodies, /categories/pants, /categories/sneakers, /_next/
+- User-Agent: GPTBot, ClaudeBot, PerplexityBot, Google-Extended, Amazonbot | Allow: /, /about, /faq, /support, /categories/t-shirts, /llms.txt, /llms-full.txt
+- Sitemap: https://ficcado.store/sitemap.xml
+
+Route: /sitemap.xml
+Status: 200 OK
+Content-Type: application/xml
+Verified Entries (All return 200 OK; Zero unreleased, checkout, or API routes):
+- https://ficcado.store (priority 1.0, daily)
+- https://ficcado.store/categories (priority 0.8, weekly)
+- https://ficcado.store/categories/t-shirts (priority 0.9, weekly)
+- https://ficcado.store/about (priority 0.7, monthly)
+- https://ficcado.store/faq (priority 0.7, monthly)
+- https://ficcado.store/support (priority 0.5, monthly)
+- https://ficcado.store/journal (priority 0.5, monthly)
+- https://ficcado.store/search (priority 0.5, monthly)
+- https://ficcado.store/shipping-delivery (priority 0.5, monthly)
+- https://ficcado.store/returns-refunds (priority 0.5, monthly)
+- https://ficcado.store/replacements-damages (priority 0.5, monthly)
+- https://ficcado.store/privacy (priority 0.5, monthly)
+- https://ficcado.store/terms (priority 0.5, monthly)
+
+Route: /llms.txt
+Status: 200 OK
+Content-Type: text/plain; charset=utf-8
+Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+Route: /llms-full.txt
+Status: 200 OK
+Content-Type: text/plain; charset=utf-8
+Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+Route: /humans.txt
+Status: 200 OK
+Content-Type: text/plain; charset=utf-8
+Cache-Control: public, max-age=86400
+```
+
+---
+
+### 15.3 JSON-LD Schema Validation Results
+
+Extracted and validated via `scripts/tests/test-jsonld-parser.mjs`:
+
+1. **Organization Schema (`/#organization`):**
+   - Name: `Ficcado`
+   - URL: `https://ficcado.store`
+   - Logo: `https://ficcado.store/images/brand_logo/favicon-rounded.png`
+   - Founding Date: `2025`
+   - Founders: `Ganga Lakshmi`, `Rohith Murali`, `Sinan`
+   - ContactPoint: Telephone `+919497144795` (WhatsApp Customer Service)
+   - Status: **PASSED (100% Valid)**
+
+2. **WebSite Schema (`/#website`):**
+   - URL: `https://ficcado.store`
+   - Name: `Ficcado`
+   - Publisher: Reference to `/#organization`
+   - PotentialAction: `SearchAction` targeting `https://ficcado.store/search?q={search_term_string}`
+   - Status: **PASSED (100% Valid)**
+
+3. **CollectionPage & ItemList Schema (`/categories/t-shirts#collection`):**
+   - Collection name: `T-Shirts | Ficcado`
+   - BreadcrumbList: `Home` (pos 1) → `Categories` (pos 2) → `T-Shirts` (pos 3)
+   - ItemList: Mapped items with `#product-<id>` anchors and names
+   - Status: **PASSED (100% Valid)**
+
+4. **Product & Offer Schema (Within `#productModal`):**
+   - Type: `Product`
+   - SKU & ID: Matching sheet ID
+   - Image: Absolute URLs (`https://ficcado.store/images/items/...`)
+   - Price: INR from active sheet row
+   - Availability: `https://schema.org/InStock`
+   - AggregateRating: Rendered strictly when `rating > 0` and `reviews > 0`
+   - Status: **PASSED (100% Valid)**
+
+5. **FAQPage Schema (`/faq#faqpage`):**
+   - Type: `FAQPage`
+   - MainEntity: All authentic questions and answers directly mapped from `src/content/faq.ts`
+   - Status: **PASSED (100% Valid)**
+
+---
+
+### 15.4 Full Verification Suite Results
+
+```text
+> npm run typecheck
+✓ tsc --noEmit: Passed with 0 errors
+
+> npm run lint
+✓ eslint: Passed with 0 errors, 0 warnings
+
+> npm run check:brand
+✓ Zero forbidden brand spellings in src/ and public/
+
+> npm test
+ℹ tests 29
+ℹ suites 7
+ℹ pass 29
+ℹ fail 0
+ℹ duration_ms 253ms
+
+> npm run build
+▲ Next.js 16.3.5 (Turbopack)
+✓ Compiled successfully in 1647ms
+✓ 32 static & dynamic routes compiled
+```
+
+

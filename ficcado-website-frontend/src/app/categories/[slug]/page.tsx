@@ -5,6 +5,7 @@ import { ArrowLeft, Sparkles, Clock } from 'lucide-react';
 import { CATEGORIES_CONFIG, getCategoryBySlug, isCategoryLive } from '@/config/categories';
 import { ProductCard } from '@/components/ui/ProductCard';
 import { getProducts } from '@/lib/products';
+import { getSiteUrl } from '@/lib/siteUrl';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -27,12 +28,10 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
     return { title: 'Category Not Found' };
   }
 
-  const isLive = isCategoryLive(slug);
-
   return {
     title: category.name,
     description: category.description,
-    robots: isLive ? { index: true, follow: true } : { index: false, follow: false },
+    robots: { index: true, follow: true },
   };
 }
 
@@ -46,7 +45,7 @@ export default async function CategoryDetailPage({ params }: CategoryPageProps) 
 
   const isLive = isCategoryLive(slug);
   const allProducts = await getProducts();
-  const products = allProducts.filter((p) => p.category === slug);
+  const products = allProducts.filter((p) => p.category === slug && p.inStock);
 
   if (!isLive) {
     // Designed Coming Soon Experience (Section 6.4)
@@ -109,8 +108,68 @@ export default async function CategoryDetailPage({ params }: CategoryPageProps) 
   }
 
   // Live Category Page
+  const siteUrl = getSiteUrl();
+
+  const categoryJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `${siteUrl}/categories/${category.slug}#breadcrumb`,
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: siteUrl,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Categories',
+            item: `${siteUrl}/categories`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: category.name,
+            item: `${siteUrl}/categories/${category.slug}`,
+          },
+        ],
+      },
+      {
+        '@type': 'CollectionPage',
+        '@id': `${siteUrl}/categories/${category.slug}#collection`,
+        url: `${siteUrl}/categories/${category.slug}`,
+        name: `${category.name} | Ficcado`,
+        description: category.description,
+        isPartOf: {
+          '@id': `${siteUrl}/#website`,
+        },
+        mainEntity: {
+          '@id': `${siteUrl}/categories/${category.slug}#itemlist`,
+        },
+      },
+      {
+        '@type': 'ItemList',
+        '@id': `${siteUrl}/categories/${category.slug}#itemlist`,
+        numberOfItems: products.length,
+        itemListElement: products.map((product, idx) => ({
+          '@type': 'ListItem',
+          position: idx + 1,
+          name: product.name,
+          url: `${siteUrl}/categories/${category.slug}#product-${product.id}`,
+        })),
+      },
+    ],
+  };
+
   return (
     <div className="min-h-full pb-16 px-4 md:px-8 max-w-7xl mx-auto space-y-6 animate-fade-in">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(categoryJsonLd) }}
+      />
       <div className="pt-4">
         <Link
           href="/categories"

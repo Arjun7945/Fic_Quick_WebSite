@@ -8,6 +8,8 @@
 // - Full coverage of Terms, Policies, Returns, Replacements, Damages & Privacy
 // =============================================================================
 
+import { getSiteUrl } from '@/lib/siteUrl';
+
 export interface FAQItem {
   id: string;
   group: string;
@@ -154,7 +156,7 @@ export const FAQ_ITEMS: FAQItem[] = [
     group: 'about-ficcado',
     question: 'Does Ficcado have a physical retail store?',
     answer:
-      'Ficcado currently operates as a digital online storefront with direct assisted ordering via WhatsApp. All drops are showcased on our official website at https://ficcado.store and dispatched directly to your doorstep.',
+      `Ficcado currently operates as a digital online storefront with direct assisted ordering via WhatsApp. All drops are showcased on our official website at ${getSiteUrl()} and dispatched directly to your doorstep.`,
   },
   {
     id: 'how-do-i-contact-ficcado',
@@ -168,7 +170,7 @@ export const FAQ_ITEMS: FAQItem[] = [
     group: 'about-ficcado',
     question: "What is Ficcado's official website address?",
     answer:
-      "Ficcado's official online store is accessible at https://ficcado.store. Always verify the web address before submitting your contact information or placing an order.",
+      `Ficcado's official online store is accessible at ${getSiteUrl()}. Always verify the web address before submitting your contact information or placing an order.`,
   },
 
   // ---------------------------------------------------------------------------

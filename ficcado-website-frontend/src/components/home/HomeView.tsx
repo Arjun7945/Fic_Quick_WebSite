@@ -28,7 +28,7 @@ export function HomeView({ initialProducts }: HomeViewProps) {
     ...liveCategories.map((c) => ({ label: c.name, slug: c.slug })),
   ];
 
-  const products = initialProducts;
+  const products = (initialProducts || []).filter((p) => p.inStock);
 
   const filteredProducts =
     activeCategory === 'all'

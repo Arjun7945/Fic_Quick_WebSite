@@ -72,16 +72,18 @@ function normalizeProductDescription(desc: string): string {
     .replace(/heavyweight/gi, 'high quality');
 }
 
-function readCache(): Product[] {
+function readCache(includeOutOfStock = false): Product[] {
   try {
     if (fs.existsSync(CACHE_FILE)) {
       const data = fs.readFileSync(CACHE_FILE, 'utf8');
       const parsed = JSON.parse(data);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return (parsed as Product[]).map((p) => {
-          const d = normalizeProductDescription(p.desc || p.description || '');
-          return { ...p, desc: d, description: d };
-        });
+        return (parsed as Product[])
+          .filter((p) => includeOutOfStock || (p.inStock && isCategoryLive(p.category)))
+          .map((p) => {
+            const d = normalizeProductDescription(p.desc || p.description || '');
+            return { ...p, desc: d, description: d };
+          });
       }
     }
   } catch (err) {
@@ -105,9 +107,12 @@ function writeCache(products: Product[]): void {
 /**
  * Fetches catalog products directly from the Google Sheets 'Item Management' tab.
  * Dynamically resolves columns by header name to allow safe column reordering.
- * Skips rows with invalid prices, missing names, or unapproved types per R5.2.
+ * Skips rows with invalid prices, missing names, unapproved types, or out-of-stock items.
+ *
+ * Directive: "unavailable or outofstock items should not be displayed in the website."
  */
-export async function getProducts(): Promise<Product[]> {
+export async function getProducts(options?: { includeOutOfStock?: boolean }): Promise<Product[]> {
+  const includeOutOfStock = options?.includeOutOfStock ?? false;
   const sheetId = process.env.GOOGLE_SHEET_ID;
 
   if (sheetId) {
@@ -212,7 +217,7 @@ export async function getProducts(): Promise<Product[]> {
           const sorted = products.sort((a, b) => (a.sort_order || 99) - (b.sort_order || 99));
           // Persist real sheet data to cache for serverless resiliency per R5.2
           writeCache(sorted);
-          return sorted;
+          return sorted.filter((p) => includeOutOfStock || (p.inStock && isCategoryLive(p.category)));
         }
       }
     } catch (err) {
@@ -221,7 +226,7 @@ export async function getProducts(): Promise<Product[]> {
   }
 
   // Fallback: serve last successfully fetched real data (no dummy/handcrafted products)
-  const cached = readCache();
+  const cached = readCache(includeOutOfStock);
   if (cached.length > 0) {
     return cached;
   }
