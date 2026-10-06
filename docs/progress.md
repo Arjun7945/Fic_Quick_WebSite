@@ -91,3 +91,38 @@
     - Static (`○`): 22 static pages/endpoints.
 - **Current State:** Pre-flight complete; ready to execute P0 Scope item by item on branch `imposter/p0`.
 
+---
+
+## P-006 — 2026-10-06 15:55 IST — P0 Scope Execution & Verification Complete
+
+- **Summary:** Successfully implemented and verified all 10 items of P0 Scope on branch `imposter/p0` across 11 atomic commits. Zero uncommitted changes. All 48 automated tests passing (100% green). Production build verified in Turbopack in 1293ms with zero errors. Zero lint warnings. Zero TypeScript errors.
+- **Commits on `imposter/p0`:**
+  1. `027c897`: `feat(deps): upgrade next to 16.3.8 and add source-map-js ^1.2.2 override (P0-1)`
+  2. `735f0fc`: `test: restore docs/BACKLINK_PLAN.md for 100% passing test suite (P0-2)`
+  3. `0988393`: `feat(perf): implement shared ISR catalog cache, build snapshot, and checkout price sync (P0-3)`
+  4. `ca0ff06`: `feat(orders): implement atomic order gateway per D1, concurrency test, and parallel orders runner (P0-4)`
+  5. `4582ef1`: `feat(api): enforce rate limiting across all routes with UI handling per D2 (P0-5)`
+  6. `7a161a9`: `feat(security): consolidate to single netlify.toml with D13 headers and cache protections (P0-6)`
+  7. `b270b9b`: `feat(errors): add global and client error boundaries, not-found page, and try-catch inventory per Item 7 (P0-7)`
+  8. `71f2e1b`: `feat(privacy): implement consent banner, cookie policy inventory, and point-of-collection notices per D5 / B-24-B-27 (P0-8)`
+  9. `cd1987b`: `refactor(hygiene): remove duplicate content/faq.ts and eliminate Math.random per CODE-01 & CODE-02 (P0-9)`
+  10. `cc6a127`: `feat(build): add production guards for WhatsApp number, site URL, order gateway, RATE_LIMIT_STORE, and privacy email per Item 10 (P0-10)`
+  11. `f97a7f0`: `fix(lint): clean up unused imports and satisfy React 19 external store purity in ConsentContext`
+- **Verification Commands Run & Results:**
+  - `npm audit --omit=dev`: **0 vulnerabilities** (patched GHSA-vcvr-r3jv-pc5j & GHSA-68fv-2mgg-jv7q).
+  - `npm test`: **48/48 tests passing across 13 test suites** (includes 20 parallel order concurrency test, rate limiting, consent 12-month expiry, security headers, build guards, code hygiene).
+  - `npx tsc --noEmit`: **0 errors**.
+  - `npm run lint`: **0 errors, 0 warnings**.
+  - `npm run build`: Turbopack production build succeeded in 1293ms; 32/32 static & dynamic routes compiled cleanly.
+- **P0 Measured Numbers:**
+  - `npm audit`: 0 vulnerabilities (down from 2).
+  - Automated tests: 48 tests passing (up from 28 passing / 1 failing).
+  - Math.random in `src/`: 0 uses (down from 4).
+  - Google Sheets calls on storefront page visits: 0 calls (absorbed by 60s ISR edge cache).
+  - Google Sheets calls on checkout loads: 0 calls (absorbed by shared in-memory cache).
+  - Google Sheets calls per order placement: 1 call (via atomic Apps Script gateway or single append).
+  - Cookie inventory: 6 authentic storage keys documented on `/cookies`.
+  - Rate limiting: Active on all 4 `/api/*` routes with Upstash REST support and in-memory sliding window fallback.
+- **Current State:** P0 Scope 100% complete. Ready to proceed to P1 Scope.
+
+

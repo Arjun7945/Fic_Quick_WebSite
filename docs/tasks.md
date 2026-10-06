@@ -23,41 +23,41 @@
 
 | Finding / Item ID | Primary Task ID | Category | Merged With / Handled How | Priority |
 |---|---|---|---|---|
-| **B-01** | `T-001` | Data Integrity | Merged with D1 (Atomic Reference ID generation). | **P0 (Blocker)** |
-| **B-02** | `T-002` | Quotas & Scaling | Merged with `T-004` (Shared cache for catalog & couriers inside `/api/orders`). | **P0 (High)** |
-| **B-03** | `T-003` | Quotas & Surface | Cache & rate-limit `/api/products` and `/api/delivery-options`; strip unneeded courier fields. | **P0 (High)** |
-| **B-04** | `T-004` | Scaling / Fallback | Replace fragile runtime disk cache with build-time snapshot or platform cache. | **P0 (High)** |
-| **B-05** | `T-005` | Caching / ISR | Remove `cache: 'no-store'` in Sheets client to unblock ISR; verify checkout price check. | **P0 (High)** |
-| **B-06** | `T-006` | Rate Limiting | Rate limiting across all `/api/*` endpoints (Decision D2). Merged with `RATE-01`. | **P0 (High)** |
-| **B-07** | `T-007` | Deployment | Merge root and frontend `netlify.toml` into single unified configuration. | **P0 (Medium)** |
-| **B-08** | `T-008` | Security | Pragmatic CSP, drop obsolete `X-XSS-Protection`, review HSTS `preload` (Decision D13). | **P0 (Medium)** |
-| **B-09** | `T-009` | Error Handling | Unified API response envelope `{ success, data, error }`; Next error boundaries. | **P0 (Medium)** |
+| **B-01** | `T-001` | Data Integrity | Merged with D1 (Atomic Reference ID generation via Apps Script gateway). | **P0 (Done)** |
+| **B-02** | `T-002` | Quotas & Scaling | Merged with `T-004` (Shared cache for catalog & couriers inside `/api/orders`). | **P0 (Done)** |
+| **B-03** | `T-003` | Quotas & Surface | Cache & rate-limit `/api/products` and `/api/delivery-options`; strip unneeded courier fields. | **P0 (Done)** |
+| **B-04** | `T-004` | Scaling / Fallback | Replace fragile runtime disk cache with build-time snapshot or platform cache. | **P0 (Done)** |
+| **B-05** | `T-005` | Caching / ISR | Remove `cache: 'no-store'` in Sheets client to unblock ISR; verify checkout price check. | **P0 (Done)** |
+| **B-06** | `T-006` | Rate Limiting | Rate limiting across all `/api/*` endpoints (Decision D2). Merged with `RATE-01`. | **P0 (Done)** |
+| **B-07** | `T-007` | Deployment | Merge root and frontend `netlify.toml` into single unified configuration. | **P0 (Done)** |
+| **B-08** | `T-008` | Security | Pragmatic CSP, drop obsolete `X-XSS-Protection`, review HSTS `preload` (Decision D13). | **P0 (Done)** |
+| **B-09** | `T-009` | Error Handling | Unified API response envelope `{ success, data, error }`; Next error boundaries. | **P0 (Done)** |
 | **B-10** | `T-010` | Security | **VERIFIED CLEAN:** Git history & remote verified. Key file confirmed git-ignored. | **P0 (Done)** |
 | **B-11** | `T-011` | Task Sync | Re-issued `tasks.md` with full bidirectional finding-task mapping. | **P0 (Done)** |
-| **B-12** | `T-012` | Testing | Test expansion (API route integration tests, Playwright e2e with fake Sheets client). | **P1 (Medium)** |
+| **B-12** | `T-012` | Testing | Test expansion (API route integration tests, Playwright e2e with fake Sheets client). | **P1 (In Progress)** |
 | **B-13** | `T-013` | Measurements | Handled via measurements table and `NOT VERIFIED` section in `audit-report.md`. | **P0 (Done)** |
 | **B-14** | `T-014` | Legal Text | Handled by re-wording PRIV-01 in `audit-report.md` (no legal advice). | **P0 (Done)** |
 | **B-15** | `T-015` | Brand Facts | Sourced facts in `Ficcado-Website.md`, `prd.md`, and `memory.md` (`layout.tsx`, `journal/`). | **P0 (Done)** |
 | **B-16** | `T-016` | PRD Personas | Handled by marking personas as `ASSUMPTION` and adding `Success metrics: UNKNOWN`. | **P0 (Done)** |
 | **B-17** | `T-017` | Architecture Sync | Sourced ADR details and Netlify serverless limits in `docs/architecture.md`. | **P0 (Done)** |
-| **B-18** | `T-018` | Combos Status | Managed via Decision D9 (status: pending developer decision). | **P0 (Pending)** |
+| **B-18** | `T-018` | Combos Status | Managed via Decision D9: "combos are coming soon only as of now". | **P0 (Done)** |
 | **B-19** | `T-019` | Secrets Sanitization | Sanitized real Sheet ID and service key filename with placeholders in all docs. | **P0 (Done)** |
 | **B-20** | `T-020` | Rules Completion | Completed missing folder, logging, testing, and never-do rules in `docs/rules.md`. | **P0 (Done)** |
 | **B-21** | `T-021` | Design Tokens | Completed component variants, empty/error states, and asset rules in `docs/design.md`. | **P0 (Done)** |
-| **B-22** | `T-022` | Living Logs | Added P-003 and P-004 to `progress.md`; updated state and D-003+ in `memory.md`. | **P0 (Done)** |
+| **B-22** | `T-022` | Living Logs | Added P-003 through P-006 to `progress.md`; updated state and D-003+ in `memory.md`. | **P0 (Done)** |
 | **B-23** | `T-023` | Master Doc Sync | Updated Section 28 of `Ficcado-Website.md` with answered/pending status. | **P0 (Done)** |
-| **B-24** | `T-024` | Privacy / Caching | `Cache-Control: no-store` on order/inquiry; prune phone/address from courier options. | **P0 (High)** |
-| **B-25** | `T-025` | Privacy / Storage | Reclassify checkout draft as Preferences; clear draft on order; clear `ficcado-last-order`. | **P0 (High)** |
-| **B-26** | `T-026` | Consent Banner | Implement zero layout-shift consent banner (Accept All / Reject All / Manage). Merged with `T-008/PRIV-01`. | **P0 (High)** |
-| **B-27** | `T-027` | Privacy Notice | Privacy notice next to Place Order CTA; align Privacy Policy with real data flows. | **P0 (Medium)** |
-| **B-28** | `T-028` | Data at Rest | Google Sheets access list review, 2FA confirmation, retention/archival documentation. | **P1 (Medium)** |
-| **SEC-01** | `T-029` | Security | Upgrade Next.js to 16.3.8 (verified inside patched range `>=16.3.6`). | **P0 (Blocker)** |
-| **SEC-02** | `T-030` | Security | Upgrade `source-map-js` to `^1.2.2` via package overrides (verified patched version exists). | **P0 (High)** |
-| **TEST-01**| `T-031` | Tests | Restore `docs/BACKLINK_PLAN.md` to achieve 100% test pass rate (29/29). | **P0 (Blocker)** |
-| **CI-01** | `T-032` | CI/CD | Add `.github/workflows/ci.yml` running lint, typecheck, brand check, tests, build. | **P1 (Medium)** |
-| **OBS-01** | `T-033` | Observability | Configure structured server logging and error alerting documentation (Decision D4). | **P1 (Medium)** |
-| **CODE-01**| `T-034` | Cleanup | Delete redundant `content/faq.ts` in root directory. | **P1 (Low)** |
-| **CODE-02**| `T-035` | Cleanup | Replace `Math.random()` with `crypto.randomUUID()` in server ID generators. | **P1 (Low)** |
+| **B-24** | `T-024` | Privacy / Caching | `Cache-Control: no-store` on order/inquiry; prune phone/address from courier options. | **P0 (Done)** |
+| **B-25** | `T-025` | Privacy / Storage | Reclassify checkout draft as Preferences; clear draft on order; clear `ficcado-last-order`. | **P0 (Done)** |
+| **B-26** | `T-026` | Consent Banner | Implement zero layout-shift consent banner (Accept All / Reject All / Manage). Merged with `T-008/PRIV-01`. | **P0 (Done)** |
+| **B-27** | `T-027` | Privacy Notice | Privacy notice next to Place Order CTA; align Privacy Policy with real data flows. | **P0 (Done)** |
+| **B-28** | `T-028` | Data at Rest | Google Sheets access list review, 2FA confirmation, retention/archival documentation. | **P1 (Upcoming)** |
+| **SEC-01** | `T-029` | Security | Upgrade Next.js to 16.3.8 (verified inside patched range `>=16.3.6`). | **P0 (Done)** |
+| **SEC-02** | `T-030` | Security | Upgrade `source-map-js` to `^1.2.2` via package overrides (verified patched version exists). | **P0 (Done)** |
+| **TEST-01**| `T-031` | Tests | Restore `docs/BACKLINK_PLAN.md` to achieve 100% test pass rate (29/29). | **P0 (Done)** |
+| **CI-01** | `T-032` | CI/CD | Add `.github/workflows/ci.yml` running lint, typecheck, brand check, tests, build. | **P1 (Upcoming)** |
+| **OBS-01** | `T-033` | Observability | Configure structured server logging and error alerting documentation (Decision D4). | **P1 (Upcoming)** |
+| **CODE-01**| `T-034` | Cleanup | Delete redundant `content/faq.ts` in root directory. | **P0 (Done)** |
+| **CODE-02**| `T-035` | Cleanup | Replace `Math.random()` with `crypto.randomUUID()` in server ID generators. | **P0 (Done)** |
 
 ---
 
