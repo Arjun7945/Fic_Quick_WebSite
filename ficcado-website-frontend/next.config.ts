@@ -42,6 +42,35 @@ if (isProd) {
       `[CRITICAL BUILD ERROR] NEXT_PUBLIC_SITE_URL is required and must begin with "https://" in production (got: "${siteUrl}").`
     );
   }
+
+  // 3. Privacy Contact Email Validation (D15)
+  const privacyEmail = process.env.NEXT_PUBLIC_PRIVACY_EMAIL;
+  if (!privacyEmail || typeof privacyEmail !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(privacyEmail)) {
+    throw new Error(
+      `[CRITICAL BUILD ERROR] NEXT_PUBLIC_PRIVACY_EMAIL is required for production builds (got: "${privacyEmail}"). Configure in Netlify UI or .env.local.`
+    );
+  }
+
+  // 4. Order ID Gateway / Mode Validation (D1)
+  const orderMode = process.env.ORDER_ID_MODE;
+  const gatewayUrl = process.env.ORDER_GATEWAY_URL;
+  const gatewaySecret = process.env.ORDER_GATEWAY_SECRET;
+  const hasGateway = Boolean(gatewayUrl && gatewaySecret);
+  const hasExplicitSheetRow = orderMode === 'sheet-row';
+
+  if (!hasGateway && !hasExplicitSheetRow) {
+    throw new Error(
+      '[CRITICAL BUILD ERROR] Order dispatch mode is unconfigured. Either configure ORDER_GATEWAY_URL and ORDER_GATEWAY_SECRET (recommended Apps Script gateway per D1) or explicitly set ORDER_ID_MODE=sheet-row to acknowledge weaker sheet-row mode.'
+    );
+  }
+
+  // 5. Rate Limit Store Validation (D2)
+  const rateLimitStore = process.env.RATE_LIMIT_STORE;
+  if (!rateLimitStore || (rateLimitStore !== 'upstash' && rateLimitStore !== 'memory')) {
+    throw new Error(
+      `[CRITICAL BUILD ERROR] RATE_LIMIT_STORE is required for production builds. Must be set to "upstash" or "memory" (got: "${rateLimitStore}").`
+    );
+  }
 }
 
 const nextConfig: NextConfig = {
