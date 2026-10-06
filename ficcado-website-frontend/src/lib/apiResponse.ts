@@ -3,7 +3,6 @@
 // Standard shape across all /api/* routes per Phase 4 / B-09 / P0-7.
 // =============================================================================
 
-import { NextResponse } from 'next/server';
 import crypto from 'node:crypto';
 
 export interface ApiErrorPayload {
@@ -34,7 +33,7 @@ export function apiSuccess<T>(
     headers?: Record<string, string>;
     cacheControl?: string;
   }
-): NextResponse<ApiResponsePayload<T>> {
+): Response {
   const headers = new Headers(init?.headers);
   if (init?.cacheControl) {
     headers.set('Cache-Control', init.cacheControl);
@@ -47,7 +46,7 @@ export function apiSuccess<T>(
     ...(Array.isArray(data) ? { options: data } : {}),
   };
 
-  return NextResponse.json(payload, {
+  return Response.json(payload, {
     status: init?.status ?? 200,
     headers,
   });
@@ -63,7 +62,7 @@ export function apiError(
     headers?: Record<string, string>;
     details?: unknown;
   }
-): NextResponse<ApiResponsePayload> {
+): Response {
   const requestId = options?.requestId || generateRequestId();
   const headers = new Headers(options?.headers);
   headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
@@ -80,7 +79,7 @@ export function apiError(
     },
   };
 
-  return NextResponse.json(payload, {
+  return Response.json(payload, {
     status: options?.status ?? 400,
     headers,
   });

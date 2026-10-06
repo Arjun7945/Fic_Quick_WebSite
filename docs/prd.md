@@ -57,7 +57,7 @@
 
 ### 5.2 Category System
 - **Current Live Category:** `T-Shirts` (`/categories/t-shirts`).
-- **Roadmap Categories (Status pending Decision D9):** `Combos` (`/categories/combos`), `Shirts` (`/categories/shirts`), `Hoodies` (`/categories/hoodies`), `Pants` (`/categories/pants`), `Sneakers` (`/categories/sneakers`).
+- **Roadmap Categories (Decision D9 — Coming Soon Only as of now):** `Combos` (`/categories/combos`), `Shirts` (`/categories/shirts`), `Hoodies` (`/categories/hoodies`), `Pants` (`/categories/pants`), `Sneakers` (`/categories/sneakers`).
 - Clicking a coming-soon category renders a dedicated "Silhouette Roadmap — Coming Soon" page explaining textile engineering progress, with CTAs leading back to live T-Shirts and full categories list.
 
 ### 5.3 Shopping Bag & Cart Drawer

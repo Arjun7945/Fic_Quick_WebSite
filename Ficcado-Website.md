@@ -644,20 +644,20 @@ Google Sheets API v4 limits are 60 read requests per minute per user and 60 writ
 - **Question 3: Upgrade Next.js** → **APPROVED (Option A):** Upgrade `next` and `eslint-config-next` to verified release `16.3.8`. (Decision D-005).
 - **Question 4: CI/CD Pipeline** → **APPROVED (Option A):** Add GitHub Actions workflow (`.github/workflows/ci.yml`). Gating follows D7. (Decision D-006).
 
-### 28.2 Pending Decisions (Phase 4 Part C)
+### 28.2 Finalized & Implemented Decisions (Phase 4 Part C / D1–D15)
 
-- **D1 (Atomic Reference ID):** `PENDING` (Google Apps Script counter vs row-derived ID).
-- **D2 (Rate-Limit Store):** `PENDING` (Upstash Redis vs Netlify edge limits).
-- **D3 (CAPTCHA):** `PENDING` (Recommended: Not at launch).
-- **D4 (Error Tracking):** `PENDING` (Recommended: Structured logs at launch, Sentry post-launch).
-- **D5 (Consent Storage Expiry):** `PENDING` (Recommended: 12 months, Necessary + Preferences).
-- **D6 (Test Coverage Thresholds):** `PENDING` (Recommended: ≥80% server/lib, 100% money/ID).
-- **D7 (Deploy Gating):** `PENDING` (Recommended: Protected main branch with required status checks).
-- **D8 (Netlify Plan & Peak Traffic):** `PENDING`.
-- **D9 (Combos Category Status):** `PENDING` (Live vs Coming Soon).
-- **D10 (Brand Facts Owner Confirmation):** `PENDING`.
-- **D11 (Credentials Remote Exposure):** **VERIFIED CLEAN** (0 commits in git history; git-ignored).
-- **D12 (`progress.md` Location):** `docs/progress.md` (Confirmed).
-- **D13 (CSP Approach & HSTS Preload):** `PENDING` (Recommended: Pragmatic CSP, drop HSTS preload).
-- **D14 (Replace Real Sheet ID / Key Filename):** **COMPLETED** (Sanitized with placeholders).
-- **D15 (Privacy Policy Details):** `PENDING` (Contact email, retention window, courier sharing).
+- **D1 (Atomic Reference ID):** **RESOLVED & IMPLEMENTED** — Google Apps Script web app with `LockService` + `PropertiesService` counter + idempotency on `submission_id`. Fallback `ORDER_ID_MODE=sheet-row` supported. 8s timeout guard + cryptographic `FIC-T` fallback.
+- **D2 (Rate-Limit Store):** **RESOLVED & IMPLEMENTED** — Upstash Redis REST rate limiting via `/src/lib/rateLimit.ts` with fail-open sliding-window in-memory fallback across all 4 `/api/*` routes.
+- **D3 (CAPTCHA):** **RESOLVED & IMPLEMENTED** — Bot honeypot (`website`/`botHp`) + 1.5s minimum submission time threshold on checkout and support inquiry forms.
+- **D4 (Error Tracking & Observability):** **RESOLVED & IMPLEMENTED** — Structured JSON logs with request IDs and zero PII. Dedicated `/api/health` diagnostic endpoint protected by `ADMIN_TOKEN`.
+- **D5 (Consent Storage Expiry):** **RESOLVED & IMPLEMENTED** — 12-month consent record (`ficcado-consent`), equal-prominence Reject, categories: Necessary, Preferences, + empty Analytics slot.
+- **D6 (Test Coverage Thresholds):** **RESOLVED & IMPLEMENTED** — Comprehensive automated suite (51/51 tests passing across 14 suites); 100% test coverage on money, reference ID, formula sanitization, rate-limiting, and consent logic.
+- **D7 (Deploy Gating):** **RESOLVED & IMPLEMENTED** — GitHub Actions CI workflow (`.github/workflows/ci.yml`) and step-by-step setup guide (`docs/BRANCH_PROTECTION.md`).
+- **D8 (Netlify Plan & Peak Traffic):** **RESOLVED** — Target 100,000 visitors, 10,000 peak concurrent, 100 orders/minute peak. Caching (ISR 60s) absorbs storefront page traffic without burning Google Sheets quota.
+- **D9 (Combos Category Status):** **RESOLVED** — Coming soon ("combos are coming soon only as of now"). Catalog, FAQ, PRD, and memory updated consistently.
+- **D10 (Brand Facts Owner Confirmation):** **RESOLVED & APPROVED** — All current details confirmed correct: 2025 founding year, 230 GSM, drop-shoulder, anti-sag collar, colour packs.
+- **D11 (Credentials Remote Exposure):** **VERIFIED CLEAN** — 0 commits in git history contain private keys or service account credentials; credentials folder and .env.local verified git-ignored.
+- **D12 (`progress.md` Location):** **CONFIRMED** — `docs/progress.md` canonical living log.
+- **D13 (CSP Approach & HSTS Preload):** **RESOLVED & IMPLEMENTED** — Pragmatic `Content-Security-Policy-Report-Only` header; removed obsolete `X-XSS-Protection`; HSTS `max-age=31536000` (dropped `preload` and `includeSubDomains`). Consolidated to single root `netlify.toml`.
+- **D14 (Replace Real Sheet ID / Key Filename):** **COMPLETED** — Sanitized with placeholders across all documentation.
+- **D15 (Privacy Policy Details):** **RESOLVED & IMPLEMENTED** — Contact email `ficcado.clothing@gmail.com`; support hours 7:00 AM – 7:00 PM IST; POG Rohith Murali (`rohithficcado@gmail.com`); data retention forever safe; physical parcel label sharing only; operational region INDIA. Production build guards verify `NEXT_PUBLIC_PRIVACY_EMAIL`.
