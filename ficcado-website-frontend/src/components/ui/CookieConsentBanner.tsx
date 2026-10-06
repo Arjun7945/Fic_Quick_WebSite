@@ -8,7 +8,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ShieldCheck, Settings, X, Check } from 'lucide-react';
+import { ShieldCheck, Settings, X } from 'lucide-react';
 import { useConsent } from '@/context/ConsentContext';
 
 export function CookieConsentBanner() {

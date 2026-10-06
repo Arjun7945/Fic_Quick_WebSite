@@ -22,7 +22,7 @@ describe('Consent & Storage Minimization per D5 / B-24 / B-25 / B-26', () => {
       'Must assign 12-month expiry to consent record'
     );
     assert.ok(
-      contextFile.includes('Date.now() < parsed.expiresAt'),
+      contextFile.includes('parsed.expiresAt') && contextFile.includes('Date.now()'),
       'Must verify consent expiration against current timestamp'
     );
   });

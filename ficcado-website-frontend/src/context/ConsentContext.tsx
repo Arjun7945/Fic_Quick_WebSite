@@ -6,7 +6,7 @@
 // categories (Necessary, Preferences, Analytics slot), and storage minimization.
 // =============================================================================
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState, useSyncExternalStore } from 'react';
 
 export interface ConsentPreferences {
   necessary: true; // Always true
@@ -30,31 +30,55 @@ interface ConsentContextType {
 const STORAGE_KEY = 'ficcado-consent';
 const TWELVE_MONTHS_MS = 365 * 24 * 60 * 60 * 1000;
 
+function subscribe(callback: () => void) {
+  if (typeof window === 'undefined') return () => {};
+  window.addEventListener('storage', callback);
+  window.addEventListener('ficcado-consent-changed', callback);
+  return () => {
+    window.removeEventListener('storage', callback);
+    window.removeEventListener('ficcado-consent-changed', callback);
+  };
+}
+
+function getSnapshot(): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as ConsentPreferences;
+    if (parsed.expiresAt && Date.now() >= parsed.expiresAt) {
+      return null;
+    }
+    return raw;
+  } catch {
+    return null;
+  }
+}
+
+function getServerSnapshot(): string | null {
+  return '__SSR__';
+}
+
 const ConsentContext = createContext<ConsentContextType | undefined>(undefined);
 
 export function ConsentProvider({ children }: { children: React.ReactNode }) {
-  const [consent, setConsent] = useState<ConsentPreferences | null>(null);
-  const [hasDecided, setHasDecided] = useState<boolean>(true); // default true to avoid flash on SSR
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const rawStorage = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-  useEffect(() => {
+  let consent: ConsentPreferences | null = null;
+  let hasDecided = true; // During SSR, default true to avoid banner flicker
+
+  if (rawStorage && rawStorage !== '__SSR__') {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored) as ConsentPreferences;
-        // Verify 12-month expiration per D5
-        if (parsed.expiresAt && Date.now() < parsed.expiresAt) {
-          setConsent(parsed);
-          setHasDecided(true);
-          return;
-        }
-      }
-    } catch {}
-
-    // No valid consent record
-    setConsent(null);
-    setHasDecided(false);
-  }, []);
+      consent = JSON.parse(rawStorage) as ConsentPreferences;
+      hasDecided = true;
+    } catch {
+      hasDecided = false;
+    }
+  } else if (rawStorage === null) {
+    // Client mounted and no valid consent in storage
+    hasDecided = false;
+  }
 
   const persistConsent = (prefs: { preferences: boolean; analytics: boolean }) => {
     const now = Date.now();
@@ -74,10 +98,10 @@ export function ConsentProvider({ children }: { children: React.ReactNode }) {
         localStorage.removeItem('ficcado-checkout-draft');
         localStorage.removeItem('ficcado-recent-searches');
       }
+
+      window.dispatchEvent(new Event('ficcado-consent-changed'));
     } catch {}
 
-    setConsent(newConsent);
-    setHasDecided(true);
     setIsSettingsOpen(false);
   };
 

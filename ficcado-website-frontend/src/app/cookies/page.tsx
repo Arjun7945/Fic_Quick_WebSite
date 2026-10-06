@@ -8,7 +8,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Cookie, ShieldCheck, Settings, CheckCircle2, Menu } from 'lucide-react';
+import { ArrowLeft, Cookie, ShieldCheck, Settings, Menu } from 'lucide-react';
 import { useModal } from '@/context/ModalContext';
 import { useConsent } from '@/context/ConsentContext';
 
