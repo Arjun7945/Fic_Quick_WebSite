@@ -2,13 +2,14 @@
 
 **Purpose:** Comprehensive architectural overview, component topology, request lifecycle, data flow diagrams, caching strategies, and operational runbooks.  
 **Last Updated:** 2026-10-06  
-**Source:** `Ficcado-Website.md` + repository codebase (`commit 77b1878`)  
+**Audited Commit:** `90c3da4b63cec8406526a6e91f28e9de0a867def`  
+**Source:** `Ficcado-Website.md` + repository codebase  
 
 ---
 
 ## 1. System Overview
 
-Ficcado is built on Next.js 16 (App Router) deployed to Netlify with Google Sheets serving as the dynamic datastore. It eliminates typical SQL database hosting overhead while providing a non-technical administrative interface (Google Sheets) for inventory, pricing, courier partner rates, and order tracking.
+Ficcado is built on Next.js 16 (App Router) deployed to Netlify with Google Sheets serving as the dynamic datastore. It eliminates SQL database hosting overhead while providing an immediately editable administrative spreadsheet interface for inventory, pricing, courier partner rates, and order tracking.
 
 ```mermaid
 graph TD
@@ -102,55 +103,62 @@ sequenceDiagram
 
 ---
 
-## 3. Caching Architecture & TTLs
+## 3. Google Sheets Calls Per Request & Quota Budget (B-02)
+
+| Journey / Path | Sheets Calls (Current) | Sheets Calls (Post-Fix Target) | Quota Impact & Capacity |
+|---|---|---|---|
+| **Visitor Page View (`/` or `/categories/[slug]`)** | 1 read call (`Item Management`) | **0 calls** (Served via ISR edge cache, `revalidate = 60`) | At 100k visitors: 0 calls to Google Sheets in steady state. |
+| **Checkout Page Load (`/checkout`)** | 1 read call (`Courier Partners` via `/api/delivery-options`) | **0 calls** (Served via shared cache with `s-maxage`) | Eliminates quota burn on checkout page loads. |
+| **Order Placement (`POST /api/orders`)** | **4–5 calls** (Catalog read + Courier read + Schema cold check + Recent rows read + Row append) | **1 call** (Catalog & Courier from shared cache + 1 atomic create/append call) | **Current limit:** Max ~12–15 orders/min before hitting Google's 60 req/min limit. **Target:** 60 orders/min. |
+| **Support Ticket (`POST /api/inquiry`)** | 1 write call (`Support Requests` append) | 1 write call (Honeypot guarded + rate limited) | Up to 60 tickets/min per quota limit. |
+
+**Official Quota Documentation:**  
+Google Sheets API v4 limits are **60 read requests per minute per user** and **60 write requests per minute per user** ([Google Sheets API Usage Limits](https://developers.google.com/sheets/api/limits)).
+
+---
+
+## 4. Caching Architecture & TTLs
 
 | Resource | Cache Layer | TTL / Strategy | Purpose |
 |---|---|---|---|
 | `/_next/static/*` | Netlify CDN / Browser | `max-age=31536000, immutable` | Permanent caching for hashed static build chunks |
 | `/images/*` | Netlify CDN / Browser | `max-age=86400, stale-while-revalidate=604800` | 1-day edge cache with 7-day background refresh |
 | `/fonts/*` | Netlify CDN / Browser | `max-age=31536000, immutable` | Permanent font asset caching |
-| Product Catalog Cache | Node.js Disk File | Local filesystem (`products-cache.json`) | Fallback cache during Google API downtime |
+| Product Catalog Cache | Node.js Memory & Snapshot | Shared cached object + build-time snapshot | Fallback cache during Google API downtime |
 | Google OAuth2 Bearer Token | In-Memory Object | 3600s with 300s margin | Reuses access token across serverless requests |
 
 ---
 
-## 4. Architecture Decision Records (ADRs)
+## 5. Architecture Decision Records (ADRs)
 
 ### ADR-001: Google Sheets as Serverless Administrative Database
-- **Date:** 2026-09-15
 - **Status:** Accepted
 - **Context:** The team needed a collaborative, zero-cost, immediately editable spreadsheet interface to manage prices, inventory statuses, and incoming sales inquiries without building a custom database admin panel.
 - **Decision:** Use Google Sheets API v4 via service account authentication. Implement dynamic column resolution, strict input sanitization, sequential ID generation, and local cache fallbacks.
 
 ### ADR-002: WhatsApp Assisted Checkout Handoff
-- **Date:** 2026-09-20
 - **Status:** Accepted
 - **Context:** Automated payment gateway transaction fees and drop-off rates on high-friction payment gateways.
 - **Decision:** Server calculates final totals and logs orders, but defers final payment collection and custom sizing confirmation to direct WhatsApp chat with the Ficcado operations team.
 
 ### ADR-003: Pure Node.js RS256 JWT Authentication (No Google Auth Library)
-- **Date:** 2026-09-28
 - **Status:** Accepted
-- **Context:** The official `googleapis` / `google-auth-library` npm packages add ~50 MB to deployment bundles and increase serverless cold start times.
-- **Decision:** Implement token exchange in ~50 lines of code using Node's built-in `crypto.createSign('RSA-SHA256')`.
+- **Context:** Official Google client libraries introduce heavy dependency trees and increase serverless cold start times.
+- **Decision:** Implement token exchange using Node's built-in `crypto.createSign('RSA-SHA256')`.
 
 ---
 
-## 5. Operational Runbooks
+## 6. Operational Runbooks
 
-### 5.1 Rotating Google Service Account Keys
-1. Navigate to Google Cloud Console → IAM & Admin → Service Accounts → `ficcado-quick-webapp`.
-2. Generate a new JSON key.
-3. In Netlify Site Settings → Environment Variables:
-   - Update `GOOGLE_SERVICE_ACCOUNT_EMAIL` with the service account email.
-   - Update `GOOGLE_PRIVATE_KEY` with the private key string (preserving `\n` linebreaks).
-4. Delete the previous key in Google Cloud Console.
+### 6.1 Rotating Google Service Account Keys
+1. In Google Cloud Console: IAM & Admin → Service Accounts → generate new JSON key.
+2. In Netlify Site Settings: update `GOOGLE_SERVICE_ACCOUNT_EMAIL` and `GOOGLE_PRIVATE_KEY` with new credentials.
+3. Delete previous key in Google Cloud Console.
 
-### 5.2 Handling Traffic Spikes & Quota 429 Errors
-1. Verify Google Cloud Console Quotas for Google Sheets API v4.
-2. If read limits are saturated, enable ISR (`revalidate = 60`) on the root route `/` so reads are served directly by Netlify CDN.
-3. Order writes automatically engage offline reference IDs (`FIC-T...`) if Google Sheets operations exceed 8 seconds.
+### 6.2 Traffic Spikes & 429 Handling
+1. With ISR enabled, public traffic is absorbed by Netlify CDN.
+2. Order writes automatically engage offline reference IDs (`FIC-T...`) if Google Sheets operations exceed 8 seconds.
 
-### 5.3 Updating Public WhatsApp Business Number
-1. Set `NEXT_PUBLIC_WHATSAPP_NUMBER` in Netlify Environment Variables.
-2. Trigger a production deployment (because `NEXT_PUBLIC_*` values are inlined at build time into client JavaScript bundles).
+### 6.3 Updating Public WhatsApp Business Number
+1. Update `NEXT_PUBLIC_WHATSAPP_NUMBER` in Netlify Environment Variables.
+2. Trigger production rebuild (as `NEXT_PUBLIC_*` values are embedded into client JavaScript at build time).

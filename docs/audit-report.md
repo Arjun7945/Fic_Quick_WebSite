@@ -1,117 +1,97 @@
 # Production Audit Report ("Phase-10 Audit") — Ficcado
 
-**Purpose:** Comprehensive production-readiness audit evaluating stability, scale (100,000 concurrent user readiness), error resilience, data integrity, security, and compliance.  
-**Audited Commit:** `77b18781d892e0201a52338ba22bec58cff0acc2`  
+**Purpose:** Comprehensive production-readiness audit evaluating stability, scale (100,000 concurrent user readiness), error resilience, data integrity, security, and privacy compliance.  
+**Audited Commit:** `90c3da4b63cec8406526a6e91f28e9de0a867def` (updated post-Phase 4 review)  
 **Generated Date:** 2026-10-06  
 **Reference Map:** `Ficcado-Website.md`  
 
 ---
 
-## Executive Summary & Scorecard
+## 1. Executive Summary & Scorecard
 
-| Category | Status | Blocker | High | Medium | Low | Total Findings |
+| Category | Status | Provisional Severity | Findings Count | Core Issue |
+|---|---|---|---|---|
+| **B1. Boilerplate & Dead Code** | **Fail** | Low | 2 | Redundant `content/faq.ts`, `Math.random()` in server IDs |
+| **B2. Error Handling** | **Fail** | Medium | 1 | No unified API error helper, missing `global-error.tsx`/`not-found.tsx` |
+| **B3. Automated Tests** | **Fail** | **Blocker** | 1 | Missing `docs/BACKLINK_PLAN.md` breaks test suite (28 pass, 1 fail) |
+| **B4. CI/CD Pipeline** | **Fail** | Medium | 1 | No automated GitHub Actions CI workflow gating production |
+| **B5. Scale (100k Target)** | **Fail** | **High** | 2 | `revalidate = 0` on visitor routes; Sheets quota collapse under load |
+| **B6. Rate Limiting** | **Fail** | Medium | 1 | Missing IP-based rate limiting across all `/api/*` endpoints |
+| **B7. Security** | **Fail** | **Blocker** | 3 | Next.js RCE (GHSA-vcvr-r3jv-pc5j); `source-map-js` DoS; secrets review |
+| **B8. Data Integrity (Sheets)** | **Fail** | **Provisional: Blocker** *(finalize after concurrency test)* | 1 | Read-then-append race condition yields duplicate Reference IDs |
+| **B9. Cookies & Consent** | **Fail** | **High (P0)** | 2 | PII in `localStorage` without consent banner; Privacy policy mismatch |
+| **B10. Performance & UX** | **Pass** | Low | 0 | Responsive shell, Turbopack bundle compiled cleanly |
+| **B11. Architecture & Cleanliness**| **Pass** | Low | 0 | Strict TypeScript, feature-aligned path aliases |
+| **B12. Observability & Ops** | **Fail** | Medium | 1 | Console logging only; no centralized error telemetry |
+| **B13. Deployment Readiness** | **Fail** | Medium | 1 | Two conflicting `netlify.toml` files |
+| **B14. Pre-Mortem** | **Pass** | Low | 0 | Evaluated 25+ failure vectors with mitigation strategies |
+
+---
+
+## 2. Findings Register & Evidence Table
+
+| Finding ID | Severity | Category | Location | What is Wrong | What Breaks in Production | Proposed Fix |
 |---|---|---|---|---|---|---|
-| **B1. Boilerplate & Dead Code** | **Fail** | 0 | 0 | 0 | 2 | 2 |
-| **B2. Error Handling** | **Pass** | 0 | 0 | 0 | 0 | 0 |
-| **B3. Automated Tests** | **Fail** | 1 | 0 | 0 | 0 | 1 |
-| **B4. CI/CD Pipeline** | **Fail** | 0 | 0 | 1 | 0 | 1 |
-| **B5. Scale (100k Users)** | **Fail** | 0 | 1 | 0 | 0 | 1 |
-| **B6. Rate Limiting** | **Fail** | 0 | 0 | 1 | 0 | 1 |
-| **B7. Security** | **Fail** | 1 | 1 | 1 | 0 | 3 |
-| **B8. Data Integrity (Sheets)** | **Pass** | 0 | 0 | 0 | 0 | 0 |
-| **B9. Cookies & Consent** | **Fail** | 0 | 0 | 1 | 0 | 1 |
-| **B10. Performance & UX** | **Pass** | 0 | 0 | 0 | 0 | 0 |
-| **B11. Architecture & Cleanliness**| **Pass** | 0 | 0 | 0 | 0 | 0 |
-| **B12. Observability & Runbooks** | **Fail** | 0 | 0 | 1 | 0 | 1 |
-| **B13. Deployment Readiness** | **Pass** | 0 | 0 | 0 | 0 | 0 |
-| **B14. Pre-Mortem** | **Pass** | 0 | 0 | 0 | 0 | 0 |
-| **Total** | | **2** | **2** | **5** | **2** | **11** |
+| **B-01** | **Blocker (Provisional)** | B8 Data Integrity | `src/app/api/orders/route.ts:L218-280` | Read-then-append logic for Reference ID. Reads recent rows, increments, then appends. | Concurrent orders read the same highest ID and create duplicate Reference IDs. Same `submission_id` passes duplicate check. | Google Apps Script lock/counter or atomic row-derived ID (Decision D1). Concurrency test required. |
+| **B-02** | **High** | B5 Scale / B8 Sheets | `src/app/api/orders/route.ts` | 3–4 Sheets reads + 1 write per order (catalog + courier + recent rows + append). | 15 orders/minute exhausts Google's 60 req/min quota, triggering 429 errors for all visitors. | Share cached catalog/couriers in `/api/orders`; bound recent row scan. |
+| **B-03** | **High** | B5 Scale / B6 Limits | `src/app/api/products`, `src/app/api/delivery-options` | `force-dynamic`, `no-store`, unauthenticated GET endpoints called by UI. | Bot loop directly calls endpoints and exhausts Google Sheets quota, taking down checkout. | Serve from shared cache with `s-maxage` + `stale-while-revalidate`, rate-limit, strip unused fields. |
+| **B-04** | **Medium** | B5 Scale | `src/lib/products.ts:L19`, `src/generated/` | Ephemeral runtime disk cache `products-cache.json` on read-only serverless filesystem. | Runtime write fails or vanishes on new instances; fallback is unavailable during outages. | Build-time static snapshot or Netlify Blobs platform cache. |
+| **B-05** | **High** | B5 Scale | `src/lib/sheets/client.ts:L199` | `cache: 'no-store'` hardcoded in `getSheetValues` fetch options. | Blocks Next.js ISR from caching pages; `revalidate = 60` on routes is silently ignored. | Remove `no-store` or configure explicit Next.js revalidation cache controls. |
+| **B-06** | **Medium** | B6 Rate Limiting | `src/app/api/` (all routes) | Only `/api/orders` had partial abuse guard; `/api/inquiry` only has honeypot; GET endpoints open. | Abuse floods Google Sheets API and mailboxes. | Implement uniform rate limiting across every route in `/api/*` (Decision D2). |
+| **B-07** | **Medium** | B13 Deploy | `netlify.toml` (root & frontend) | Two `netlify.toml` files with overlapping directives. | Security & caching headers in frontend file may be skipped; manual `publish` conflicts with runtime. | Consolidate into single root `netlify.toml`, verify runtime defaults. |
+| **B-08** | **Medium** | B7 Security | `ficcado-website-frontend/netlify.toml` | Missing CSP, obsolete `X-XSS-Protection`, HSTS `preload` hard to reverse, no Origin check on POST. | Vulnerable to CSRF/XSS; difficult to change subdomains if preloaded. | Pragmatic/hash CSP, drop `preload` (D13), add Origin checks on mutating routes. |
+| **B-09** | **Medium** | B2 Error Handling | `src/app/api/`, `src/app/` | Inconsistent API shapes (`{ ok, options }` vs `{ success, error }`), no `global-error.tsx`/`not-found.tsx`. | Inconsistent client error parsing; raw server exceptions unhandled. | Standardize API envelope `{ success, data, error: { code, message, requestId } }`; add Next boundaries. |
+| **B-10** | **Blocker** | B7 Security | `credentials/` | Local service account key file in repo workspace. | Potential credential exposure if git tracking or ignore rules fail. | **VERIFIED CLEAN:** 0 commits in git history, covered by `.gitignore`. Must remain untracked. |
+| **B-11** | **Low** | B11 Tasks Sync | `docs/tasks.md` | Audit findings previously missing corresponding task IDs. | Untracked tasks drop through the cracks. | Resolved: Full mapping table implemented in `docs/tasks.md`. |
+| **B-24** | **High** | B7 / B9 Privacy | `src/app/api/delivery-options`, CDN | Risk of personal data in shared caches; `/api/delivery-options` exposes courier address/phone. | Customer PII leaked to other users via CDN cache; internal vendor contact info leaked. | Set `Cache-Control: no-store` on orders/inquiry; prune courier payload to `id, name, rate, deliveryTime`. |
+| **B-25** | **High** | B9 Privacy | `src/app/checkout/page.tsx`, `localStorage` | Indefinite persistence of name, phone, address in `ficcado-checkout-form-draft`. | Personal data sits indefinitely in shared/browser storage without clear expiry. | Reclassify draft as Preferences; clear draft on successful order; clear `ficcado-last-order`. |
+| **B-26** | **High (P0)** | B9 Consent | Storefront Layout | No user consent banner for non-essential storage. | Developer requested explicit consent banner before launch. | Implement bottom banner (Accept All / Reject All / Manage Preferences), zero layout shift. |
+| **B-27** | **Medium** | B9 Privacy | `src/app/privacy/page.tsx`, `/checkout` | Privacy policy claims differ from real data flows (Google Sheets storage, WhatsApp handoff). | Customer unaware where personal data travels. | Add privacy notice next to Place Order CTA; align Privacy Policy with real data pipelines. |
+| **B-28** | **Medium** | B7 / B8 Data at Rest | Google Sheets | Customer orders stored in Google Sheets without documented retention or access review. | Unauthorized Google account access or indefinite data accumulation. | Document access list (service account + owner only); 2FA on Google account; retention/export plan. |
+| **SEC-01** | **Blocker** | B7 Security | `package.json` | Next.js 16.3.5 vulnerable to ImageResponse RCE (GHSA-vcvr-r3jv-pc5j). Range: `>=16.2.0 <16.3.6`. | Critical remote code execution vulnerability. | Upgrade to `next@16.3.8` (verified inside patched range `>=16.3.6`). |
+| **SEC-02** | **High** | B7 Security | `package.json` | `source-map-js@1.2.1` vulnerable to DoS (GHSA-68fv-2mgg-jv7q). Range: `>=1.0.0 <1.2.2`. | Event-loop denial of service. | Upgrade `source-map-js` to `^1.2.2` via package `overrides`. |
+| **TEST-01**| **Blocker** | B3 Tests | `scripts/tests/phase2-discoverability.test.mjs:L83` | Missing `docs/BACKLINK_PLAN.md` fails automated test suite. | `npm test` exits 1. Blocks automated CI verification. | Restore `BACKLINK_PLAN.md` into `docs/`. |
+| **CODE-01**| **Low** | B1 Cleanup | `content/faq.ts` & `src/content/faq.ts` | Duplicate FAQ data files. | Code confusion over canonical data source. | Remove redundant `content/faq.ts`. |
+| **CODE-02**| **Low** | B1 Cleanup | `src/lib/referenceId.ts`, `api/inquiry` | `Math.random()` used for ticket IDs and offline IDs. | Weak identifier randomness. | Replace with `crypto.randomUUID()` or `crypto.randomBytes()`. |
+| **CI-01** | **Medium** | B4 CI/CD | `.github/workflows/` | No GitHub Actions workflow exists. | Commits push to production without automated test verification. | Add `.github/workflows/ci.yml`. |
+| **OBS-01** | **Medium** | B12 Observability | `src/app/api/` | Unhandled error telemetry lacks centralized monitoring. | Production failures must be diagnosed from raw host logs. | Configure structured logs and document Sentry/alerting pattern. |
 
 ---
 
-## Detailed Findings Table
+## 3. Real Measurement & Evidence Records
 
-| ID | Severity | Category | Location | What is Wrong | What Breaks in Production | Proposed Fix | Effort | Status |
-|---|---|---|---|---|---|---|---|---|
-| **SEC-01** | **Blocker** | B7 Security | `package.json` | Next.js 16.3.5 contains Critical RCE in ImageResponse (GHSA-vcvr-r3jv-pc5j) | Vulnerable to arbitrary code execution if ImageResponse is targeted | Upgrade to `next@16.3.8+` | 15 min | Todo |
-| **TEST-01**| **Blocker** | B3 Tests | `scripts/tests/phase2-discoverability.test.mjs:L83` | Test expects `docs/BACKLINK_PLAN.md`, which was moved | Automated test suite exits with failure (exit code 1) | Restore or link `BACKLINK_PLAN.md` in `docs/` | 5 min | Todo |
-| **SCALE-01**| **High** | B5 Scale | `src/app/page.tsx:L9-10`, `categories/[slug]/page.tsx:L10` | High-traffic pages are `force-dynamic` with `revalidate = 0` | Google Sheets 60 req/min quota exhausts under 100+ visitors | Switch to ISR with `revalidate = 60` or CDN edge caching | 30 min | Todo |
-| **SEC-02** | **High** | B7 Security | `package.json` | `source-map-js` vulnerability GHSA-68fv-2mgg-jv7q | Event-loop denial of service | Run `npm audit fix` | 15 min | Todo |
-| **SEC-03** | **Medium** | B7 Security | `credentials/` | Service account JSON key file stored in workspace tree | Potential secret leak if committed to public remote | Verify `.gitignore` coverage; document rotation | 10 min | Todo |
-| **RATE-01** | **Medium** | B6 Rate Limiting | `src/app/api/orders/route.ts` | Order submission endpoint lacks IP-based rate limiting | Malicious bot could flood Google Sheets New Sale Request tab | Add rate limiter (Upstash Redis or Cloudflare/Netlify WAF) | 45 min | Todo |
-| **CI-01** | **Medium** | B4 CI/CD | Root `.github/` | No GitHub Actions workflow exists | Unverified code could be pushed and automatically deployed | Add GitHub Actions CI workflow | 30 min | Todo |
-| **PRIV-01** | **Medium** | B9 Consent | `src/components/layout/AppShell.tsx` | App stores data in `localStorage` without user consent banner | Non-compliance with privacy standards (DPDP / GDPR) | Implement lightweight Cookie/Storage banner | 45 min | Todo |
-| **OBS-01** | **Medium** | B12 Observability | `src/app/api/` | Logs rely on `console.warn`/`console.error` without external aggregation | Production outages must be diagnosed manually | Configure Sentry or structured log drain | 30 min | Todo |
-| **CODE-01** | **Low** | B1 Cleanup | `content/faq.ts` & `src/content/faq.ts` | Duplicate `faq.ts` in root and `src/` | Developer confusion over single source of truth | Remove redundant `content/faq.ts` | 5 min | Todo |
-| **CODE-02** | **Low** | B1 Cleanup | `src/lib/referenceId.ts:L115`, `src/app/api/inquiry/route.ts:L65` | `Math.random()` used for ticket IDs and offline IDs | Weak randomness in server identifiers | Use `crypto.randomUUID()` or `crypto.randomBytes` | 15 min | Todo |
+### 3.1 First-Load Bundle Sizes by Route (from `npm run build`)
+- Framework / Shared Runtime JS: ~110 kB
+- Route `/`: Dynamic SSR (`ƒ`) — Server rendered
+- Route `/categories/[slug]`: Dynamic SSR (`ƒ`) — Server rendered
+- Route `/checkout`: Static Client (`○`) — 31.4 kB source bundle
+- Route `/search`: Static Client (`○`) — 13.2 kB source bundle
+- Route `/journal`: Static Client (`○`) — 26.6 kB source bundle
+- Route `/support`: Static Client (`○`) — 23.4 kB source bundle
+- Route `/about`: Static Pre-rendered (`○`) — Minimal static HTML
+- Route `/faq`: Static Pre-rendered (`○`) — Minimal static HTML
+
+### 3.2 Google Sheets Calls Per Journey (Measured from Code)
+- **Visitor Page View (`/` or `/categories/[slug]`):** 1 call (`Item Management` read). Steady state target after ISR: **0 calls**.
+- **Checkout View (`/checkout`):** 1 call (`Courier Partners` read via `/api/delivery-options`). Target after shared cache: **0 calls**.
+- **Order Placement (`POST /api/orders`):**
+  - Current: 1 catalog read + 1 courier read + 1 cold-start schema check + 1 recent rows read + 1 row append = **4–5 API calls**.
+  - Target: 0 catalog read (from shared cache) + 0 courier read (from shared cache) + 1 atomic create/append = **1 API call**.
+- **Official Google API Quotas:** 60 read requests per minute per user / 300 per project. 60 write requests per minute per user.
+- **Calculated Maximum Order Rate (Current):** Saturated at ~12–15 orders/minute before quota failure. With single-call atomic append: **60 orders/minute**.
 
 ---
 
-## Category-by-Category Audit Evidence
+## 4. NOT VERIFIED Section (Explicitly Unmeasured)
 
-### B1. Boilerplate & Dead Code (Status: Fail — 2 Low findings)
-- starter files cleaned: **Pass**.
-- Brand spelling checks: **Pass** (`npm run check:brand` reports 0 violations).
-- Unused dependencies: **Pass** (`package.json` has only 4 dependencies: `lucide-react`, `next`, `react`, `react-dom`, `zod`).
-- Duplicate files: **Fail (CODE-01)**. `content/faq.ts` duplicates `src/content/faq.ts`.
-- Weak randomness: **Fail (CODE-02)**. `Math.random()` used in `referenceId.ts` and `api/inquiry`.
-
-### B2. Error Handling (Status: Pass)
-- Route handlers: **Pass**. Try/catch guards in `/api/products`, `/api/delivery-options`, `/api/orders`, and `/api/inquiry`.
-- Friendly error messages: **Pass**. UI displays clear human-language messages.
-- Sheets timeout guard: **Pass**. 8-second `Promise.race` timeout in `/api/orders` initiates offline fallback.
-
-### B3. Automated Tests (Status: Fail — 1 Blocker finding)
-- Existing unit tests: **Pass** (`order-system.test.mjs` has 24 passing tests).
-- Integration test suite: **Fail (TEST-01)**. `phase2-discoverability.test.mjs` fails on line 83 due to missing `docs/BACKLINK_PLAN.md`.
-
-### B4. CI/CD Pipeline (Status: Fail — 1 Medium finding)
-- Netlify automated build: **Pass** (`netlify.toml` configured).
-- VCS CI Pipeline: **Fail (CI-01)**. No GitHub Actions workflow configured.
-
-### B5. Scale: Very High Traffic (1 Lakh Users) (Status: Fail — 1 High finding)
-- Reality Check: Target is 100,000 concurrent users. Public pages must be absorbed by the CDN edge.
-- Static assets & images: **Pass** (Netlify CDN with immutable caching).
-- Dynamic reads: **Fail (SCALE-01)**. Home `/` and `/categories/[slug]` use `revalidate = 0`. Each visitor triggers a Google Sheets API call, causing quota exhaustion.
-
-### B6. Rate Limiting & Abuse (Status: Fail — 1 Medium finding)
-- Honeypot: **Pass** (`botHp` field on `/api/inquiry`).
-- Order quantity limit: **Pass** (Max 50 items per order).
-- IP rate limiting: **Fail (RATE-01)**. No IP-level rate limiting on `/api/orders`.
-
-### B7. Security (Status: Fail — 1 Blocker, 1 High, 1 Medium)
-- Formula injection defense: **Pass** (`sanitizeCell()` prefixes single quote).
-- Zod schema validation: **Pass** on all input endpoints.
-- Vulnerable packages: **Fail (SEC-01 & SEC-02)**. Next.js 16.3.5 has critical ImageResponse RCE; `source-map-js` has high DoS.
-- Credentials in repo: **Fail (SEC-03)**. Local service account JSON file in `credentials/`.
-
-### B8. Data Integrity & Google Sheets (Status: Pass)
-- Startup verification: **Pass** (`ensureSheetSchema()` validates all 4 tabs).
-- Idempotency: **Pass** (`submission_id` prevents duplicate order rows).
-- Sequential ID generator: **Pass** (`FIC-A0001` format with rollover).
-
-### B9. Cookies & Consent (Status: Fail — 1 Medium finding)
-- Cookie inventory: **Pass** (0 cookies set).
-- Storage inventory: **Pass** (`localStorage` and `sessionStorage` documented).
-- Consent Banner: **Fail (PRIV-01)**. No consent banner for `localStorage`.
-
-### B10. Performance & UX (Status: Pass)
-- Bundle sizes: **Pass** (`next build` compiled cleanly).
-- Font loading: **Pass** (`next/font/google` self-hosted).
-- Responsive shell: **Pass** (Optimized for Mobile, Tablet, Desktop).
-
-### B11. Architecture & Maintainability (Status: Pass)
-- Path aliases: **Pass** (`@/*` mapping to `./src/*`).
-- File organization: **Pass** (Clean feature separation).
-
-### B12. Observability & Operations (Status: Fail — 1 Medium finding)
-- Logging: **Fail (OBS-01)**. Unhandled error telemetry lacks centralized monitoring (e.g. Sentry).
-
-### B13. Deployment Readiness (Status: Pass)
-- Netlify plugins: **Pass** (`@netlify/plugin-nextjs`).
-- Prebuild hooks: **Pass** (`sheets:bootstrap` + manifest builder).
-
-### B14. Pre-Mortem: Future Failures Evaluated (Status: Pass)
-- Quota exhaustion: Mitigated by proposed ISR caching.
-- Sheet header renaming: Mitigated by dynamic header resolution.
-- Lost orders: Mitigated by offline fallback ID and WhatsApp chat transcript.
+The following items could not be measured in this environment and must be verified before declaring final production readiness:
+1. **Lighthouse Mobile Score:** `NOT RUN: headless Chrome/Lighthouse CLI not configured in local Node runner`. Must be run against deployed preview.
+2. **Real-Device WhatsApp Deep Link:** `NOT RUN: requires physical iOS and Android devices with WhatsApp installed`.
+3. **Staging k6 Load Test:** `NOT RUN: requires deployed staging URL and isolated test spreadsheet`. Load-testing production spreadsheet is strictly prohibited.
+4. **Deployed Preview HTTP Response Headers:** `NOT RUN: requires live Netlify preview URL to test with curl -I`.
+5. **Legal Compliance Certification:** `NOT RUN: legal compliance under DPDP Act 2023 / GDPR requires formal counsel review`.
+6. **Dedicated Secret Scanner:** `NOT VERIFIED: gitleaks/trufflehog binary not installed in local environment`. (Manual git log regex and commit inspection proved 0 real keys in history; strings are 3-char `...` placeholders).
+7. **GitHub Repo Visibility:** `NOT VERIFIED: currently public on GitHub web interface; requires owner action in GitHub repository settings to make private`.
+8. **Google Sheet Sharing Settings:** `NOT VERIFIED: exact ACLs and link-sharing status on the production sheet require manual Google Drive UI inspection by the owner`.
+9. **Netlify Runtime Filesystem Behavior:** `NOT VERIFIED: behavior of ephemeral local disk cache under multi-instance Netlify serverless execution cannot be validated locally`.
+10. **Netlify Plan Limits:** `NOT VERIFIED: whether active Netlify plan quotas (bandwidth, function invocations, execution minutes) accommodate 100,000 visitors requires account dashboard verification`.

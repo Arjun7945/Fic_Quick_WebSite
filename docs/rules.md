@@ -2,7 +2,8 @@
 
 **Purpose:** Comprehensive development rules, security constraints, and operating standards for all developers and AI agents.  
 **Last Updated:** 2026-10-06  
-**Source:** `IMPOSTER.md` + repository codebase (`commit 77b1878`)  
+**Audited Commit:** `90c3da4b63cec8406526a6e91f28e9de0a867def`  
+**Source:** `IMPOSTER.md` + repository codebase  
 
 ---
 
@@ -32,40 +33,77 @@
 - Add `'use client'` strictly when interactive hooks (`useState`, `useEffect`, `useReducer`, `useContext`) or browser DOM APIs are necessary.
 - Do not import client-only packages or UI components into server utilities.
 
-### 2.3 Error Handling Pattern
-- Server endpoints must use typed try/catch blocks with friendly public messages.
-- Standard API error response format:
-  ```json
-  { "success": false, "error": "Human-friendly explanation", "details": ... }
-  ```
-- Never leak stack traces, SQL errors, or internal file paths to the browser.
-- UI forms must handle loading, success, and error states gracefully with accessible toast alerts or inline error messages.
+---
 
-### 2.4 Spreadsheet Formula Injection Guard
-- Every cell value written to Google Sheets must pass through `sanitizeCell()`.
-- Any string beginning with `=`, `+`, `-`, or `@` must be prefixed with a single quote (`'`).
+## 3. Directory & Folder Placement Rules
+
+- **Routes & Pages:** Place exclusively in `ficcado-website-frontend/src/app/`.
+- **Reusable Components:** Place in `src/components/` structured by domain (`layout/`, `modals/`, `ui/`, `home/`).
+- **State & Contexts:** Place in `src/context/`.
+- **Domain Logic & Integrations:** Place in `src/lib/` (Sheets client in `src/lib/sheets/`).
+- **Configuration & Constants:** Place in `src/config/`.
+- **Static Assets:** Place images exclusively in `public/images/` under designated subfolders (`brand_logo/`, `categories/`, `hero/`, `items/<sku>/`, `founders/`, `journal/`). Never store mock/dummy images.
+- **Tests:** Place in `scripts/tests/` (unit & integration) or `tests/` (Playwright e2e). Tests must never be imported by runtime production code.
 
 ---
 
-## 3. Data Integrity & Persistence Rules
+## 4. Security & Privacy Rules (P0)
 
-1. **Server-Side Price Authority:**
-   - Never trust prices, totals, or item counts sent by the client browser.
-   - Always re-fetch product prices from the catalog and re-verify courier rates on the server.
-2. **Sequential Reference IDs:**
-   - Sequential IDs must follow `FIC-<SERIES><4-DIGIT-NUM>`.
-   - Never re-use or reset Reference IDs on server restart. Always scan existing rows to find the maximum sequential ID.
-3. **Idempotent Order Creation:**
-   - Every order submission must include a client-generated `submission_id`.
-   - If a duplicate `submission_id` is received, return the existing order data without writing a new row.
+1. **Spreadsheet Formula Injection Guard:**
+   - Every cell value written to Google Sheets must pass through `sanitizeCell()`.
+   - Any string beginning with `=`, `+`, `-`, or `@` must be prefixed with a single quote (`'`).
+2. **Personal Data Isolation in Caches:**
+   - **Never cache a response that contains personal data.**
+   - Mutating routes (`/api/orders`, `/api/inquiry`) must set `Cache-Control: no-store, no-cache, must-revalidate` and must never emit `Set-Cookie`.
+   - Delivery options payloads must expose only public data (`id`, `name`, `rate`, `deliveryTime`). Never expose courier partner phone numbers or physical addresses.
+3. **Logging Privacy:**
+   - Server logs must never print customer names, mobile numbers, emails, or street addresses.
+   - Logs must include only route, timestamp, error code, and short `requestId`.
 
 ---
 
-## 4. Definition of Done (DoD)
+## 5. Storage & Cookie Consent Rules
 
-A task or feature is considered **Done** only when:
+1. **Storage Classification:**
+   - `ficcado-bag-v3` (`localStorage`): **Strictly Necessary**. Holds SKU IDs, sizes, quantities. Does not contain personal data.
+   - `ficcado-checkout-form-draft` (`localStorage`): **Preferences / Convenience**. Must be saved only after user has accepted Preferences. Must be cleared automatically upon successful order submission.
+   - `ficcado-last-order` (`sessionStorage`): Temporary handoff data. Cleared when `/checkout/whatsapp-continue` has rendered or session ends.
+   - `ficcado-recent-searches` (`localStorage`): **Functional / Preferences**.
+2. **Consent Behavior:**
+   - Banner must load after hydration without causing layout shift.
+   - Equal prominence for **Accept all**, **Reject all**, and **Manage preferences**.
+   - If user selects "Reject all", clear optional stored data immediately. The shopping bag remains functional.
+
+---
+
+## 6. Performance & Scale Rules (1 Lakh Users Readiness)
+
+1. **Zero Visitor Reads to Google Sheets in Steady State:**
+   - Public pages (`/`, `/categories/[slug]`) must use ISR (`revalidate = 60`) or CDN edge caching.
+   - Never use `force-dynamic` with `revalidate = 0` on visitor-facing read paths.
+2. **No Per-Request Cookie Reads on Static Paths:**
+   - Never read cookies or headers in root layouts or shared shells that would silently force pages to become dynamically rendered.
+3. **Bound Serverless Write Latencies:**
+   - Mutating Google Sheets operations must be bounded by an 8-second timeout guard. If unfulfilled, trigger offline fallback (`FIC-T...`).
+
+---
+
+## 7. App-Specific "Never Do" List
+
+- **NEVER** write prices or item totals from the client directly to Google Sheets; always recompute on the server.
+- **NEVER** commit or track files in `credentials/` to Git.
+- **NEVER** load heavy Google Cloud client libraries (`googleapis`, `google-auth-library`) into serverless bundles; use pure Node RS256 JWT auth.
+- **NEVER** run load tests against the production Google Spreadsheet.
+- **NEVER** silently delete rows in Google Sheets; rows are append-only.
+- **NEVER** push commits or trigger deployments; git push is reserved for the developer.
+
+---
+
+## 8. Definition of Done (DoD)
+
+A task or batch is considered **Done** only when:
 1. `npm run typecheck` passes with zero errors.
-2. `npm run lint` passes with zero warnings or errors.
+2. `npm run lint` passes with zero errors.
 3. `npm run test` passes with 100% test success.
 4. `npm run check:brand` passes with zero brand violations.
 5. `npm run build` succeeds cleanly.

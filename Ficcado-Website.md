@@ -32,8 +32,8 @@
 
 ## 1. Overview
 Ficcado is a contemporary unisex streetwear and apparel direct-to-consumer storefront.
-- **Core Product Offering:** High-quality 230 GSM combed cotton unisex t-shirts engineered with architectural drop-shoulder silhouettes, anti-sag double-ribbed collars, and relaxed unisex draping. Future capsule roadmap includes apparel combos, structured overshirts, fleece hoodies, articulated pants, and minimalist sneakers.
-- **Founders:** Founded in 2025 by three friends: Sinan MS (strategic operations & customer care), Ganga Lakshmi (creative operations & silhouette design), and Rohith Murali (textile engineering & mill sourcing).
+- **Core Product Offering:** High-quality 230 GSM combed cotton unisex t-shirts engineered with architectural drop-shoulder silhouettes, anti-sag double-ribbed collars, and relaxed unisex draping (`src/app/layout.tsx:L41-L47`, `src/app/journal/page.tsx:L81-L108`). Future capsule roadmap includes apparel combos, structured overshirts, fleece hoodies, articulated pants, and minimalist sneakers (`src/config/categories.ts:L19-L68`).
+- **Founders:** Founded in 2025 by three friends: Sinan MS (strategic operations & customer care), Ganga Lakshmi (creative operations & silhouette design), and Rohith Murali (textile engineering & mill sourcing) (`src/app/layout.tsx:L119-L124`, `src/app/journal/page.tsx:L51-L78`, `public/images/founders/`).
 - **Commerce Model:** Dynamic catalog driven by Google Sheets as the administrative database, client-side shopping bag state persisted in `localStorage`, server-verified checkout, sequential reference ID generation (`FIC-<SERIES><4-DIGIT-NUM>`, e.g., `FIC-A0001`), and direct WhatsApp order dispatch with personalized manual human verification.
 
 ---
@@ -239,10 +239,10 @@ Fic_Quick_WebSite/
 |---|---|---|---|---|
 | `NEXT_PUBLIC_WHATSAPP_NUMBER` | `next.config.ts`, `src/lib/whatsapp.ts`, `src/app/layout.tsx` | Client & Server | **Required in Prod** | `919497144795` (10-15 digits, international format, no `+`) |
 | `NEXT_PUBLIC_SITE_URL` | `next.config.ts`, `src/lib/siteUrl.ts`, `src/lib/whatsapp.ts`, `src/app/layout.tsx` | Client & Server | **Required in Prod** | `https://ficcado.store` (Starts with `https://`) |
-| `GOOGLE_SHEET_ID` | `src/lib/sheets/schema.ts`, `src/lib/sheets/client.ts`, `src/lib/products.ts`, `src/lib/couriers.ts`, `src/app/api/orders/route.ts`, `src/app/api/inquiry/route.ts` | Server Only | **Required** | `1U1bdFZH68Seg3OcV3Wtucmsqg8JL5i3MIGECglu_hfs` (44-char alphanumeric sheet ID) |
-| `GOOGLE_SERVICE_ACCOUNT_EMAIL` | `src/lib/sheets/client.ts` | Server Only | Required in Production | `<name>@<project>.iam.gserviceaccount.com` |
+| `GOOGLE_SHEET_ID` | `src/lib/sheets/schema.ts`, `src/lib/sheets/client.ts`, `src/lib/products.ts`, `src/lib/couriers.ts`, `src/app/api/orders/route.ts`, `src/app/api/inquiry/route.ts` | Server Only | **Required** | `<44-char sheet id>` |
+| `GOOGLE_SERVICE_ACCOUNT_EMAIL` | `src/lib/sheets/client.ts` | Server Only | Required in Production | `<service-account>@<project>.iam.gserviceaccount.com` |
 | `GOOGLE_PRIVATE_KEY` | `src/lib/sheets/client.ts` | Server Only | Required in Production | `-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n` |
-| `GOOGLE_SERVICE_ACCOUNT_KEY_FILE`| `src/lib/sheets/client.ts` | Server Only | Optional (Local dev) | `../credentials/ficcado-quick-website-5fc91a2f02ba.json` |
+| `GOOGLE_SERVICE_ACCOUNT_KEY_FILE`| `src/lib/sheets/client.ts` | Server Only | Optional (Local dev) | `../credentials/<service-account-key-file.json>` |
 | `ORDER_ID_LIMIT` | `src/app/api/orders/route.ts`, `src/lib/referenceId.ts` | Server Only | Optional | `9999` (Default rollover threshold per letter series) |
 | `SHEETS_STRICT` | Scripts & build | Server Only | Optional | `false` (Controls strictness of schema validation) |
 | `ADMIN_TOKEN` | Diagnostic scripts | Server Only | Optional | Secret string for diagnostics |
@@ -442,6 +442,18 @@ The application uses **React Context with `useReducer` and `useSyncExternalStore
   - Catalog reads fallback to `src/generated/products-cache.json` if Google Sheets is unreachable.
   - Order writes fallback to offline Reference IDs (`FIC-T...`) if Google Sheets times out after 8 seconds.
 
+### 13.1 Google Sheets API Calls Per Journey & Quota Budget (B-02)
+
+| Journey / Path | Sheets Calls (Current) | Target After Caching & Batching | Quota Capacity |
+|---|---|---|---|
+| **Visitor Page View (`/`, `/categories/[slug]`)** | 1 read call | **0 calls** (Served from ISR edge cache) | 0 calls to Google Sheets in steady state. |
+| **Checkout Load (`/checkout`)** | 1 read call | **0 calls** (Served from shared cache) | Quota protected. |
+| **Order Placement (`POST /api/orders`)** | **4–5 calls** (Catalog + Courier + Schema + Recent rows + Append) | **1 call** (Catalog & Courier from shared cache + 1 atomic create/append) | Current: max ~12–15 orders/min before hitting Google's 60 req/min limit. Target: 60 orders/min. |
+| **Support Ticket (`POST /api/inquiry`)** | 1 write call | 1 write call (Honeypot + rate limited) | Up to 60 tickets/min. |
+
+**Official Quota Documentation:**  
+Google Sheets API v4 limits are 60 read requests per minute per user and 60 write requests per minute per user (https://developers.google.com/sheets/api/limits).
+
 ---
 
 ## 14. [IF BACKEND] Backend Service
@@ -625,31 +637,27 @@ The application uses **React Context with `useReducer` and `useSyncExternalStore
 
 ## 28. Questions for the Developer (Decisions & Clarifications)
 
-### Question 1: Catalog Read Caching & High Traffic Scaling Strategy
-- **Context:** Currently, the home page (`/`) and `/categories/[slug]` use `export const dynamic = 'force-dynamic'` and `revalidate = 0`. Google Sheets API enforces a limit of 60 requests per minute per user. Under load, visitors will hit 429 errors.
-- **Options:**
-  - **Option A (Recommended):** Use Incremental Static Regeneration (ISR) with `export const revalidate = 60` (or 120s), serving cached catalog from the CDN edge with background refresh.
-  - **Option B:** Keep `force-dynamic` but use an in-memory or Redis (e.g. Upstash) cache layer with a 60-second TTL.
-  - **Option C:** Keep real-time Sheets reads on every request and rely solely on the local `products-cache.json` fallback when 429 errors occur.
-- **Recommendation:** **Option A**. Absorbs high traffic at the CDN edge without incurring Google Sheets quota exhaustion, while updates made in Google Sheets reflect on the website within 60–120 seconds.
+### 28.1 Answered & Approved Decisions (Phase 4 Part A)
 
-### Question 2: Resolving Missing `docs/BACKLINK_PLAN.md` Test
-- **Context:** `scripts/tests/phase2-discoverability.test.mjs` fails because `docs/BACKLINK_PLAN.md` was moved to `documents-1/BACKLINK_PLAN.md`.
-- **Options:**
-  - **Option A (Recommended):** Copy `BACKLINK_PLAN.md` into the new `docs/` knowledge base folder so tests pass and SEO documentation remains indexed.
-  - **Option B:** Update the test path to check `documents-1/BACKLINK_PLAN.md`.
-- **Recommendation:** **Option A**. Keeps all project documentation organized under `docs/`.
+- **Question 1: Catalog Read Caching** → **APPROVED (Option A):** ISR (`revalidate = 60`) with shared catalog cache across pages and `/api/orders`. (Decision D-003).
+- **Question 2: Missing `docs/BACKLINK_PLAN.md` Test** → **APPROVED (Option A):** Restore `BACKLINK_PLAN.md` into `docs/`. (Decision D-004).
+- **Question 3: Upgrade Next.js** → **APPROVED (Option A):** Upgrade `next` and `eslint-config-next` to verified release `16.3.8`. (Decision D-005).
+- **Question 4: CI/CD Pipeline** → **APPROVED (Option A):** Add GitHub Actions workflow (`.github/workflows/ci.yml`). Gating follows D7. (Decision D-006).
 
-### Question 3: Upgrading Next.js to Patch Vulnerabilities
-- **Context:** `npm audit` flagged Next.js 16.3.5 with a critical advisory (GHSA-vcvr-r3jv-pc5j). Next.js 16.3.8+ patches this issue.
-- **Options:**
-  - **Option A (Recommended):** Upgrade `next` and `eslint-config-next` to `16.3.9` (latest patch release in 16.3 series).
-  - **Option B:** Defer upgrade until subsequent deployment cycles.
-- **Recommendation:** **Option A**. Resolves the critical RCE vulnerability.
+### 28.2 Pending Decisions (Phase 4 Part C)
 
-### Question 4: CI/CD Pipeline
-- **Context:** The repository currently lacks a `.github/workflows/ci.yml` pipeline.
-- **Options:**
-  - **Option A (Recommended):** Add GitHub Actions CI workflow running typecheck, lint, brand check, unit tests, and build.
-  - **Option B:** Rely solely on Netlify deploy builds.
-- **Recommendation:** **Option A**. Prevents broken code from being pushed to production.
+- **D1 (Atomic Reference ID):** `PENDING` (Google Apps Script counter vs row-derived ID).
+- **D2 (Rate-Limit Store):** `PENDING` (Upstash Redis vs Netlify edge limits).
+- **D3 (CAPTCHA):** `PENDING` (Recommended: Not at launch).
+- **D4 (Error Tracking):** `PENDING` (Recommended: Structured logs at launch, Sentry post-launch).
+- **D5 (Consent Storage Expiry):** `PENDING` (Recommended: 12 months, Necessary + Preferences).
+- **D6 (Test Coverage Thresholds):** `PENDING` (Recommended: ≥80% server/lib, 100% money/ID).
+- **D7 (Deploy Gating):** `PENDING` (Recommended: Protected main branch with required status checks).
+- **D8 (Netlify Plan & Peak Traffic):** `PENDING`.
+- **D9 (Combos Category Status):** `PENDING` (Live vs Coming Soon).
+- **D10 (Brand Facts Owner Confirmation):** `PENDING`.
+- **D11 (Credentials Remote Exposure):** **VERIFIED CLEAN** (0 commits in git history; git-ignored).
+- **D12 (`progress.md` Location):** `docs/progress.md` (Confirmed).
+- **D13 (CSP Approach & HSTS Preload):** `PENDING` (Recommended: Pragmatic CSP, drop HSTS preload).
+- **D14 (Replace Real Sheet ID / Key Filename):** **COMPLETED** (Sanitized with placeholders).
+- **D15 (Privacy Policy Details):** `PENDING` (Contact email, retention window, courier sharing).

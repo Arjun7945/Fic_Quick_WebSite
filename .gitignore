@@ -20,6 +20,9 @@ coverage/
 
 # Generated files
 ficcado-website-frontend/src/generated/
+ficcado-website-frontend/src/generated
+src/generated/
+src/generated
 
 # OS & debug logs
 .DS_Store

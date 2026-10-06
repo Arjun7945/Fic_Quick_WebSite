@@ -2,7 +2,8 @@
 
 **Purpose:** Persistent agent memory recording confirmed facts, decision logs, developer preferences, constraints, pitfalls, and current state.  
 **Last Updated:** 2026-10-06  
-**Source:** Phase 1 Deep Scan + Project Invariants  
+**Audited Commit:** `90c3da4b63cec8406526a6e91f28e9de0a867def`  
+**Source:** Phase 1 Deep Scan + Phase 4 Review Decisions  
 
 ---
 
@@ -10,10 +11,13 @@
 
 - **[F-001]** The brand name is strictly **Ficcado** (Capital F). Typos like `fikado`, `fkd`, `fik`, `ficado`, `ficcdo`, `ficcodo` are forbidden by `scripts/check-brand.mjs`. — Source: `scripts/check-brand.mjs` — 2026-10-06
 - **[F-002]** The official Reference ID sequence starts with `FIC-A0001` and rolls over at `9999` to `FIC-B0001` ... `FIC-Z9999` → `FIC-AA0001`. — Source: `src/lib/referenceId.ts` — 2026-10-06
-- **[F-003]** Google Sheets target spreadsheet ID is `1U1bdFZH68Seg3OcV3Wtucmsqg8JL5i3MIGECglu_hfs` with four required tabs: `'Item Management'`, `'Courier Partners'`, `'New Sale Request'`, and `'Support Requests'`. — Source: `src/lib/sheets/schema.ts` — 2026-10-06
+- **[F-003]** Google Sheets target spreadsheet has 4 required tabs: `'Item Management'`, `'Courier Partners'`, `'New Sale Request'`, and `'Support Requests'`. ID: `<44-char sheet id>`. — Source: `src/lib/sheets/schema.ts` — 2026-10-06
 - **[F-004]** Delivery charge of ₹0 represents Free Delivery per Section R4. — Source: `src/lib/couriers.ts` — 2026-10-06
 - **[F-005]** The application sets zero cookies. All client state is stored in `localStorage` (`ficcado-bag-v3`, `ficcado-checkout-form-draft`, `ficcado-recent-searches`) and `sessionStorage` (`ficcado-last-order`, `fc_is_ios`). — Source: Phase 1 Code Scan — 2026-10-06
-- **[F-006]** The currently live clothing category is exclusively `T-Shirts` (`t-shirts`). Categories `combos`, `shirts`, `hoodies`, `pants`, and `sneakers` are marked `coming-soon` and render the dedicated "Roadmap" page. — Source: `src/config/categories.ts` — 2026-10-06
+- **[F-006]** Founders' names (Sinan MS, Ganga Lakshmi, Rohith Murali), "founded in 2025", and 230 GSM combed cotton specifications are sourced directly from codebase metadata (`src/app/layout.tsx:L119-L124`, `src/app/journal/page.tsx`, and `public/images/founders/`). Pending final confirmation in D10. — Source: Codebase — 2026-10-06
+- **[F-007]** Service account key file in `credentials/` was verified clean: 0 files tracked in git, 0 commits in git history, and covered by root `.gitignore:L8`. — Source: Git command verification — 2026-10-06
+- **[F-008]** Next.js ImageResponse RCE advisory (GHSA-vcvr-r3jv-pc5j) patched range is `>=16.3.6`. The latest release `16.3.8` is inside the patched range. — Source: `npm audit --json` & `npm view next dist-tags` — 2026-10-06
+- **[F-009]** `source-map-js` vulnerability (GHSA-68fv-2mgg-jv7q) patched version `1.2.2` exists on npm registry. — Source: `npm view source-map-js versions` — 2026-10-06
 
 ---
 
@@ -21,27 +25,35 @@
 
 - **[D-001]** 2026-10-06 — **Question:** How should the project knowledge base be structured? — **Options:** A: Overwrite old documents; B: Preserve previous docs in `documents-1/` and generate standard IMPOSTER.md files in `docs/`. — **Decision:** Preserved historical docs in `documents-1/` and built fresh, evidence-backed living knowledge base in `docs/`. — **Decided by:** Agent per IMPOSTER.md protocol — **Status:** active
 - **[D-002]** 2026-10-06 — **Question:** How should the application document be named? — **Options:** A: `Ficcado.md`; B: `Ficcado-Website.md`. — **Decision:** Named `Ficcado-Website.md` per exact example in IMPOSTER.md Section 3.1. — **Decided by:** Agent — **Status:** active
+- **[D-003]** 2026-10-06 — **Question:** Catalog read caching strategy? — **Decision:** Option A: ISR (`revalidate = 60`) with shared cache across routes. — **Decided by:** Developer (Part A #1) — **Status:** approved
+- **[D-004]** 2026-10-06 — **Question:** `BACKLINK_PLAN.md` test failure? — **Decision:** Option A: Restore the file into `docs/`. — **Decided by:** Developer (Part A #2) — **Status:** approved
+- **[D-005]** 2026-10-06 — **Question:** Next.js version upgrade? — **Decision:** Option A: Upgrade to verified patched version `16.3.8`. — **Decided by:** Developer (Part A #3) — **Status:** approved
+- **[D-006]** 2026-10-06 — **Question:** CI/CD pipeline addition? — **Decision:** Option A: Add GitHub Actions workflow. Gating approach follows D7. — **Decided by:** Developer (Part A #4) — **Status:** approved
 
 ---
 
-## 3. Do-Not-Change List
+## 3. Resolved Developer Decisions (Part C Resolutions)
 
-- Do not alter the brand name "Ficcado" or prefix "FIC-".
-- Do not change the 230 GSM fabric specification or unisex positioning without explicit instruction.
-- Do not alter the 4 Google Sheets tab names: `'Item Management'`, `'Courier Partners'`, `'New Sale Request'`, `'Support Requests'`.
-- Do not replace the assisted WhatsApp checkout model with an unapproved payment gateway SDK.
+- **[D1] Reference ID Strategy:** Option A selected. Google Apps Script web app with `LockService` + `PropertiesService` counter + idempotency on `submission_id` + append by header name. Next.js calls gateway via `ORDER_GATEWAY_URL` and `ORDER_GATEWAY_SECRET` (in body). Production fails unless gateway env vars set or `ORDER_ID_MODE=sheet-row` explicitly set. Offline `FIC-T` fallback generated with crypto. Docs at `docs/APPS_SCRIPT.md`.
+- **[D2] Rate Limiting:** Upstash REST (`RATE_LIMIT_STORE=upstash` with `UPSTASH_REDIS_REST_URL` & `UPSTASH_REDIS_REST_TOKEN`) or `RATE_LIMIT_STORE=memory` (fallback with warning). Production fails if `RATE_LIMIT_STORE` unset. Fallback to in-memory if store down; never block all orders.
+- **[D3] Bot Mitigation:** No CAPTCHA at launch. Honeypot + minimum-time-to-submit on order & support forms.
+- **[D4] Observability:** No error-tracking vendor at launch. Structured JSON logs with request IDs and zero PII. Health endpoint protected by `ADMIN_TOKEN`.
+- **[D5] Consent:** Expiry 12 months; equal-prominence Reject for all regions; categories: Necessary, Preferences, + empty Analytics slot ready in config.
+- **[D6] Test Coverage:** ≥ 80% for `src/lib` and API routes; 100% for money, reference ID, sanitizeCell, rate-limit, and consent logic.
+- **[D7] Deploy Gating:** Option A. `.github/workflows/ci.yml` and branch protection documentation.
+- **[D8] Target Traffic:** 100,000 visitors, 10,000 peak concurrent, 100 orders/minute peak.
+- **[D9] Combos Status:** Coming soon (`combos are coming soon only as of now`).
+- **[D10] Brand Facts:** Approved by owner: All current details correct (2025, 230 GSM, drop-shoulder, anti-sag collar, colour packs).
+- **[D11] Repo Visibility:** Public currently (developer can set private in GitHub). Remote key exposure: 0 keys in Git history (verified).
+- **[D12] Living Log:** `docs/progress.md` confirmed as canonical.
+- **[D13] CSP & HSTS:** `Content-Security-Policy-Report-Only` first (pragmatic policy); remove `X-XSS-Protection`; keep HSTS `max-age=31536000`, drop `preload` and `includeSubDomains`.
+- **[D14] Secrets Sanitization:** Placeholders in all documentation completed.
+- **[D15] Privacy Data:** Contact `ficcado.clothing@gmail.com`; hours 7AM–7PM; POG contact Rohith murali (`rohithficcado@gmail.com`); retention forever safe; courier sharing: only delivery label on package; region: INDIA; production fails if `NEXT_PUBLIC_PRIVACY_EMAIL` unset.
 
 ---
 
-## 4. Known Pitfalls & How to Avoid
-
-- **Google Sheets API Rate Limits:** Google limits requests to 60/min. Avoid `force-dynamic` reads on high-traffic visitor paths. Use ISR or cache headers.
-- **Formula Injection:** Never write raw user input to Google Sheets without passing it through `sanitizeCell()`.
-- **Reference ID Rollover:** Ensure rollover correctly advances from `Z` to `AA`, `AB`, etc., rather than looping back to `A`.
-
----
-
-## 5. Current State Summary
-- **Scanned Commit:** `77b18781d892e0201a52338ba22bec58cff0acc2`
-- **Phase Status:** Phase 1 (Deep Scan) Complete; Phase 2 (Knowledge Base) Complete; Proceeding to Phase 3 (Audit Report).
-- **Open Blockers:** 1 failing test (`BACKLINK_PLAN.md`), 1 critical security advisory on Next.js 16.3.5.
+## 4. Current State Summary
+- **Current Branch:** `imposter/p0`
+- **Scanned Commit:** `90c3da4b63cec8406526a6e91f28e9de0a867def`
+- **Phase Status:** Pre-flight complete. Beginning P0 scope execution item by item.
+- **Open Tasks:** P0 Batch (`T-029` through `T-031`, `T-001` through `T-009`, `T-024` through `T-027`, `T-034` through `T-035`).
