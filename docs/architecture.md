@@ -181,3 +181,60 @@ Application-layer rate limiting is enforced via `/src/lib/rateLimit.ts` using Up
 ### 6.3 Updating Public WhatsApp Business Number
 1. Update `NEXT_PUBLIC_WHATSAPP_NUMBER` in Netlify Environment Variables.
 2. Trigger production rebuild (as `NEXT_PUBLIC_*` values are embedded into client JavaScript at build time).
+
+---
+
+## 7. Try/Catch Exception Handling Inventory (P0-7)
+
+Every `try/catch` block within the application core (`ficcado-website-frontend/src`) is inventoried below with exact file paths, line numbers, failure domain, and mitigation strategy:
+
+| # | File & Line | Domain / Scope | Mitigation & Fallback Strategy |
+|---|---|---|---|
+| 1 | `src/app/api/delivery-options/route.ts:15` | Route Handler GET | Catches courier fetch/parsing failure; returns structured `apiError('COURIER_FETCH_FAILED', ..., 500)`. |
+| 2 | `src/app/api/inquiry/route.ts:23` | Origin URL Parse | Catches invalid Origin header string; fails closed to reject cross-origin requests. |
+| 3 | `src/app/api/inquiry/route.ts:48` | Route Handler POST | Root try/catch; logs zero-PII error message; returns structured `apiError('INQUIRY_PROCESSING_FAILED', ..., 500)`. |
+| 4 | `src/app/api/inquiry/route.ts:122` | Sheets Append Write | Catches Google Sheets API write errors during inquiry submission; logs warning without exposing PII. |
+| 5 | `src/app/api/orders/route.ts:45` | Origin URL Parse | Catches malformed Origin header; fails closed to reject cross-origin post. |
+| 6 | `src/app/api/orders/route.ts:108` | Route Handler POST | Root try/catch; returns structured `apiError('ORDER_PROCESSING_FAILED', ..., 500)`. |
+| 7 | `src/app/api/products/route.ts:15` | Route Handler GET | Catches product catalog resolution failures; returns structured `apiError('PRODUCTS_FETCH_FAILED', ..., 500)`. |
+| 8 | `src/app/checkout/page.tsx:131` | Local Storage Draft | Catches unavailable `localStorage` (private browsing / storage blocked) when reading checkout draft. |
+| 9 | `src/app/checkout/page.tsx:157` | Courier Auto-Select | Catches state assignment error during courier auto-selection. |
+| 10 | `src/app/checkout/page.tsx:184` | Price Revalidation | Catches price revalidation network failures; displays user-friendly price sync alert. |
+| 11 | `src/app/checkout/page.tsx:215` | Local Storage Write | Catches quota/permission errors when persisting form drafts to `localStorage`. |
+| 12 | `src/app/checkout/page.tsx:321` | Order Submission | Catches network/server errors on checkout submission; sets UI field errors and toast. |
+| 13 | `src/app/checkout/page.tsx:375` | Session Storage Write | Catches `sessionStorage` permission errors when caching order summary. |
+| 14 | `src/app/checkout/page.tsx:393` | Form Draft Clean | Catches cleanup errors when clearing `localStorage` form draft upon successful order. |
+| 15 | `src/app/checkout/page.tsx:398` | Window Open | Catches popup blocker when opening `wa.me` in a new window; redirects safely via continuation. |
+| 16 | `src/app/checkout/whatsapp-continue/page.tsx:40` | Session Storage Read | Catches storage access error when reading last order details on continuation page. |
+| 17 | `src/app/checkout/whatsapp-continue/page.tsx:58` | Clipboard Copy | Catches clipboard permission rejection; shows fallback prompt. |
+| 18 | `src/app/checkout/whatsapp-continue/page.tsx:75` | Window Open | Catches popup blocker when user clicks "Open WhatsApp Again". |
+| 19 | `src/app/layout.tsx:173` | Storage Migration | Catches storage read exception for legacy preference keys. |
+| 20 | `src/app/layout.tsx:178` | Storage Migration | Catches storage write exception during preference key migration. |
+| 21 | `src/app/layout.tsx:189` | iOS Flag Clean | Safe removal of transient iOS viewport flag in `sessionStorage`. |
+| 22 | `src/app/layout.tsx:198` | iOS Flag Check | Safe detection of transient iOS viewport flag in `sessionStorage`. |
+| 23 | `src/app/layout.tsx:204` | iOS Flag Set | Safe write of iOS viewport flag in `sessionStorage`. |
+| 24 | `src/app/support/page.tsx:114` | Support Form Submit | Catches API errors or network drops; alerts user with friendly toast. |
+| 25 | `src/components/search/SearchView.tsx:31` | Recent Searches Read | Catches `localStorage` read error for search query history. |
+| 26 | `src/components/search/SearchView.tsx:72` | Query Sync | Catches URL query param parsing exceptions. |
+| 27 | `src/components/search/SearchView.tsx:88` | History Persistence | Catches `localStorage` write errors when saving search history. |
+| 28 | `src/components/search/SearchView.tsx:115` | Filter State | Catches state updates during dynamic search filtering. |
+| 29 | `src/components/search/SearchView.tsx:146` | History Delete Item | Catches `localStorage` write error when removing single history tag. |
+| 30 | `src/components/search/SearchView.tsx:155` | History Clear All | Catches `localStorage` write error when clearing history. |
+| 31 | `src/context/CartContext.tsx:153` | Cart Hydration | Catches `localStorage` read failure; falls back to empty cart. |
+| 32 | `src/context/CartContext.tsx:156` | Cart Migration | Catches legacy cart payload migration parsing errors. |
+| 33 | `src/context/CartContext.tsx:188` | Cart Persistence | Catches `localStorage` write quota exceeded. |
+| 34 | `src/context/CartContext.tsx:222` | Price Synchronization | Catches network failure during cart price verification; preserves existing prices safely. |
+| 35 | `src/context/ViewportContext.tsx:49` | Visual Viewport API | Catches unsupported browser Visual Viewport API calls. |
+| 36 | `src/lib/couriers.ts:44` | Couriers API Read | Catches Sheets read error; falls back to default standard courier option. |
+| 37 | `src/lib/orderGateway.ts:76` | Primary Gateway Fetch | Catches network/timeout error calling Apps Script; falls back to sheet-row or offline crypto ID. |
+| 38 | `src/lib/orderGateway.ts:211` | Row Check Read | Catches Sheets read during sheet-row fallback; falls back to offline crypto ID. |
+| 39 | `src/lib/orderGateway.ts:218` | Row Append Write | Catches Sheets write during sheet-row fallback; falls back to offline crypto ID. |
+| 40 | `src/lib/products.ts:80` | Products API Read | Catches Google Sheets catalog read failure; falls back to build-time snapshot. |
+| 41 | `src/lib/products.ts:111` | Build Snapshot Read | Catches build snapshot filesystem read error; falls back to static hardcoded catalog. |
+| 42 | `src/lib/rateLimit.ts:101` | Upstash Redis REST | Catches Upstash connection/timeout error; falls back seamlessly to in-memory sliding window. |
+| 43 | `src/lib/sheets/client.ts:36` | Private Key Formatting | Catches RSA private key parsing error with clear diagnostic guidance. |
+| 44 | `src/lib/sheets/client.ts:211` | Sheets Read with Retry | Handles fetch abort / 5xx / 429; retries with exponential backoff and random jitter. |
+| 45 | `src/lib/sheets/schema.ts:151` | Metadata Read | Catches spreadsheet metadata fetch error during schema bootstrap. |
+| 46 | `src/lib/sheets/schema.ts:261` | Tab Creation | Catches duplicate tab creation error; continues gracefully. |
+| 47 | `src/lib/sheets/schema.ts:274` | Header Formatting | Catches sheet formatting error during schema bootstrap. |
+
