@@ -16,7 +16,7 @@ import {
 import { getSheetValues } from '@/lib/sheets/client';
 import type { ClothingCategory, Product, SizeOption } from '@/types';
 
-const CACHE_FILE = path.join(process.cwd(), 'src', 'generated', 'products-cache.json');
+const SNAPSHOT_FILE = path.join(process.cwd(), 'src', 'generated', 'products-snapshot.json');
 
 function parsePrice(val: unknown): number {
   if (typeof val === 'number') return Math.max(0, Math.round(val));
@@ -72,10 +72,14 @@ function normalizeProductDescription(desc: string): string {
     .replace(/heavyweight/gi, 'high quality');
 }
 
-function readCache(includeOutOfStock = false): Product[] {
+/**
+ * Reads read-only build-time snapshot when Google Sheets API is unreachable.
+ * Never performs runtime disk writes on serverless environments.
+ */
+function readSnapshot(includeOutOfStock = false): Product[] {
   try {
-    if (fs.existsSync(CACHE_FILE)) {
-      const data = fs.readFileSync(CACHE_FILE, 'utf8');
+    if (fs.existsSync(SNAPSHOT_FILE)) {
+      const data = fs.readFileSync(SNAPSHOT_FILE, 'utf8');
       const parsed = JSON.parse(data);
       if (Array.isArray(parsed) && parsed.length > 0) {
         return (parsed as Product[])
@@ -87,21 +91,9 @@ function readCache(includeOutOfStock = false): Product[] {
       }
     }
   } catch (err) {
-    console.warn('[Catalog] Error reading product cache:', (err as Error).message);
+    console.warn('[Catalog] Error reading product build snapshot:', (err as Error).message);
   }
   return [];
-}
-
-function writeCache(products: Product[]): void {
-  try {
-    const dir = path.dirname(CACHE_FILE);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(CACHE_FILE, JSON.stringify(products, null, 2), 'utf8');
-  } catch (err) {
-    console.warn('[Catalog] Error writing product cache:', (err as Error).message);
-  }
 }
 
 /**
@@ -117,7 +109,10 @@ export async function getProducts(options?: { includeOutOfStock?: boolean }): Pr
 
   if (sheetId) {
     try {
-      const rows = await getSheetValues(sheetId, "'Item Management'!A1:Z100");
+      const rows = await getSheetValues(sheetId, "'Item Management'!A1:Z100", {
+        revalidate: 60,
+        tags: ['products'],
+      });
       if (rows && rows.length > 1) {
         const headers = rows[0].map((h) => h.trim().toLowerCase());
         const getColIdx = (name: string) => headers.indexOf(name.toLowerCase());
@@ -215,23 +210,21 @@ export async function getProducts(options?: { includeOutOfStock?: boolean }): Pr
 
         if (products.length > 0) {
           const sorted = products.sort((a, b) => (a.sort_order || 99) - (b.sort_order || 99));
-          // Persist real sheet data to cache for serverless resiliency per R5.2
-          writeCache(sorted);
           return sorted.filter((p) => includeOutOfStock || (p.inStock && isCategoryLive(p.category)));
         }
       }
     } catch (err) {
-      console.warn('[Catalog] Google Sheets catalog read failed, checking real cache:', (err as Error).message);
+      console.warn('[Catalog] Google Sheets catalog read failed, falling back to build snapshot:', (err as Error).message);
     }
   }
 
-  // Fallback: serve last successfully fetched real data (no dummy/handcrafted products)
-  const cached = readCache(includeOutOfStock);
-  if (cached.length > 0) {
-    return cached;
+  // Fallback: serve read-only build-time snapshot (no dummy/handcrafted products)
+  const snapshot = readSnapshot(includeOutOfStock);
+  if (snapshot.length > 0) {
+    return snapshot;
   }
 
-  // Return empty array if unreachable and no real cache exists
+  // Return empty array if unreachable and no snapshot exists
   return [];
 }
 

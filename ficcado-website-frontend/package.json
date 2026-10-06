@@ -5,7 +5,7 @@
   "author": "Arjun PS",
   "scripts": {
     "dev": "next dev",
-    "prebuild": "npm run sheets:bootstrap && node scripts/build-item-image-manifest.mjs",
+    "prebuild": "npm run sheets:bootstrap && node scripts/build-item-image-manifest.mjs && node scripts/build-products-snapshot.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

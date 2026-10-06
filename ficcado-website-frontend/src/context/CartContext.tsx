@@ -40,7 +40,8 @@ type CartAction =
   | { type: 'ADD_ITEM'; payload: CartItem }
   | { type: 'REMOVE_ITEM'; index: number }
   | { type: 'CHANGE_QTY'; index: number; delta: number }
-  | { type: 'CLEAR_CART' };
+  | { type: 'CLEAR_CART' }
+  | { type: 'SYNC_PRICES'; payload: Map<string, number> };
 
 // ---------------------------------------------------------------------------
 // Reducer
@@ -97,6 +98,18 @@ function cartReducer(state: CartState, action: CartAction): CartState {
     case 'CLEAR_CART':
       return { ...state, items: [] };
 
+    case 'SYNC_PRICES': {
+      const priceMap = action.payload;
+      const updated = state.items.map((item) => {
+        const newPrice = priceMap.get(String(item.id));
+        if (typeof newPrice === 'number' && newPrice > 0 && newPrice !== item.price) {
+          return { ...item, price: newPrice };
+        }
+        return item;
+      });
+      return { ...state, items: updated };
+    }
+
     default:
       return state;
   }
@@ -115,6 +128,10 @@ interface CartContextValue {
   removeFromCart: (index: number) => void;
   changeQty: (index: number, delta: number) => void;
   clearCart: () => void;
+  syncPrices: (catalogProducts: Array<{ id: string | number; price: number }>) => {
+    changed: boolean;
+    changes: Array<{ name: string; oldPrice: number; newPrice: number }>;
+  };
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -209,6 +226,29 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const syncPrices = useCallback(
+    (catalogProducts: Array<{ id: string | number; price: number }>) => {
+      const priceMap = new Map<string, number>();
+      for (const p of catalogProducts) {
+        priceMap.set(String(p.id), p.price);
+      }
+      let changed = false;
+      const changes: Array<{ name: string; oldPrice: number; newPrice: number }> = [];
+      for (const item of state.items) {
+        const latest = priceMap.get(String(item.id));
+        if (typeof latest === 'number' && latest > 0 && latest !== item.price) {
+          changed = true;
+          changes.push({ name: item.name, oldPrice: item.price, newPrice: latest });
+        }
+      }
+      if (changed) {
+        dispatch({ type: 'SYNC_PRICES', payload: priceMap });
+      }
+      return { changed, changes };
+    },
+    [state.items]
+  );
+
   const totalItemsCount = useMemo(
     () => state.items.reduce((acc, item) => acc + item.qty, 0),
     [state.items],
@@ -229,6 +269,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       removeFromCart,
       changeQty,
       clearCart,
+      syncPrices,
     }),
     [
       state.items,
@@ -239,6 +280,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       removeFromCart,
       changeQty,
       clearCart,
+      syncPrices,
     ],
   );
 

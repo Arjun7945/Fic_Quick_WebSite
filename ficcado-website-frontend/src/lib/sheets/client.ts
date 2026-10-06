@@ -184,29 +184,85 @@ export async function batchUpdateSpreadsheet(sheetId: string, requests: unknown[
   return res.json();
 }
 
+export interface SheetReadOptions {
+  revalidate?: number | false;
+  tags?: string[];
+  timeoutMs?: number;
+  retries?: number;
+  cache?: RequestCache;
+}
+
 /**
  * Reads row values from a specific tab and range.
+ * Supports Next.js ISR cache controls (defaults to 60s revalidation) and resilient retries.
  */
-export async function getSheetValues(sheetId: string, range: string): Promise<string[][]> {
-  const token = await getAccessToken();
-  const encodedRange = encodeURIComponent(range);
-  const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodedRange}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      Pragma: 'no-cache',
-    },
-    cache: 'no-store', // Real-time: ensure every read from Google Sheets is always fresh
-  });
+export async function getSheetValues(
+  sheetId: string,
+  range: string,
+  options?: SheetReadOptions
+): Promise<string[][]> {
+  const revalidate = options?.revalidate ?? 60;
+  const tags = options?.tags ?? ['sheets'];
+  const timeoutMs = options?.timeoutMs ?? 6000;
+  const maxRetries = options?.retries ?? 2;
 
-  if (!res.ok) {
-    if (res.status === 404) return [];
-    const errorText = await res.text();
-    throw new Error(`Failed to get sheet values for ${range} [${res.status}]: ${errorText}`);
+  let attempt = 0;
+  while (attempt <= maxRetries) {
+    try {
+      const token = await getAccessToken();
+      const encodedRange = encodeURIComponent(range);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+      const fetchInit: RequestInit & { next?: { revalidate?: number | false; tags?: string[] } } = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        signal: controller.signal,
+      };
+
+      if (options?.cache) {
+        fetchInit.cache = options.cache;
+      } else if (typeof revalidate === 'number' || revalidate === false) {
+        fetchInit.next = { revalidate, tags };
+      }
+
+      const res = await fetch(
+        `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodedRange}`,
+        fetchInit
+      );
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        if (res.status === 404) return [];
+        const errorText = await res.text();
+        // Retry on 5xx server errors or 429 quota throttle
+        if ((res.status >= 500 || res.status === 429) && attempt < maxRetries) {
+          attempt++;
+          const jitter = Math.floor(Math.random() * 100);
+          const backoff = Math.min(2000, 250 * Math.pow(2, attempt) + jitter);
+          console.warn(`[Sheets] Read for ${range} failed [${res.status}]. Retrying in ${backoff}ms (attempt ${attempt}/${maxRetries})...`);
+          await new Promise((r) => setTimeout(r, backoff));
+          continue;
+        }
+        throw new Error(`Failed to get sheet values for ${range} [${res.status}]: ${errorText}`);
+      }
+
+      const data = await res.json();
+      return (data.values as string[][]) || [];
+    } catch (err) {
+      if (attempt < maxRetries) {
+        attempt++;
+        const jitter = Math.floor(Math.random() * 100);
+        const backoff = Math.min(2000, 250 * Math.pow(2, attempt) + jitter);
+        console.warn(`[Sheets] Read error for ${range}: ${(err as Error).message}. Retrying in ${backoff}ms (attempt ${attempt}/${maxRetries})...`);
+        await new Promise((r) => setTimeout(r, backoff));
+        continue;
+      }
+      throw err;
+    }
   }
-
-  const data = await res.json();
-  return (data.values as string[][]) || [];
+  return [];
 }
 
 /**

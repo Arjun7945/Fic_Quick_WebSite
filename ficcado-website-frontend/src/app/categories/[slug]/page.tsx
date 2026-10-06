@@ -7,8 +7,7 @@ import { ProductCard } from '@/components/ui/ProductCard';
 import { getProducts } from '@/lib/products';
 import { getSiteUrl } from '@/lib/siteUrl';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 60;
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;

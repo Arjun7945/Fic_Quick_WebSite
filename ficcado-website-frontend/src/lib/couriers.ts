@@ -42,7 +42,10 @@ export async function getCourierPartners(): Promise<CourierOption[]> {
   }
 
   try {
-    const rows = await getSheetValues(sheetId, "'Courier Partners'!A1:Z100");
+    const rows = await getSheetValues(sheetId, "'Courier Partners'!A1:Z100", {
+      revalidate: 60,
+      tags: ['couriers'],
+    });
     if (!rows || rows.length <= 1) {
       console.warn('[Couriers] "Courier Partners" tab is empty or missing data rows.');
       return [];

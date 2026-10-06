@@ -97,8 +97,10 @@ function formReducer(state: FormFields, action: FormAction): FormFields {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, subtotalAmount, clearCart } = useCart();
+  const { items, subtotalAmount, clearCart, syncPrices } = useCart();
   const { showToast } = useToast();
+
+  const [priceChangeNotice, setPriceChangeNotice] = useState<string | null>(null);
 
   const [form, dispatch] = useReducer(formReducer, {
     fullName: '',
@@ -147,22 +149,22 @@ export default function CheckoutPage() {
   // Inline Validation Errors
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Fetch active courier options from /api/delivery-options
+  // Fetch active courier options from /api/delivery-options and revalidate prices
   useEffect(() => {
     let isMounted = true;
+
     async function loadDeliveryOptions() {
       try {
         setIsLoadingDelivery(true);
-        const res = await fetch('/api/delivery-options', {
-          cache: 'no-store',
-          headers: { 'Cache-Control': 'no-cache' },
-        });
+        const res = await fetch('/api/delivery-options');
         if (res.ok) {
           const json = await res.json();
           const data: CourierOption[] = Array.isArray(json)
             ? json
             : Array.isArray(json?.options)
             ? json.options
+            : Array.isArray(json?.data)
+            ? json.data
             : [];
           if (isMounted) {
             setCourierOptions(data);
@@ -177,11 +179,36 @@ export default function CheckoutPage() {
         if (isMounted) setIsLoadingDelivery(false);
       }
     }
+
+    async function revalidateCartPrices() {
+      try {
+        const res = await fetch('/api/products');
+        if (res.ok) {
+          const json = await res.json();
+          const products = Array.isArray(json) ? json : json?.data || [];
+          if (Array.isArray(products) && products.length > 0 && isMounted) {
+            const result = syncPrices(products);
+            if (result.changed) {
+              const notice = `Price update: ${result.changes
+                .map((c) => `${c.name} is now ₹${c.newPrice} (was ₹${c.oldPrice})`)
+                .join(', ')}. Your total has been updated.`;
+              setPriceChangeNotice(notice);
+              showToast(notice, 'info');
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('[Checkout] Failed to revalidate prices:', err);
+      }
+    }
+
     loadDeliveryOptions();
+    revalidateCartPrices();
+
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [syncPrices, showToast]);
 
   // Save form draft on change
   useEffect(() => {
@@ -685,6 +712,13 @@ export default function CheckoutPage() {
                   {items.reduce((a, i) => a + i.qty, 0)} Items
                 </span>
               </div>
+
+              {priceChangeNotice && (
+                <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-2.5 text-xs text-amber-700 dark:text-amber-300 animate-fade-in">
+                  <AlertCircle size={16} className="shrink-0 mt-0.5 text-amber-500" />
+                  <p>{priceChangeNotice}</p>
+                </div>
+              )}
 
               {/* Items List */}
               <div className="space-y-2.5 max-h-56 overflow-y-auto no-scrollbar">
