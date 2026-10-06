@@ -525,7 +525,7 @@ export default function SupportPage() {
               </div>
 
               {/* Submit CTA */}
-              <div className="pt-2">
+              <div className="pt-2 space-y-2">
                 <button
                   type="submit"
                   disabled={isSubmitting}
@@ -535,6 +535,13 @@ export default function SupportPage() {
                   <Send size={15} />
                   <span>{isSubmitting ? 'Logging Support Request...' : 'Submit Support Request'}</span>
                 </button>
+                <p className="text-[10px] text-center text-zinc-500 leading-relaxed">
+                  By submitting this request, you acknowledge our{' '}
+                  <Link href="/privacy" className="underline hover:text-zinc-300">
+                    Privacy Policy
+                  </Link>
+                  . Your details are processed solely to resolve your inquiry.
+                </p>
               </div>
             </form>
           )}

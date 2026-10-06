@@ -7,6 +7,8 @@ import { CartProvider } from '@/context/CartContext';
 import { ToastProvider } from '@/context/ToastContext';
 import { ModalProvider } from '@/context/ModalContext';
 import { ViewportProvider } from '@/context/ViewportContext';
+import { ConsentProvider } from '@/context/ConsentContext';
+import { CookieConsentBanner } from '@/components/ui/CookieConsentBanner';
 
 // Shell
 import { AppShell } from '@/components/layout/AppShell';
@@ -211,11 +213,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-full bg-[var(--bg-page)] antialiased" suppressHydrationWarning>
         <ViewportProvider>
           <ToastProvider>
-            <CartProvider>
-              <ModalProvider>
-                <AppShell>{children}</AppShell>
-              </ModalProvider>
-            </CartProvider>
+            <ConsentProvider>
+              <CartProvider>
+                <ModalProvider>
+                  <AppShell>{children}</AppShell>
+                  <CookieConsentBanner />
+                </ModalProvider>
+              </CartProvider>
+            </ConsentProvider>
           </ToastProvider>
         </ViewportProvider>
       </body>

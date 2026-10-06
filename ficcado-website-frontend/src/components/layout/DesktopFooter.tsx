@@ -9,9 +9,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Sparkles, MessageCircle, Mail, ShieldCheck, Settings, Menu } from 'lucide-react';
 import { useModal } from '@/context/ModalContext';
+import { useConsent } from '@/context/ConsentContext';
 
 export function DesktopFooter() {
   const { openModal } = useModal();
+  const { openSettings: openConsentSettings } = useConsent();
   return (
     <footer className="w-full bg-[var(--bg-surface)] border-t border-[var(--border-light)] mt-12 md:mt-16 text-[var(--text-secondary)] pb-24 md:pb-0">
       {/* Brand value props banner */}
@@ -182,6 +184,19 @@ export function DesktopFooter() {
               <Link href="/shipping-delivery" className="hover:text-[var(--primary)] transition-colors">
                 Shipping & Delivery Timelines
               </Link>
+            </li>
+            <li>
+              <Link href="/cookies" className="hover:text-[var(--primary)] transition-colors">
+                Cookie Policy
+              </Link>
+            </li>
+            <li>
+              <button
+                onClick={openConsentSettings}
+                className="hover:text-[var(--primary)] transition-colors text-left cursor-pointer"
+              >
+                Cookie Settings
+              </button>
             </li>
           </ul>
         </div>

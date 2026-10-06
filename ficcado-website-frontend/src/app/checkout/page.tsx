@@ -210,9 +210,17 @@ export default function CheckoutPage() {
     };
   }, [syncPrices, showToast]);
 
-  // Save form draft on change
+  // Save form draft on change (B-25: gated on preferences consent)
   useEffect(() => {
     try {
+      const consentRaw = localStorage.getItem('ficcado-consent');
+      if (consentRaw) {
+        const parsed = JSON.parse(consentRaw);
+        if (parsed.preferences === false) {
+          localStorage.removeItem(FORM_STORAGE_KEY);
+          return;
+        }
+      }
       localStorage.setItem(
         FORM_STORAGE_KEY,
         JSON.stringify({
@@ -829,9 +837,22 @@ export default function CheckoutPage() {
                 )}
               </button>
 
-              <p className="text-[11px] text-center text-[var(--text-muted)] flex items-center justify-center gap-1">
-                <span>💬 You&apos;ll continue and confirm your order on WhatsApp</span>
-              </p>
+              <div className="pt-2 text-center space-y-1.5">
+                <p className="text-[11px] text-[var(--text-muted)] flex items-center justify-center gap-1">
+                  <span>💬 You&apos;ll continue and confirm your order on WhatsApp</span>
+                </p>
+                <p className="text-[10px] text-zinc-500 leading-relaxed max-w-sm mx-auto">
+                  By placing this order, you agree to our{' '}
+                  <Link href="/terms" className="underline hover:text-zinc-300">
+                    Terms
+                  </Link>{' '}
+                  and acknowledge our{' '}
+                  <Link href="/privacy" className="underline hover:text-zinc-300">
+                    Privacy Policy
+                  </Link>
+                  . Your contact & shipping details are used solely to fulfill delivery and confirm your order via WhatsApp.
+                </p>
+              </div>
             </div>
           </div>
         </div>

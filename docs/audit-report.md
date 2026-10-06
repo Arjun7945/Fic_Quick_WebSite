@@ -78,7 +78,18 @@
   - Current: 1 catalog read + 1 courier read + 1 cold-start schema check + 1 recent rows read + 1 row append = **4–5 API calls**.
   - Target: 0 catalog read (from shared cache) + 0 courier read (from shared cache) + 1 atomic create/append = **1 API call**.
 - **Official Google API Quotas:** 60 read requests per minute per user / 300 per project. 60 write requests per minute per user.
-- **Calculated Maximum Order Rate (Current):** Saturated at ~12–15 orders/minute before quota failure. With single-call atomic append: **60 orders/minute**.
+### 3.3 Privacy Policy Mismatch List (Pre-Fix vs D15 Reality)
+
+| Topic | Pre-Fix Statement on `/privacy` | Verified Fact per D15 / Owner Decision | Resolution in P0-8 |
+|---|---|---|---|
+| **Privacy Contact Email** | `privacy@ficcado.store` (Unconfigured domain mailbox) | `ficcado.clothing@gmail.com` | Replaced across `/privacy`, `.env.example`, and guarded at build time via `NEXT_PUBLIC_PRIVACY_EMAIL`. |
+| **Grievance / POG Officer** | Unlisted ("technical lead") | Rohith Murali (`rohithficcado@gmail.com`) | Explicitly documented in Privacy Policy Section 6 with name and direct email. |
+| **Support Hours** | Unstated ("within 24 hours") | 7:00 AM to 7:00 PM IST | Prominently stated in Privacy Policy. |
+| **Courier Data Sharing** | Stated "We collect your name... exclusively for order fulfillment, courier dispatch" without clarity on data flow | Customer data is NOT shared with courier partners; only the physical package with the exterior delivery label is handed over. | Explicitly clarified in Privacy Policy Section 3. |
+| **Operational Region** | Unspecified pan-India / global | Primarily INDIA; international delivery available on special request with strictly partner-calculated shipping rates. | Explicitly documented in Privacy Policy Section 3. |
+| **Data Retention** | "Purge your identifiable information within 24 hours" | Order and transaction records kept forever safe in protected administrative storage for warranty and replacement tracking. | Corrected in Section 4 of Privacy Policy. |
+| **Legal Review Status** | Unstated (implied formal policy) | No formal legal reviewer. | Documented in audit report and NOT VERIFIED section. |
+| **Cookie & Storage Disclosures** | No dedicated Cookie Policy; local storage omitted | 6 specific storage keys (`ficcado-bag`, `ficcado-last-order`, `ficcado-consent`, `fc_is_ios`, `ficcado-checkout-draft`, `ficcado-recent-searches`) | Created `/cookies` with 100% authentic inventory table; added equal-prominence consent banner. |
 
 ---
 

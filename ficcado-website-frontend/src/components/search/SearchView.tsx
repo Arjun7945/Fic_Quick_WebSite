@@ -113,6 +113,11 @@ export function SearchView({ initialProducts = [] }: SearchViewProps) {
     const current = getRecentSnapshot();
     const updated = [clean, ...current.filter((t) => t.toLowerCase() !== clean.toLowerCase())].slice(0, 5);
     try {
+      const consentRaw = localStorage.getItem('ficcado-consent');
+      if (consentRaw) {
+        const parsed = JSON.parse(consentRaw);
+        if (parsed.preferences === false) return;
+      }
       localStorage.setItem('ficcado-recent-searches', JSON.stringify(updated));
       notifyRecent();
     } catch {
