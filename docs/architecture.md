@@ -129,6 +129,25 @@ Google Sheets API v4 limits are **60 read requests per minute per user** and **6
 
 ---
 
+## 4.1 Rate Limiting Architecture & Route Limits (D2, Item 5)
+
+Application-layer rate limiting is enforced via `/src/lib/rateLimit.ts` using Upstash Redis REST calls (zero heavy SDKs) with a resilient in-memory sliding-window fallback.
+
+### Rate Limits Table
+| Endpoint | Method | Rate Limit Window | Max Requests | Storage Target | Response on Exceeded |
+|---|---|---|---|---|---|
+| `/api/orders` | POST | 600 s (10 min) | 10 per IP | Upstash (`rl:orders:<ip>`) / Mem | 429 `{ error: { code: 'RATE_LIMIT_EXCEEDED', message: '...' } }` |
+| `/api/inquiry` | POST | 600 s (10 min) | 10 per IP | Upstash (`rl:inquiry:<ip>`) / Mem | 429 `{ error: { code: 'RATE_LIMIT_EXCEEDED', message: '...' } }` |
+| `/api/products` | GET | 60 s (1 min) | 60 per IP | Upstash (`rl:products:<ip>`) / Mem | 429 `{ error: { code: 'RATE_LIMIT_EXCEEDED', message: '...' } }` |
+| `/api/delivery-options` | GET | 60 s (1 min) | 60 per IP | Upstash (`rl:delivery:<ip>`) / Mem | 429 `{ error: { code: 'RATE_LIMIT_EXCEEDED', message: '...' } }` |
+
+### Platform Rate Limiting Evaluation (Netlify)
+- **Netlify Free / Starter & Pro Plans:** Do **not** provide configurable edge/WAF rate-limiting rules. Standard CDN DDoS mitigations operate globally at Layer 4/7, but custom per-endpoint IP rate limiting is unavailable.
+- **Netlify Enterprise:** Includes Advanced Rate Limiting / WAF capabilities at the edge.
+- **Architectural Decision (D2):** Application relies on Upstash REST rate limiting with fail-open in-memory sliding window fallback, ensuring protection across all Netlify plan tiers without blocking legitimate traffic if Redis is momentarily unreachable.
+
+---
+
 ## 5. Architecture Decision Records (ADRs)
 
 ### ADR-001: Google Sheets as Serverless Administrative Database

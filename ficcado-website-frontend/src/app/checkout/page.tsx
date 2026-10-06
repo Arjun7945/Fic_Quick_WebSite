@@ -354,39 +354,49 @@ export default function CheckoutPage() {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        if (data.field) {
-          const fieldKey = data.field.includes('.') ? data.field.split('.').pop()! : data.field;
+        if (res.status === 429) {
+          throw new Error('Too many order attempts from your network. Please wait a few minutes before trying again.');
+        }
+        const errorMsg = data.error?.message || data.error || 'Server could not process your order.';
+        const fieldKey = data.error?.field || data.field;
+        if (fieldKey) {
+          const cleanKey = fieldKey.includes('.') ? fieldKey.split('.').pop()! : fieldKey;
           setErrors((prev) => ({
             ...prev,
-            [fieldKey]: data.error || 'Invalid value',
+            [cleanKey]: errorMsg,
           }));
         }
-        throw new Error(data.error || 'Server could not process your order.');
+        throw new Error(errorMsg);
       }
+
+      const orderPayload = data.data || data;
 
       // Order successfully verified and recorded
       try {
         sessionStorage.setItem(
           'ficcado-last-order',
           JSON.stringify({
-            referenceId: data.referenceId,
-            whatsappUrl: data.whatsappUrl,
-            total: data.total,
-            subtotal: data.subtotal,
-            deliveryCharge: data.deliveryCharge,
-            isOffline: data.isOffline,
+            referenceId: orderPayload.referenceId,
+            whatsappUrl: orderPayload.whatsappUrl,
+            total: orderPayload.total,
+            subtotal: orderPayload.subtotal,
+            deliveryCharge: orderPayload.deliveryCharge,
+            isOffline: orderPayload.isOffline,
           }),
         );
       } catch (e) {
         console.warn('Failed to save order in sessionStorage', e);
       }
 
-      // Clear the Bag only after confirmed server creation
+      // Clear the Bag and form draft only after confirmed server creation (B-25)
       clearCart();
+      try {
+        localStorage.removeItem(FORM_STORAGE_KEY);
+      } catch {}
 
       // Launch WhatsApp
       try {
-        window.open(data.whatsappUrl, '_blank', 'noopener,noreferrer');
+        window.open(orderPayload.whatsappUrl, '_blank', 'noopener,noreferrer');
       } catch {
         // Handled by continuation page
       }

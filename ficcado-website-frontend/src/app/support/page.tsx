@@ -136,11 +136,18 @@ export default function SupportPage() {
       const result = await res.json();
 
       if (!res.ok) {
-        throw new Error(result.error || 'Failed to submit support request');
+        if (res.status === 429) {
+          showToast('Too many submissions from your network. Please wait a few minutes.', 'error');
+          return;
+        }
+        const errorMsg = result.error?.message || result.error || 'Failed to submit support request';
+        throw new Error(errorMsg);
       }
 
+      const inquiryId = result.data?.inquiryId || result.inquiryId || `FIC-TKT-${Date.now().toString().slice(-5)}`;
+
       const ticket: SubmittedTicket = {
-        ticketId: result.inquiryId || `FIC-TKT-${Date.now().toString().slice(-5)}`,
+        ticketId: inquiryId,
         name: name.trim(),
         email: email.trim(),
         phone: phone.trim() || undefined,
@@ -154,19 +161,7 @@ export default function SupportPage() {
       showToast('Support request registered successfully! 🎉', 'success');
     } catch (err: unknown) {
       console.error('Support ticket submission error:', err);
-      // Friendly fallback
-      const fallbackTicket: SubmittedTicket = {
-        ticketId: `FIC-TKT-${Date.now().toString().slice(-5)}`,
-        name: name.trim(),
-        email: email.trim(),
-        phone: phone.trim() || undefined,
-        type,
-        orderId: normalizedId || undefined,
-        description: description.trim(),
-        createdAt: new Date().toISOString(),
-      };
-      setSubmittedTicket(fallbackTicket);
-      showToast('Support request saved! Our team will reach out.', 'success');
+      showToast((err as Error).message || 'Unable to submit ticket. Please contact us on WhatsApp.', 'error');
     } finally {
       setIsSubmitting(false);
     }
