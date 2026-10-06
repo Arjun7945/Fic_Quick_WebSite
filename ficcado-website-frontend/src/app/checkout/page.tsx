@@ -65,7 +65,12 @@ function generateSubmissionId(): string {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
     return crypto.randomUUID();
   }
-  return `sub_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+  if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+    const bytes = new Uint8Array(8);
+    crypto.getRandomValues(bytes);
+    return `sub_${Date.now()}_${Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('')}`;
+  }
+  return `sub_${Date.now()}_${Date.now().toString(36)}`;
 }
 
 interface FormFields {

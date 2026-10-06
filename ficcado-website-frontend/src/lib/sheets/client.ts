@@ -239,7 +239,7 @@ export async function getSheetValues(
         // Retry on 5xx server errors or 429 quota throttle
         if ((res.status >= 500 || res.status === 429) && attempt < maxRetries) {
           attempt++;
-          const jitter = Math.floor(Math.random() * 100);
+          const jitter = crypto.randomInt(0, 100);
           const backoff = Math.min(2000, 250 * Math.pow(2, attempt) + jitter);
           console.warn(`[Sheets] Read for ${range} failed [${res.status}]. Retrying in ${backoff}ms (attempt ${attempt}/${maxRetries})...`);
           await new Promise((r) => setTimeout(r, backoff));
@@ -253,7 +253,7 @@ export async function getSheetValues(
     } catch (err) {
       if (attempt < maxRetries) {
         attempt++;
-        const jitter = Math.floor(Math.random() * 100);
+        const jitter = crypto.randomInt(0, 100);
         const backoff = Math.min(2000, 250 * Math.pow(2, attempt) + jitter);
         console.warn(`[Sheets] Read error for ${range}: ${(err as Error).message}. Retrying in ${backoff}ms (attempt ${attempt}/${maxRetries})...`);
         await new Promise((r) => setTimeout(r, backoff));
