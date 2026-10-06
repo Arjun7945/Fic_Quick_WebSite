@@ -4,7 +4,7 @@ import {
   getSheetValues,
   updateSheetValues,
   getCredentials,
-} from './client';
+} from './client.ts';
 
 export interface TabDefinition {
   name: string;

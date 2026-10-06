@@ -1,32 +1,26 @@
 // =============================================================================
-// Orders API Endpoint — /src/app/api/orders/route.ts
-// Server-Verified WhatsApp Order Processing & Google Sheets Persistence
-// Refactored per REQUIREMENT_AND_REFACTOR_PART_2.md Section R4 & R5
+// Orders API Endpoint — /api/orders
+// Processes customer orders with atomic reference ID dispatch, bot mitigation,
+// rate limiting, zero PII logging, and WhatsApp continue handoff per R4 / D1 / D2 / D3.
 // =============================================================================
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { getProducts } from '@/lib/products';
-import { getCourierPartnerById } from '@/lib/couriers';
-import {
-  getNextReferenceId,
-  generateOfflineReferenceId,
-  isValidReferenceId,
-} from '@/lib/referenceId';
+import { getCourierPartners } from '@/lib/couriers';
 import {
   buildOrderMessage,
   buildWhatsAppUrl,
+  CustomerDeliveryDetails,
   formatISTDate,
   VerifiedOrderItem,
 } from '@/lib/whatsapp';
-import {
-  getSheetValues,
-  appendSheetValues,
-  sanitizeCell,
-} from '@/lib/sheets/client';
-import { getEnsuredSheetSchema } from '@/lib/sheets/schema';
+import { apiSuccess, apiError } from '@/lib/apiResponse';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
+import { dispatchOrder, OrderRowData } from '@/lib/orderGateway';
 
-// Normalization helpers
+export const dynamic = 'force-dynamic';
+
 function cleanIndianMobile(val: unknown): string {
   if (typeof val !== 'string') return '';
   let digits = val.replace(/\D/g, '');
@@ -43,7 +37,20 @@ function cleanPincode(val: unknown): string {
   return val.replace(/\D/g, '').trim();
 }
 
-// Strict payload validation schema with resilient input normalization
+function checkOrigin(req: NextRequest): boolean {
+  if (process.env.NODE_ENV !== 'production') return true;
+  const origin = req.headers.get('origin');
+  const host = req.headers.get('host');
+  if (!origin) return true;
+  try {
+    const originUrl = new URL(origin);
+    if (host && originUrl.host === host) return true;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+    if (siteUrl && originUrl.origin === new URL(siteUrl).origin) return true;
+  } catch {}
+  return false;
+}
+
 const OrderRequestSchema = z.object({
   submission_id: z.string().min(6).max(64),
   customer: z.object({
@@ -89,12 +96,37 @@ const OrderRequestSchema = z.object({
     )
     .min(1, 'Shopping bag cannot be empty')
     .max(20, 'Maximum 20 distinct items per order'),
+  // Bot mitigation fields (D3)
+  website: z.string().optional(),
+  _hp: z.string().optional(),
+  form_rendered_at: z.number().optional(),
 });
 
 export async function POST(req: NextRequest) {
   const startTime = Date.now();
 
   try {
+    // 1. Origin verification
+    if (!checkOrigin(req)) {
+      return apiError('FORBIDDEN_ORIGIN', 'Cross-origin request rejected.', { status: 403 });
+    }
+
+    // 2. IP Rate limiting (D2: 10 requests per 10 minutes)
+    const ip = getClientIp(req);
+    const rateCheck = await checkRateLimit(ip, 'orders', 10, 600);
+    if (!rateCheck.success) {
+      return apiError(
+        'RATE_LIMITED',
+        'Too many order attempts from your network. Please wait a few minutes before trying again.',
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(rateCheck.resetSeconds),
+          },
+        }
+      );
+    }
+
     const rawBody = await req.json();
     const parseResult = OrderRequestSchema.safeParse(rawBody);
 
@@ -103,34 +135,35 @@ export async function POST(req: NextRequest) {
       const fieldPath = firstIssue?.path?.join('.') || 'order';
       const friendlyError = firstIssue?.message || 'Invalid order information provided.';
 
-      console.warn(
-        `[POST /api/orders] Validation failed on field "${fieldPath}": ${friendlyError}`,
-        JSON.stringify(parseResult.error.flatten(), null, 2)
-      );
-
-      return NextResponse.json(
-        {
-          success: false,
-          error: friendlyError,
-          field: fieldPath,
-          details: parseResult.error.format(),
-        },
-        { status: 400 }
-      );
+      return apiError('VALIDATION_FAILED', friendlyError, {
+        status: 400,
+        field: fieldPath,
+        details: parseResult.error.format(),
+      });
     }
 
-    const { submission_id, customer, address, courier_partner_id, items } = parseResult.data;
+    const { submission_id, customer, address, courier_partner_id, items, website, _hp, form_rendered_at } =
+      parseResult.data;
 
-    // Abuse check: total quantity across items
+    // 3. Honeypot check (D3)
+    if (website || _hp) {
+      console.warn('[Orders] Bot detected via honeypot.');
+      return apiError('BOT_DETECTED', 'Unable to process order.', { status: 400 });
+    }
+
+    // 4. Minimum time-to-submit check (D3: min 1.5 seconds)
+    if (form_rendered_at && Date.now() - form_rendered_at < 1500) {
+      console.warn('[Orders] Bot detected via minimum submit time threshold.');
+      return apiError('SUBMISSION_TOO_FAST', 'Please take a moment before placing your order.', { status: 400 });
+    }
+
+    // 5. Quantity limit
     const totalQty = items.reduce((sum, i) => sum + i.qty, 0);
     if (totalQty > 50) {
-      return NextResponse.json(
-        { error: 'Order exceeds maximum quantity limit (50 items).' },
-        { status: 400 }
-      );
+      return apiError('QUANTITY_EXCEEDED', 'Order exceeds maximum quantity limit (50 items).', { status: 400 });
     }
 
-    // 1. Fetch live product catalog to verify pricing and availability
+    // 6. Verify items and recalculate price strictly against catalog
     const catalog = await getProducts();
     const catalogMap = new Map<string, (typeof catalog)[0]>();
     for (const p of catalog) {
@@ -143,17 +176,15 @@ export async function POST(req: NextRequest) {
     for (const item of items) {
       const product = catalogMap.get(String(item.id));
       if (!product) {
-        return NextResponse.json(
-          { error: `Item with ID "${item.id}" is no longer available in our catalog.` },
+        return apiError(
+          'ITEM_UNAVAILABLE',
+          `Item with ID "${item.id}" is no longer available in our catalog.`,
           { status: 400 }
         );
       }
 
       if (!product.inStock) {
-        return NextResponse.json(
-          { error: `"${product.name}" is currently out of stock.` },
-          { status: 400 }
-        );
+        return apiError('OUT_OF_STOCK', `"${product.name}" is currently out of stock.`, { status: 400 });
       }
 
       const unitPrice = product.price;
@@ -161,34 +192,35 @@ export async function POST(req: NextRequest) {
       subtotal += lineTotal;
 
       verifiedItems.push({
-        id: product.id,
+        id: item.id,
         name: product.name,
         slug: product.slug,
         category: product.category,
-        type: product.type || product.category,
-        size: item.size,
-        color: item.color,
+        size: item.size || 'Free Size',
+        color: item.color || 'Standard',
         qty: item.qty,
         unitPrice,
         lineTotal,
       });
     }
 
-    // 2. Server lookup: resolve courier partner and recompute delivery charge (R4.3)
-    const partner = await getCourierPartnerById(courier_partner_id);
-    if (!partner) {
-      return NextResponse.json(
-        { error: 'Selected courier partner is invalid or no longer active. Please choose an available delivery option.' },
-        { status: 400 }
-      );
+    // 7. Verify courier partner and delivery rate
+    const courierPartners = await getCourierPartners();
+    const courierPartner = courierPartners.find((c) => c.id === courier_partner_id);
+
+    if (!courierPartner) {
+      return apiError('INVALID_COURIER', 'Selected delivery partner is no longer available. Please select another.', {
+        status: 400,
+      });
     }
 
-    const deliveryCharge = partner.rate;
-    const deliveryOptionName = partner.name;
-    const courierPartnerId = partner.id;
-    const courierPartnerName = partner.name;
+    const deliveryCharge = courierPartner.rate;
+    const deliveryOptionName = courierPartner.name;
+    const total = subtotal + deliveryCharge;
+    const now = new Date();
+    const created_at_ist = formatISTDate(now);
 
-    const customerDetails = {
+    const customerDetails: CustomerDeliveryDetails = {
       fullName: customer.fullName,
       mobile: customer.mobile,
       email: customer.email,
@@ -200,249 +232,74 @@ export async function POST(req: NextRequest) {
       landmark: address.landmark,
     };
 
-    const total = subtotal + deliveryCharge;
-    const now = new Date();
-    const created_at_ist = formatISTDate(now);
+    const itemsSummary = verifiedItems
+      .map(
+        (item, idx) =>
+          `${idx + 1}) ${item.name} | Size ${item.size} | Color ${item.color} | Qty ${item.qty} | ₹${item.unitPrice} each | ₹${item.lineTotal}`
+      )
+      .join('\n');
 
-    const sheetId = process.env.GOOGLE_SHEET_ID;
+    const rowData: OrderRowData = {
+      submission_id,
+      customer_name: customer.fullName,
+      customer_email: customer.email,
+      customer_phone: customer.mobile,
+      address_line1: address.addressLine1,
+      address_line2: address.addressLine2,
+      city: address.city,
+      state: address.state,
+      pincode: address.pincode,
+      landmark: address.landmark,
+      courier_partner_id: courierPartner.id,
+      courier_partner_name: courierPartner.name,
+      delivery_charge: deliveryCharge,
+      subtotal,
+      total_amount: total,
+      item_count: totalQty,
+      items_summary: itemsSummary,
+      items_json: JSON.stringify(verifiedItems),
+      created_at: created_at_ist,
+      status: 'NEW',
+    };
 
-    // Timeout-guarded Sheets operation (8-second max)
-    const sheetsPromise = (async () => {
-      if (!sheetId) throw new Error('GOOGLE_SHEET_ID not set');
+    // 8. Dispatch order via Apps Script Gateway or sheet-row mode with 8s guard
+    const orderResult = await dispatchOrder(submission_id, rowData);
 
-      // Ensure schema is verified on instance cold-start
-      await getEnsuredSheetSchema();
+    const whatsappMessage = buildOrderMessage({
+      referenceId: orderResult.referenceId,
+      customer: customerDetails,
+      items: verifiedItems,
+      deliveryOptionName,
+      deliveryCharge,
+      subtotal,
+      total,
+      date: now,
+      isOfflineFallback: orderResult.isOffline,
+    });
 
-      // Read recent rows to check idempotency and determine next reference ID
-      // Read with header row
-      const existingRows = await getSheetValues(sheetId, "'New Sale Request'!A1:Z1000");
+    const latencyMs = Date.now() - startTime;
+    console.info(`[Order API] Order completed: ref=${orderResult.referenceId} mode=${orderResult.mode} (${latencyMs}ms)`);
 
-      let headers: string[] = [];
-      let dataRows: string[][] = [];
-
-      if (existingRows && existingRows.length > 0) {
-        headers = existingRows[0].map((h) => h.trim().toLowerCase());
-        dataRows = existingRows.slice(1);
-      }
-
-      const getColIdx = (name: string) => headers.indexOf(name.toLowerCase());
-      const refIdIdx = getColIdx('reference_id') !== -1 ? getColIdx('reference_id') : 0;
-      const subIdIdx = getColIdx('submission_id');
-      const subtotalColIdx = getColIdx('subtotal');
-      const delChargeColIdx = getColIdx('delivery_charge');
-      const totalColIdx = getColIdx('total_amount');
-
-      // Idempotency check: see if submission_id already exists
-      if (subIdIdx !== -1) {
-        for (const row of dataRows) {
-          const rowSubmissionId = row[subIdIdx]?.trim();
-          if (rowSubmissionId && rowSubmissionId === submission_id) {
-            const existingRefId = row[refIdIdx]?.trim();
-            const existingTotal = totalColIdx !== -1 ? parseFloat(row[totalColIdx]) || total : total;
-            const existingSubtotal = subtotalColIdx !== -1 ? parseFloat(row[subtotalColIdx]) || subtotal : subtotal;
-            const existingDeliveryCharge = delChargeColIdx !== -1 ? parseFloat(row[delChargeColIdx]) || deliveryCharge : deliveryCharge;
-
-            const whatsappMessage = buildOrderMessage({
-              referenceId: existingRefId,
-              customer: customerDetails,
-              items: verifiedItems,
-              deliveryOptionName,
-              deliveryCharge: existingDeliveryCharge,
-              subtotal: existingSubtotal,
-              total: existingTotal,
-              date: now,
-            });
-
-            return {
-              referenceId: existingRefId,
-              whatsappUrl: buildWhatsAppUrl(whatsappMessage),
-              subtotal: existingSubtotal,
-              deliveryCharge: existingDeliveryCharge,
-              total: existingTotal,
-              idempotent: true,
-            };
-          }
-        }
-      }
-
-      // Determine highest existing Reference ID
-      let highestRefId: string | null = null;
-      for (const row of dataRows) {
-        const refId = row[refIdIdx]?.trim();
-        if (refId && isValidReferenceId(refId) && !refId.startsWith('FIC-T')) {
-          if (!highestRefId || refId > highestRefId) {
-            highestRefId = refId;
-          }
-        }
-      }
-
-      const assignedReferenceId = getNextReferenceId(highestRefId);
-
-      // Prepare human-readable items summary
-      const itemsSummary = verifiedItems
-        .map(
-          (item, idx) =>
-            `${idx + 1}) ${item.name} | Size ${item.size} | Color ${item.color} | Qty ${item.qty} | ₹${item.unitPrice} each | ₹${item.lineTotal}`
-        )
-        .join('\n');
-
-      const itemsJson = JSON.stringify(verifiedItems);
-
-      // Default ordered columns if headers row was missing
-      const standardColumns = [
-        'reference_id',
-        'created_at',
-        'status',
-        'final_order_id',
-        'customer_name',
-        'customer_email',
-        'customer_phone',
-        'address_line1',
-        'address_line2',
-        'city',
-        'state',
-        'pincode',
-        'landmark',
-        'courier_partner_id',
-        'courier_partner_name',
-        'delivery_charge',
-        'subtotal',
-        'total_amount',
-        'item_count',
-        'items_summary',
-        'items_json',
-        'submission_id',
-      ];
-
-      const effectiveHeaders = headers.length > 0 ? headers : standardColumns;
-
-      // Build row data dynamically matching exact header names
-      const rowData = effectiveHeaders.map((header) => {
-        switch (header) {
-          case 'reference_id':
-            return sanitizeCell(assignedReferenceId);
-          case 'created_at':
-            return sanitizeCell(created_at_ist);
-          case 'status':
-            return sanitizeCell('NEW');
-          case 'final_order_id':
-            return '';
-          case 'customer_name':
-            return sanitizeCell(customer.fullName);
-          case 'customer_email':
-            return sanitizeCell(customer.email);
-          case 'customer_phone':
-            return sanitizeCell(customer.mobile);
-          case 'address_line1':
-            return sanitizeCell(address.addressLine1);
-          case 'address_line2':
-            return sanitizeCell(address.addressLine2 || '');
-          case 'city':
-            return sanitizeCell(address.city);
-          case 'state':
-            return sanitizeCell(address.state);
-          case 'pincode':
-            return sanitizeCell(address.pincode);
-          case 'landmark':
-            return sanitizeCell(address.landmark || '');
-          case 'courier_partner_id':
-            return sanitizeCell(courierPartnerId);
-          case 'courier_partner_name':
-            return sanitizeCell(courierPartnerName);
-          case 'delivery_charge':
-            return deliveryCharge;
-          case 'subtotal':
-            return subtotal;
-          case 'total_amount':
-            return total;
-          case 'item_count':
-            return totalQty;
-          case 'items_summary':
-            return sanitizeCell(itemsSummary);
-          case 'items_json':
-            return sanitizeCell(itemsJson);
-          case 'submission_id':
-            return sanitizeCell(submission_id);
-          default:
-            return '';
-        }
-      });
-
-      // Append row to Google Sheets
-      await appendSheetValues(sheetId, "'New Sale Request'!A2", [rowData]);
-
-      const whatsappMessage = buildOrderMessage({
-        referenceId: assignedReferenceId,
-        customer: customerDetails,
-        items: verifiedItems,
-        deliveryOptionName,
-        deliveryCharge,
-        subtotal,
-        total,
-        date: now,
-      });
-
-      return {
-        referenceId: assignedReferenceId,
+    return apiSuccess(
+      {
+        referenceId: orderResult.referenceId,
         whatsappUrl: buildWhatsAppUrl(whatsappMessage),
         subtotal,
         deliveryCharge,
         total,
-        idempotent: false,
-      };
-    })();
-
-    // 8-second timeout racer
-    const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('Google Sheets write timed out after 8s')), 8000)
-    );
-
-    try {
-      const orderResult = await Promise.race([sheetsPromise, timeoutPromise]);
-      const latencyMs = Date.now() - startTime;
-      console.info(`[Order API] Success: ${orderResult.referenceId} created in ${latencyMs}ms`);
-
-      return NextResponse.json({
-        success: true,
-        referenceId: orderResult.referenceId,
-        whatsappUrl: orderResult.whatsappUrl,
-        subtotal: orderResult.subtotal,
-        deliveryCharge: orderResult.deliveryCharge,
-        total: orderResult.total,
+        isOffline: orderResult.isOffline,
+        isDuplicate: orderResult.isDuplicate,
         latencyMs,
-      });
-    } catch (sheetError) {
-      // Offline fallback path
-      console.warn('[Order API] Sheets unreachable/timeout, initiating offline fallback:', (sheetError as Error).message);
-
-      const offlineRefId = generateOfflineReferenceId();
-      const offlineWhatsappMessage = buildOrderMessage({
-        referenceId: offlineRefId,
-        customer: customerDetails,
-        items: verifiedItems,
-        deliveryOptionName,
-        deliveryCharge,
-        subtotal,
-        total,
-        date: now,
-        isOfflineFallback: true,
-      });
-
-      return NextResponse.json({
-        success: true,
-        referenceId: offlineRefId,
-        whatsappUrl: buildWhatsAppUrl(offlineWhatsappMessage),
-        subtotal,
-        deliveryCharge,
-        total,
-        isOffline: true,
-        message: 'Order placed via offline fallback.',
-      });
-    }
+      },
+      {
+        cacheControl: 'no-store, no-cache, must-revalidate',
+      }
+    );
   } catch (err) {
-    console.error('[Order API] Unhandled server error:', err);
-    return NextResponse.json(
-      { error: 'An unexpected error occurred while processing your order. Please try again.' },
+    console.error('[Order API] Unhandled server error:', (err as Error).message);
+    return apiError(
+      'ORDER_PROCESSING_FAILED',
+      'An unexpected error occurred while placing your order. Please try again.',
       { status: 500 }
     );
   }

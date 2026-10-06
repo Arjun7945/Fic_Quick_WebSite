@@ -1,3 +1,5 @@
+import crypto from 'node:crypto';
+
 /**
  * Ficcado Sequential Reference ID Generator & Validator
  * Format: FIC-<LETTERS><4-DIGIT-NUM> (e.g. FIC-A0001 ... FIC-A9999 -> FIC-B0001 ... FIC-Z9999 -> FIC-AA0001)
@@ -107,12 +109,14 @@ export function normalizeOrderId(input: string): string {
 
 /**
  * Generates an offline reference ID when Google Sheets is temporarily unreachable.
+ * Uses cryptographically secure random bytes per CODE-02.
  */
 export function generateOfflineReferenceId(): string {
   const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ'; // Exclude ambiguous characters 0, 1, I, O
+  const bytes = crypto.randomBytes(6);
   let rand = '';
   for (let i = 0; i < 6; i++) {
-    rand += chars.charAt(Math.floor(Math.random() * chars.length));
+    rand += chars.charAt(bytes[i] % chars.length);
   }
   return `FIC-T${rand}`;
 }
