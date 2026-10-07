@@ -102,37 +102,65 @@ export function ImageZoomModal({
     };
   }, [isOpen]);
 
-  // Direct download preserving original uncompressed image quality
+  // Universal download preserving original uncompressed image quality across all devices
   const handleDownload = async () => {
     const currentSrc = images[currentIndex];
     if (!currentSrc) return;
 
     setIsDownloading(true);
     try {
-      const response = await fetch(currentSrc);
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
-
-      // Extract filename from URL or build descriptive fallback
       const urlParts = currentSrc.split('/');
       const rawFileName = urlParts[urlParts.length - 1] || 'image.jpeg';
-      const cleanFileName = `${productName.toLowerCase().replace(/\s+/g, '-')}-${rawFileName}`;
+      const cleanFileName = `${productName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${rawFileName}`;
 
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = cleanFileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(blobUrl);
+      let downloadTriggered = false;
+
+      // Strategy 1: In-memory blob download with 60-second deferred revocation
+      // Prevents premature revocation which caused 404/ERR_FILE_NOT_FOUND on mobile/tablet OS download managers
+      try {
+        const res = await fetch(currentSrc);
+        if (res.ok) {
+          const blob = await res.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = blobUrl;
+          link.download = cleanFileName;
+          link.target = '_self';
+          document.body.appendChild(link);
+          link.click();
+          downloadTriggered = true;
+
+          // Crucial: keep blob URL valid for 60 seconds so mobile/tablet OS daemons can complete writing to storage
+          setTimeout(() => {
+            URL.revokeObjectURL(blobUrl);
+            if (document.body.contains(link)) {
+              document.body.removeChild(link);
+            }
+          }, 60000);
+        }
+      } catch {
+        downloadTriggered = false;
+      }
+
+      // Strategy 2: If blob download failed, trigger direct server attachment via /api/download
+      if (!downloadTriggered) {
+        const downloadEndpoint = `/api/download?file=${encodeURIComponent(currentSrc)}&name=${encodeURIComponent(cleanFileName)}`;
+        const link = document.createElement('a');
+        link.href = downloadEndpoint;
+        link.download = cleanFileName;
+        link.target = '_self';
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+          if (document.body.contains(link)) {
+            document.body.removeChild(link);
+          }
+        }, 3000);
+      }
     } catch {
-      // Direct navigation fallback if blob fetch is blocked
-      const link = document.createElement('a');
-      link.href = currentSrc;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      link.download = '';
-      link.click();
+      // Strategy 3: Ultimate fallback direct navigation
+      const downloadEndpoint = `/api/download?file=${encodeURIComponent(currentSrc)}&name=${encodeURIComponent(productName.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-image.jpeg')}`;
+      window.open(downloadEndpoint, '_self');
     } finally {
       setIsDownloading(false);
     }
@@ -245,11 +273,11 @@ export function ImageZoomModal({
       role="dialog"
       aria-modal="true"
       aria-label={`Full resolution view of ${productName}`}
-      className="fixed inset-0 z-[9999] flex flex-col bg-black/95 backdrop-blur-md select-none touch-none animate-fadeIn"
+      className="fixed inset-0 z-[9999] flex flex-col bg-black/95 backdrop-blur-md select-none animate-fadeIn"
       style={{ zIndex: 9999, isolation: 'isolate' }}
     >
       {/* Top Header Bar */}
-      <header className="shrink-0 h-16 px-4 md:px-6 flex items-center justify-between z-20 bg-gradient-to-b from-black/80 to-transparent">
+      <header className="shrink-0 h-16 px-4 md:px-6 flex items-center justify-between z-20 bg-gradient-to-b from-black/80 to-transparent touch-manipulation">
         {/* Product Title & Image Counter */}
         <div className="flex items-center gap-3">
           <span className="text-white font-bold text-sm md:text-base line-clamp-1 max-w-[220px] md:max-w-md">
@@ -269,7 +297,7 @@ export function ImageZoomModal({
             onClick={handleDownload}
             disabled={isDownloading}
             aria-label="Download full-resolution image"
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 active:scale-95 text-white text-xs md:text-sm font-semibold transition-all cursor-pointer backdrop-blur-sm border border-white/20 shadow-lg"
+            className="flex items-center gap-2 px-3.5 py-2 min-h-[44px] rounded-xl bg-white/15 hover:bg-white/25 active:scale-95 text-white text-xs md:text-sm font-semibold transition-all cursor-pointer backdrop-blur-sm border border-white/20 shadow-lg touch-manipulation"
             title="Download full-resolution original image"
           >
             <Download size={16} className={isDownloading ? 'animate-bounce' : ''} />
@@ -282,7 +310,7 @@ export function ImageZoomModal({
           <button
             onClick={onClose}
             aria-label="Close image viewer"
-            className="flex items-center justify-center h-10 w-10 rounded-full bg-white/15 hover:bg-white/25 text-white transition-all active:scale-90 cursor-pointer backdrop-blur-sm border border-white/20"
+            className="flex items-center justify-center h-11 w-11 rounded-full bg-white/15 hover:bg-white/25 text-white transition-all active:scale-90 cursor-pointer backdrop-blur-sm border border-white/20 touch-manipulation"
           >
             <X size={20} />
           </button>
@@ -301,7 +329,7 @@ export function ImageZoomModal({
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onDoubleClick={(e) => handleDoubleTap(e.clientX, e.clientY)}
-        className="flex-1 relative flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing p-2 md:p-6"
+        className="flex-1 relative flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing p-2 md:p-6 touch-none"
       >
         {/* Navigation Arrows for desktop/tablet */}
         {images.length > 1 && (
@@ -309,14 +337,14 @@ export function ImageZoomModal({
             <button
               onClick={handlePrev}
               aria-label="Previous image"
-              className="absolute left-3 md:left-6 z-20 flex items-center justify-center h-11 w-11 rounded-full bg-black/60 hover:bg-black/85 text-white border border-white/20 transition-all active:scale-90 cursor-pointer backdrop-blur-sm"
+              className="absolute left-3 md:left-6 z-20 flex items-center justify-center h-11 w-11 rounded-full bg-black/60 hover:bg-black/85 text-white border border-white/20 transition-all active:scale-90 cursor-pointer backdrop-blur-sm touch-manipulation"
             >
               <ChevronLeft size={24} />
             </button>
             <button
               onClick={handleNext}
               aria-label="Next image"
-              className="absolute right-3 md:right-6 z-20 flex items-center justify-center h-11 w-11 rounded-full bg-black/60 hover:bg-black/85 text-white border border-white/20 transition-all active:scale-90 cursor-pointer backdrop-blur-sm"
+              className="absolute right-3 md:right-6 z-20 flex items-center justify-center h-11 w-11 rounded-full bg-black/60 hover:bg-black/85 text-white border border-white/20 transition-all active:scale-90 cursor-pointer backdrop-blur-sm touch-manipulation"
             >
               <ChevronRight size={24} />
             </button>
@@ -343,14 +371,14 @@ export function ImageZoomModal({
       </main>
 
       {/* Floating Bottom Control Bar */}
-      <footer className="shrink-0 h-20 px-4 flex items-center justify-center z-20 bg-gradient-to-t from-black/80 to-transparent">
+      <footer className="shrink-0 h-20 px-4 flex items-center justify-center z-20 bg-gradient-to-t from-black/80 to-transparent touch-manipulation">
         <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-black/70 backdrop-blur-md border border-white/15 text-white shadow-2xl">
           {/* Zoom Out Button */}
           <button
             onClick={() => setScale((s) => Math.max(1, s - 0.5))}
             disabled={scale <= 1}
             aria-label="Zoom out"
-            className="p-1.5 rounded-lg hover:bg-white/15 disabled:opacity-30 disabled:hover:bg-transparent transition-all cursor-pointer"
+            className="p-2 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg hover:bg-white/15 disabled:opacity-30 disabled:hover:bg-transparent transition-all cursor-pointer touch-manipulation"
           >
             <ZoomOut size={18} />
           </button>
@@ -359,7 +387,7 @@ export function ImageZoomModal({
           <button
             onClick={resetZoom}
             aria-label="Reset zoom to 100%"
-            className="px-2.5 py-1 text-xs font-mono font-bold rounded-md hover:bg-white/15 transition-all cursor-pointer flex items-center gap-1.5"
+            className="px-2.5 py-1.5 text-xs font-mono font-bold rounded-md hover:bg-white/15 transition-all cursor-pointer flex items-center gap-1.5 touch-manipulation"
             title="Reset zoom"
           >
             <RotateCcw size={12} className={scale !== 1 ? 'text-[var(--primary)]' : 'opacity-60'} />
@@ -371,7 +399,7 @@ export function ImageZoomModal({
             onClick={() => setScale((s) => Math.min(4, s + 0.5))}
             disabled={scale >= 4}
             aria-label="Zoom in"
-            className="p-1.5 rounded-lg hover:bg-white/15 disabled:opacity-30 disabled:hover:bg-transparent transition-all cursor-pointer"
+            className="p-2 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg hover:bg-white/15 disabled:opacity-30 disabled:hover:bg-transparent transition-all cursor-pointer touch-manipulation"
           >
             <ZoomIn size={18} />
           </button>
@@ -387,7 +415,7 @@ export function ImageZoomModal({
                     setCurrentIndex(idx);
                   }}
                   aria-label={`View photo ${idx + 1}`}
-                  className={`h-8 w-8 rounded-md overflow-hidden border transition-all cursor-pointer ${
+                  className={`h-9 w-9 rounded-md overflow-hidden border transition-all cursor-pointer touch-manipulation ${
                     currentIndex === idx
                       ? 'border-white ring-2 ring-white/40 scale-105'
                       : 'border-white/30 opacity-60 hover:opacity-100'
