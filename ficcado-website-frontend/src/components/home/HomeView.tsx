@@ -120,7 +120,7 @@ export function HomeView({ initialProducts }: HomeViewProps) {
             alt="Ficcado Clothing — High Quality Stylish Daily Wear"
             fill
             sizes="(max-width: 768px) 100vw, 1200px"
-            className="object-cover object-center"
+            className="object-cover object-top"
             priority
             unoptimized
           />
