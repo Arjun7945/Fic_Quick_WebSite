@@ -11,7 +11,7 @@ import { ToastContainer } from './ToastContainer';
 import { DesktopHeader } from './DesktopHeader';
 import { DesktopFooter } from './DesktopFooter';
 import { RouteTitleSync } from './RouteTitleSync';
-import { BrandOpeningScreen } from '@/components/ui/BrandOpeningScreen';
+import { SplashScreen } from '@/components/ui/SplashScreen';
 
 // Modals
 import { ProductModal } from '@/components/modals/ProductModal';
@@ -65,7 +65,7 @@ export function AppShell({ children }: AppShellProps) {
       className="relative w-full min-h-screen flex flex-col bg-[var(--bg-app)]"
     >
       {/* Brand Opening / Loading Presentation */}
-      <BrandOpeningScreen />
+      <SplashScreen />
 
       {/* Route & Section Tab Title Synchronizer */}
       <RouteTitleSync />

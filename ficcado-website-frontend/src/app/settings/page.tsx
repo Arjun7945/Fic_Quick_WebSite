@@ -200,8 +200,8 @@ export default function SettingsPage() {
                 <Sparkles size={16} className="text-[var(--primary)]" />
               </div>
               <div>
-                <p className="text-sm font-800 text-[var(--text-main)]">Brand Opening Presentation</p>
-                <p className="text-xs text-[var(--text-muted)] mt-0.5">Experience the official Ficcado Clothing intro screen</p>
+                <p className="text-sm font-800 text-[var(--text-main)]">Brand Splash Screen</p>
+                <p className="text-xs text-[var(--text-muted)] mt-0.5">Experience the official Ficcado Clothing splash screen</p>
               </div>
             </div>
             <button
@@ -210,11 +210,11 @@ export default function SettingsPage() {
                 try {
                   sessionStorage.removeItem('ficcado_brand_intro_seen');
                 } catch {}
-                router.push('/?intro=1');
+                router.push('/?splash=1');
               }}
               className="px-3.5 py-1.5 rounded-full text-xs font-bold text-white bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-95 transition-all cursor-pointer shrink-0"
             >
-              Replay Intro &rarr;
+              Replay Splash &rarr;
             </button>
           </div>
         </section>
