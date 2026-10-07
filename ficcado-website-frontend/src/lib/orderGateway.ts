@@ -189,6 +189,32 @@ async function processViaSheetRowMode(
   };
 }
 
+// In-flight submission locks and recent order cache (idempotency guard)
+const inFlightOrders = new Map<string, Promise<GatewayOrderResult>>();
+const orderCache = new Map<string, { result: GatewayOrderResult; expiresAt: number }>();
+
+// Mutex for sheet-row mode to prevent concurrent row index calculation races
+let sheetRowMutex: Promise<void> = Promise.resolve();
+
+async function runSerializedSheetRow(
+  sheetId: string,
+  submissionId: string,
+  rowData: OrderRowData
+): Promise<GatewayOrderResult> {
+  const previous = sheetRowMutex;
+  let release: () => void = () => {};
+  sheetRowMutex = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+
+  try {
+    await previous.catch(() => {});
+    return await processViaSheetRowMode(sheetId, submissionId, rowData);
+  } finally {
+    release();
+  }
+}
+
 /**
  * Top-level order dispatcher honoring D1:
  * - Tries Apps Script Web App Gateway first (if configured)
@@ -199,37 +225,62 @@ export async function dispatchOrder(
   submissionId: string,
   rowData: OrderRowData
 ): Promise<GatewayOrderResult> {
-  validateOrderConfiguration();
-
-  const gatewayUrl = process.env.ORDER_GATEWAY_URL;
-  const gatewaySecret = process.env.ORDER_GATEWAY_SECRET;
-  const idMode = process.env.ORDER_ID_MODE;
-  const sheetId = process.env.GOOGLE_SHEET_ID;
-
-  // 1. Try Google Apps Script Gateway (Primary Option A)
-  if (gatewayUrl && gatewaySecret) {
-    try {
-      return await processViaAppsScriptGateway(gatewayUrl, gatewaySecret, submissionId, rowData, 8000);
-    } catch (err) {
-      console.warn(`[Orders] Primary gateway failed (${(err as Error).message}). Falling back to offline fallback.`);
-    }
-  } else if (idMode === 'sheet-row' && sheetId) {
-    // 2. Try Sheet-Row mode (Secondary Option B)
-    try {
-      return await processViaSheetRowMode(sheetId, submissionId, rowData);
-    } catch (err) {
-      console.warn(`[Orders] Sheet-row mode failed (${(err as Error).message}). Falling back to offline fallback.`);
-    }
+  // 1. Check if we already processed this submission recently (cached result)
+  const cached = orderCache.get(submissionId);
+  if (cached && cached.expiresAt > Date.now()) {
+    return { ...cached.result, isDuplicate: true };
   }
 
-  // 3. Resilient Offline Fallback (8-second timeout or network failure)
-  const offlineRefId = generateOfflineReferenceId();
-  console.info(`[Orders] Emitted cryptographic offline Reference ID: ${offlineRefId}`);
+  // 2. Check if this exact submission is ALREADY currently in-flight
+  if (inFlightOrders.has(submissionId)) {
+    const inFlightResult = await inFlightOrders.get(submissionId)!;
+    return { ...inFlightResult, isDuplicate: true };
+  }
 
-  return {
-    referenceId: offlineRefId,
-    isDuplicate: false,
-    isOffline: true,
-    mode: 'offline',
-  };
+  const executionPromise: Promise<GatewayOrderResult> = (async (): Promise<GatewayOrderResult> => {
+    validateOrderConfiguration();
+
+    const gatewayUrl = process.env.ORDER_GATEWAY_URL;
+    const gatewaySecret = process.env.ORDER_GATEWAY_SECRET;
+    const idMode = process.env.ORDER_ID_MODE;
+    const sheetId = process.env.GOOGLE_SHEET_ID;
+
+    // 1. Try Google Apps Script Gateway (Primary Option A)
+    if (gatewayUrl && gatewaySecret) {
+      try {
+        return await processViaAppsScriptGateway(gatewayUrl, gatewaySecret, submissionId, rowData, 8000);
+      } catch (err) {
+        console.warn(`[Orders] Primary gateway failed (${(err as Error).message}). Falling back to offline fallback.`);
+      }
+    } else if (idMode === 'sheet-row' && sheetId) {
+      // 2. Try Sheet-Row mode (Secondary Option B) with serialization mutex
+      try {
+        return await runSerializedSheetRow(sheetId, submissionId, rowData);
+      } catch (err) {
+        console.warn(`[Orders] Sheet-row mode failed (${(err as Error).message}). Falling back to offline fallback.`);
+      }
+    }
+
+    // 3. Resilient Offline Fallback (8-second timeout or network failure)
+    const offlineRefId = generateOfflineReferenceId();
+    console.info(`[Orders] Emitted cryptographic offline Reference ID: ${offlineRefId}`);
+
+    return {
+      referenceId: offlineRefId,
+      isDuplicate: false,
+      isOffline: true,
+      mode: 'offline',
+    };
+  })();
+
+  inFlightOrders.set(submissionId, executionPromise);
+
+  try {
+    const finalResult = await executionPromise;
+    // Cache for 2 minutes to serve identical immediate retries
+    orderCache.set(submissionId, { result: finalResult, expiresAt: Date.now() + 120000 });
+    return finalResult;
+  } finally {
+    inFlightOrders.delete(submissionId);
+  }
 }

@@ -46,18 +46,14 @@ export function BottomNav({ isFixed = false }: { isFixed?: boolean }) {
     <nav
       id="bottom-nav"
       aria-label="Main navigation"
-      className={isFixed ? 'fixed bottom-0 left-0 right-0 md:hidden' : 'absolute bottom-0 left-0 right-0'}
+      suppressHydrationWarning
+      className={`${isFixed ? 'fixed bottom-0 left-0 right-0 md:hidden' : 'absolute bottom-0 left-0 right-0'} z-[100] border-t border-[var(--border-light)] bg-white/95 backdrop-blur-xl saturate-180`}
       style={{
-        position: isFixed ? 'fixed' : 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        zIndex: 'var(--z-sticky)' as unknown as number,
-        padding: '0.625rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px))',
-        background: 'rgba(255,255,255,0.92)',
-        backdropFilter: 'blur(24px) saturate(180%)',
+        paddingTop: '0.625rem',
+        paddingLeft: '1rem',
+        paddingRight: '1rem',
+        paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))',
         WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-        borderTop: '1px solid var(--border-light)',
       }}
     >
       <div className="flex items-center justify-around">

@@ -6,7 +6,7 @@
 // Refactored per REQUIREMENT_AND_REFACTOR_PART_2.md Section R4 & R5
 // =============================================================================
 
-import { useState, useEffect, useReducer } from 'react';
+import { useState, useEffect, useReducer, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -152,10 +152,23 @@ export default function CheckoutPage() {
   const [agreedToTerms, setAgreedToTerms] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
+  // Synchronous lock & persistent session submission ID to prevent race conditions or duplicate submissions
+  const isSubmittingRef = useRef<boolean>(false);
+  const [submissionId] = useState<string>(generateSubmissionId);
+
   // Inline Validation Errors
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Fetch active courier options from /api/delivery-options and revalidate prices
+  // Stable references for initial mount fetch
+  const syncPricesRef = useRef(syncPrices);
+  const showToastRef = useRef(showToast);
+
+  useEffect(() => {
+    syncPricesRef.current = syncPrices;
+    showToastRef.current = showToast;
+  }, [syncPrices, showToast]);
+
+  // Fetch active courier options from /api/delivery-options and revalidate prices ONCE on mount
   useEffect(() => {
     let isMounted = true;
 
@@ -193,13 +206,13 @@ export default function CheckoutPage() {
           const json = await res.json();
           const products = Array.isArray(json) ? json : json?.data || [];
           if (Array.isArray(products) && products.length > 0 && isMounted) {
-            const result = syncPrices(products);
+            const result = syncPricesRef.current(products);
             if (result.changed) {
               const notice = `Price update: ${result.changes
                 .map((c) => `${c.name} is now ₹${c.newPrice} (was ₹${c.oldPrice})`)
                 .join(', ')}. Your total has been updated.`;
               setPriceChangeNotice(notice);
-              showToast(notice, 'info');
+              showToastRef.current(notice, 'info');
             }
           }
         }
@@ -214,7 +227,7 @@ export default function CheckoutPage() {
     return () => {
       isMounted = false;
     };
-  }, [syncPrices, showToast]);
+  }, []);
 
   // Save form draft on change (B-25: gated on preferences consent)
   useEffect(() => {
@@ -307,7 +320,7 @@ export default function CheckoutPage() {
   }
 
   async function handlePlaceOrder() {
-    if (isSubmitting) return;
+    if (isSubmittingRef.current || isSubmitting) return;
 
     if (items.length === 0) {
       showToast('Your shopping bag is empty. Please add items first.', 'error');
@@ -330,13 +343,15 @@ export default function CheckoutPage() {
       return;
     }
 
+    // Synchronously lock submission against rapid duplicate clicks
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
 
     try {
-      const submissionId = generateSubmissionId();
+      const currentSubmissionId = submissionId || generateSubmissionId();
 
       const payload = {
-        submission_id: submissionId,
+        submission_id: currentSubmissionId,
         customer: {
           fullName: fullName.trim(),
           mobile: cleanIndianMobile(mobile),
@@ -415,11 +430,12 @@ export default function CheckoutPage() {
         // Handled by continuation page
       }
 
-      // Navigate to continuation page
+      // Navigate to continuation page (do not reset isSubmittingRef to prevent late double-clicks)
       router.push('/checkout/whatsapp-continue');
     } catch (err) {
       console.error('[Checkout] Error creating order:', err);
       showToast((err as Error).message || 'Failed to place order. Please try again.', 'error');
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
   }
@@ -844,7 +860,10 @@ export default function CheckoutPage() {
                 type="button"
                 onClick={handlePlaceOrder}
                 disabled={items.length === 0 || isSubmitting || !hasActiveCouriers || !selectedCourier}
-                className="w-full py-4 px-6 rounded-2xl text-xs md:text-sm font-bold text-white flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                aria-busy={isSubmitting}
+                className={`w-full py-4 px-6 rounded-2xl text-xs md:text-sm font-bold text-white flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
+                  isSubmitting ? 'pointer-events-none cursor-wait opacity-80' : ''
+                }`}
                 style={{
                   background:
                     items.length === 0 || isSubmitting || !hasActiveCouriers || !selectedCourier
