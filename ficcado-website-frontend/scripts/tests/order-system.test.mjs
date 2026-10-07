@@ -17,6 +17,8 @@ import {
   formatISTDate,
 } from '../../src/lib/whatsapp.ts';
 
+import { getColorName } from '../../src/lib/colors.ts';
+
 import { sanitizeCell } from '../../src/lib/sheets/client.ts';
 
 describe('Reference ID Sequence & Generator', () => {
@@ -195,6 +197,46 @@ describe('WhatsApp Message Builder & Security', () => {
     });
 
     assert.ok(msg.includes('Order could not be pre-saved; team to verify manually.'));
+  });
+
+  test('formats hex color codes into human-readable color names in order message', () => {
+    const hexItems = [
+      {
+        id: 2,
+        name: 'Frame The Bloom',
+        slug: 'frame-the-bloom',
+        category: 't-shirts',
+        type: 'T-Shirts',
+        size: 'S',
+        color: '#FFFFFF',
+        qty: 1,
+        unitPrice: 699,
+        lineTotal: 699,
+      },
+    ];
+
+    const msg = buildOrderMessage({
+      referenceId: 'FIC-A0003',
+      customer: dummyCustomer,
+      items: hexItems,
+      deliveryOptionName: 'India Post Speed Post',
+      deliveryCharge: 0,
+      subtotal: 699,
+      total: 699,
+    });
+
+    assert.ok(msg.includes('Color: White'), 'Expected Color: White in WhatsApp message');
+    assert.ok(!msg.includes('Color: #FFFFFF'), 'Should not show raw hex in WhatsApp message');
+  });
+
+  test('getColorName maps known hex values and keywords correctly', () => {
+    assert.equal(getColorName('#FFFFFF'), 'White');
+    assert.equal(getColorName('#ffffff'), 'White');
+    assert.equal(getColorName('#111827'), 'Black');
+    assert.equal(getColorName('#7B1113'), 'Maroon');
+    assert.equal(getColorName('#D4C4A8'), 'Beige');
+    assert.equal(getColorName('#99BADD'), 'Air Blue');
+    assert.equal(getColorName(null), 'Standard');
   });
 
   test('builds correct WhatsApp url', () => {

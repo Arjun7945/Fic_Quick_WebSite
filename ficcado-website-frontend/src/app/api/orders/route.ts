@@ -18,6 +18,7 @@ import {
 import { apiSuccess, apiError } from '@/lib/apiResponse';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 import { dispatchOrder, OrderRowData } from '@/lib/orderGateway';
+import { getColorName } from '@/lib/colors';
 
 export const dynamic = 'force-dynamic';
 
@@ -197,7 +198,7 @@ export async function POST(req: NextRequest) {
         slug: product.slug,
         category: product.category,
         size: item.size || 'Free Size',
-        color: item.color || 'Standard',
+        color: getColorName(item.color) || 'Standard',
         qty: item.qty,
         unitPrice,
         lineTotal,
@@ -235,7 +236,7 @@ export async function POST(req: NextRequest) {
     const itemsSummary = verifiedItems
       .map(
         (item, idx) =>
-          `${idx + 1}) ${item.name} | Size ${item.size} | Color ${item.color} | Qty ${item.qty} | ₹${item.unitPrice} each | ₹${item.lineTotal}`
+          `${idx + 1}) ${item.name} | Size ${item.size} | Color ${getColorName(item.color)} | Qty ${item.qty} | ₹${item.unitPrice} each | ₹${item.lineTotal}`
       )
       .join('\n');
 

@@ -17,6 +17,7 @@ import { getItemImages, PLACEHOLDER_IMAGE } from '@/lib/itemImages';
 import { isCategoryLive } from '@/config/categories';
 import { getSiteUrl } from '@/lib/siteUrl';
 import { ImageZoomModal } from '@/components/modals/ImageZoomModal';
+import { getColorName, getColorKeyword } from '@/lib/colors';
 import type { Product, SizeOption } from '@/types';
 
 const DEFAULT_SIZES: SizeOption[] = ['S', 'M', 'L', 'XL'];
@@ -52,28 +53,6 @@ export function ProductModal() {
   const isLive = isCategoryLive(product.category);
   const selectedColor = userColor || (product.colors && product.colors[0]) || 'Standard';
 
-  function getColorKeyword(colorVal?: string | null): string | null {
-    if (!colorVal) return null;
-    const lower = colorVal.toLowerCase();
-    if (lower === '#111827' || lower.includes('black')) return 'black';
-    if (lower === '#ffffff' || lower.includes('white')) return 'white';
-    if (lower === '#7b1113' || lower.includes('maroon')) return 'maroon';
-    if (lower === '#d4c4a8' || lower.includes('beige')) return 'beige';
-    if (lower === '#99badd' || lower.includes('blue') || lower.includes('air')) return 'blue';
-    return null;
-  }
-
-  function getColorName(colorVal?: string | null): string {
-    if (!colorVal) return 'Standard';
-    const lower = colorVal.toLowerCase();
-    if (lower === '#111827') return 'Black';
-    if (lower === '#ffffff') return 'White';
-    if (lower === '#7b1113') return 'Maroon';
-    if (lower === '#d4c4a8') return 'Beige';
-    if (lower === '#99badd') return 'Air Blue';
-    return colorVal;
-  }
-
   const resolvedFromSlug = getItemImages(product.slug || product.name);
   const rawImages =
     product.images && product.images.length > 0 && product.images.every((img) => img.startsWith('/') || img.startsWith('http'))
@@ -101,7 +80,7 @@ export function ProductModal() {
     }
     const finalSize = selectedSize;
     const finalColor = selectedColor;
-    addToCart(product, finalSize, finalColor);
+    addToCart(product, finalSize, finalColor, 1, activeImage);
     closeModal();
     showToast(`Added to Bag! 🛍️`);
     openModal('cartDrawer');

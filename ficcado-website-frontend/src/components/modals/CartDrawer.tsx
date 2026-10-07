@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import { useModal } from '@/context/ModalContext';
 import { useCart } from '@/context/CartContext';
 import { QuantityStepper } from '@/components/ui/QuantityStepper';
+import { getColorName } from '@/lib/colors';
 
 export function CartDrawer() {
   const { activeModal, closeModal } = useModal();
@@ -142,17 +143,23 @@ export function CartDrawer() {
                       </button>
                     </div>
 
-                    <div className="flex items-center gap-2 mt-0.5">
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
                       <span
-                        className="rounded-full px-2 py-0.5 text-xs font-semibold"
+                        className="rounded-full px-2 py-0.5 text-[11px] font-semibold"
                         style={{ background: 'var(--border-light)', color: 'var(--text-muted)' }}
                       >
-                        {item.size}
+                        Size: {item.size}
                       </span>
-                      <div
-                        className="h-3 w-3 rounded-full border border-white"
-                        style={{ background: item.color, boxShadow: '0 0 0 1px rgba(0,0,0,0.12)' }}
-                      />
+                      <span
+                        className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                        style={{ background: 'var(--border-light)', color: 'var(--text-muted)' }}
+                      >
+                        <span
+                          className="h-2.5 w-2.5 rounded-full border border-black/20 shrink-0"
+                          style={{ background: item.color }}
+                        />
+                        <span>Color: {item.colorName || getColorName(item.color)}</span>
+                      </span>
                     </div>
 
                     <div className="flex items-center justify-between mt-1.5">

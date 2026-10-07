@@ -95,6 +95,7 @@ export interface CartItem {
   qty: number;
   size: SizeOption;
   color: string;
+  colorName?: string;
   flatImg: string;
   img?: string;
 }

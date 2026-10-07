@@ -18,6 +18,7 @@ import React, {
   useRef,
 } from 'react';
 import type { CartItem, Product, SizeOption } from '@/types';
+import { getColorName } from '@/lib/colors';
 
 const STORAGE_KEY = 'ficcado-bag-v3';
 const LEGACY_KEYS = ['f' + 'iccado-bag-v2', 'f' + 'iccado-bag', 'f' + 'iccado-bag-v1'];
@@ -124,7 +125,13 @@ interface CartContextValue {
   totalItemsCount: number;
   subtotalAmount: number;
   isHydrated: boolean;
-  addToCart: (product: Product, size: SizeOption, color: string, qty?: number) => void;
+  addToCart: (
+    product: Product,
+    size: SizeOption,
+    color: string,
+    qty?: number,
+    imageOverride?: string
+  ) => void;
   removeFromCart: (index: number) => void;
   changeQty: (index: number, delta: number) => void;
   clearCart: () => void;
@@ -193,7 +200,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [state.items, state.isHydrated]);
 
   const addToCart = useCallback(
-    (product: Product, size: SizeOption, color: string, qty: number = 1) => {
+    (
+      product: Product,
+      size: SizeOption,
+      color: string,
+      qty: number = 1,
+      imageOverride?: string
+    ) => {
       const item: CartItem = {
         id: product.id,
         slug: product.slug,
@@ -202,7 +215,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         qty,
         size,
         color,
-        flatImg: product.flatImg || product.img,
+        colorName: getColorName(color),
+        flatImg: imageOverride || product.flatImg || product.img,
       };
       dispatch({ type: 'ADD_ITEM', payload: item });
     },

@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
+import { getColorName } from '@/lib/colors';
 import type { CourierOption } from '@/types';
 
 const INDIAN_STATES = [
@@ -752,8 +753,18 @@ export default function CheckoutPage() {
                   >
                     <div className="min-w-0 pr-2">
                       <p className="font-bold text-[var(--text-main)] line-clamp-1">{item.name}</p>
-                      <p className="text-[11px] text-[var(--text-muted)]">
-                        Size: {item.size} • Color: {item.color} • Qty: {item.qty}
+                      <p className="text-[11px] text-[var(--text-muted)] flex items-center gap-1.5 flex-wrap mt-0.5">
+                        <span>Size: {item.size}</span>
+                        <span>•</span>
+                        <span className="inline-flex items-center gap-1">
+                          <span
+                            className="inline-block w-2.5 h-2.5 rounded-full border border-black/20 shrink-0 align-middle"
+                            style={{ background: item.color }}
+                          />
+                          <span>Color: {item.colorName || getColorName(item.color)}</span>
+                        </span>
+                        <span>•</span>
+                        <span>Qty: {item.qty}</span>
                       </p>
                     </div>
                     <span className="font-bold text-[var(--text-main)] shrink-0">

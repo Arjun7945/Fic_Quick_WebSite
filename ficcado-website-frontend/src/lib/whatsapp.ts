@@ -2,6 +2,8 @@
 // WhatsApp Ordering Helper — /src/lib/whatsapp.ts
 // Formats structured order message and builds direct WhatsApp URL.
 
+import { getColorName } from './colors.ts';
+
 function resolveDefaultSiteUrl(): string {
   const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   if (raw && raw.length > 0) {
@@ -107,7 +109,7 @@ export function buildOrderMessage({
     .map((item, idx) => {
       const typeSlug = (item.type || item.category || 't-shirts').toLowerCase().replace(/\s+/g, '-');
       const itemUrl = `${baseUrl}/categories/${typeSlug}/${item.slug}`;
-      const line = `${idx + 1}) ${cleanLine(item.name)} | Size: ${item.size} | Color: ${cleanLine(item.color)} | Qty: ${item.qty} | ₹${item.unitPrice.toLocaleString('en-IN')} each = ₹${item.lineTotal.toLocaleString('en-IN')}`;
+      const line = `${idx + 1}) ${cleanLine(item.name)} | Size: ${item.size} | Color: ${cleanLine(getColorName(item.color))} | Qty: ${item.qty} | ₹${item.unitPrice.toLocaleString('en-IN')} each = ₹${item.lineTotal.toLocaleString('en-IN')}`;
       return `${line}\n   ${itemUrl}`;
     })
     .join('\n');
