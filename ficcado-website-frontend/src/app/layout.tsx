@@ -127,7 +127,7 @@ const globalJsonLd = {
         { '@type': 'Person', name: 'Rohith Murali' },
       ],
       sameAs: [
-        'https://instagram.com/ficcado.store',
+        'https://instagram.com/ficcado.clothing',
       ],
       contactPoint: {
         '@type': 'ContactPoint',

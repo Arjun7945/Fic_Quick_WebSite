@@ -18,6 +18,9 @@ export default function OnboardingPage() {
   const isLast = currentSlide === total - 1;
 
   function finish() {
+    try {
+      sessionStorage.setItem('ficcado_brand_intro_seen', '1');
+    } catch {}
     router.push('/');
   }
 
@@ -56,25 +59,40 @@ export default function OnboardingPage() {
         />
       </div>
 
-      {/* Skip button */}
-      <div className="relative z-10 flex justify-end px-5 pt-4">
-        {!isLast && (
+      {/* Top Header with Brand Emblem & Skip Button */}
+      <div className="relative z-10 flex items-center justify-between px-5 pt-4">
+        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/10">
+          <Image
+            src="/images/brand_logo/favicon-rounded.png"
+            alt="Ficcado Clothing Emblem"
+            width={20}
+            height={20}
+            className="rounded-full"
+          />
+          <span className="text-xs font-bold text-white tracking-wider">Ficcado Clothing</span>
+        </div>
+        {!isLast ? (
           <button
             id="walkthrough-skip"
             onClick={finish}
-            className="rounded-full px-4 py-1.5 text-sm font-semibold text-white transition-opacity hover:opacity-70"
+            className="rounded-full px-4 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-70 cursor-pointer"
             style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)' }}
           >
             Skip
           </button>
-        )}
+        ) : <div />}
       </div>
 
       {/* Bottom content */}
       <div className="absolute bottom-0 left-0 right-0 z-10 px-6 pb-10 pt-8">
+        {/* Brand category pill */}
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[var(--primary)] text-white text-[10px] font-bold uppercase tracking-widest mb-2.5">
+          <span>High Quality Unisex Wears</span>
+        </div>
+
         {/* Title */}
         <h1
-          className="text-3xl font-800 leading-tight text-white mb-3"
+          className="text-2xl sm:text-3xl font-800 leading-tight text-white mb-2.5"
           style={{ fontWeight: 800 }}
           key={`title-${currentSlide}`}
         >

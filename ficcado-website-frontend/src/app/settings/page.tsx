@@ -22,12 +22,14 @@ import {
   Star,
   Menu,
   AtSign,
+  Sparkles,
 } from 'lucide-react';
 import { useModal } from '@/context/ModalContext';
 import { getSiteUrl, getDomainName } from '@/lib/siteUrl';
 
 const QUICK_LINKS = [
   { label: 'Shop T-Shirts', href: '/categories/t-shirts', icon: ShoppingBag, desc: 'Browse available drops' },
+  { label: 'Brand Walkthrough', href: '/onboarding', icon: Sparkles, desc: 'Story and design philosophy' },
   { label: 'FAQ', href: '/faq', icon: HelpCircle, desc: 'Frequently asked questions' },
   { label: 'The Journal', href: '/journal', icon: BookOpen, desc: 'Brand story & textile lab' },
   { label: 'About Ficcado', href: '/about', icon: Info, desc: 'Founders & brand mission' },
@@ -186,6 +188,34 @@ export default function SettingsPage() {
                 </Link>
               );
             })}
+          </div>
+        </section>
+
+        {/* Brand Experience Control */}
+        <section className="space-y-3">
+          <h2 className="text-xs font-800 uppercase tracking-widest text-[var(--text-muted)]">Brand Experience</h2>
+          <div className="card p-4 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-light)] flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-[var(--primary-light)] flex items-center justify-center shrink-0">
+                <Sparkles size={16} className="text-[var(--primary)]" />
+              </div>
+              <div>
+                <p className="text-sm font-800 text-[var(--text-main)]">Brand Opening Presentation</p>
+                <p className="text-xs text-[var(--text-muted)] mt-0.5">Experience the official Ficcado Clothing intro screen</p>
+              </div>
+            </div>
+            <button
+              id="replay-brand-intro-btn"
+              onClick={() => {
+                try {
+                  sessionStorage.removeItem('ficcado_brand_intro_seen');
+                } catch {}
+                router.push('/?intro=1');
+              }}
+              className="px-3.5 py-1.5 rounded-full text-xs font-bold text-white bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-95 transition-all cursor-pointer shrink-0"
+            >
+              Replay Intro &rarr;
+            </button>
           </div>
         </section>
 
