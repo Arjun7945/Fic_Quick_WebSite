@@ -9,6 +9,7 @@ import { ModalProvider } from '@/context/ModalContext';
 import { ViewportProvider } from '@/context/ViewportContext';
 import { ConsentProvider } from '@/context/ConsentContext';
 import { CookieConsentBanner } from '@/components/ui/CookieConsentBanner';
+import { CacheInvalidator } from '@/components/providers/CacheInvalidator';
 
 // Shell
 import { AppShell } from '@/components/layout/AppShell';
@@ -212,6 +213,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-full bg-[var(--bg-page)] antialiased" suppressHydrationWarning>
         <ViewportProvider>
+          <CacheInvalidator />
           <ToastProvider>
             <ConsentProvider>
               <CartProvider>

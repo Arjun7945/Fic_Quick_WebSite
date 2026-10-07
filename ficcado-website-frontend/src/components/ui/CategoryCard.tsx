@@ -50,6 +50,7 @@ export function CategoryCard({ category, priority = false, onClick }: CategoryCa
         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
         className="object-cover transition-transform duration-500 group-hover:scale-108"
         priority={priority}
+        unoptimized
       />
 
       {/* Gradient overlay */}

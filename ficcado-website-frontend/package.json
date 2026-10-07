@@ -4,9 +4,12 @@
   "private": true,
   "author": "Arjun PS",
   "scripts": {
+    "clean": "node scripts/clean-cache.mjs",
+    "predev": "node scripts/clean-cache.mjs",
     "dev": "next dev",
-    "prebuild": "npm run sheets:bootstrap && node scripts/build-item-image-manifest.mjs && node scripts/build-products-snapshot.mjs",
+    "prebuild": "node scripts/clean-cache.mjs && npm run sheets:bootstrap && node scripts/build-item-image-manifest.mjs && node scripts/build-products-snapshot.mjs",
     "build": "next build",
+    "prestart": "node scripts/clean-cache.mjs",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
