@@ -62,39 +62,35 @@ for (const entry of entries) {
       errors.push(`File "${folderName}/${fileName}" has whitespace.`);
     }
 
-    const match = fileName.match(/^image-(\d+)\.([a-z0-9]+)$/i);
-    if (!match) {
-      errors.push(`File "${folderName}/${fileName}" does not match required pattern "image-<number>.<ext>".`);
+    const extMatch = fileName.match(/\.([a-z0-9]+)$/i);
+    if (!extMatch) {
+      errors.push(`File "${folderName}/${fileName}" does not have an extension.`);
       continue;
     }
 
-    const num = parseInt(match[1], 10);
-    const ext = match[2].toLowerCase();
-
+    const ext = extMatch[1].toLowerCase();
     if (!ALLOWED_EXTENSIONS.has(ext)) {
       errors.push(`File "${folderName}/${fileName}" has unsupported extension "${ext}". Allowed: ${Array.from(ALLOWED_EXTENSIONS).join(', ')}.`);
+      continue;
     }
 
-    itemImages.push({ name: fileName, num });
-  }
-
-  // Sort numerically
-  itemImages.sort((a, b) => a.num - b.num);
-
-  // Check gaps in numbering
-  for (let i = 0; i < itemImages.length; i++) {
-    const expected = i + 1;
-    if (itemImages[i].num !== expected) {
-      warnings.push(`Folder "${folderName}" has gap in numbering: expected image-${expected}, found image-${itemImages[i].num}.`);
-      break;
+    // Must be valid kebab-case with allowed extension
+    if (!/^[a-z0-9]+(-[a-z0-9]+)*\.[a-z0-9]+$/.test(fileName)) {
+      errors.push(`File "${folderName}/${fileName}" is not valid kebab-case.`);
+      continue;
     }
+
+    itemImages.push(fileName);
   }
+
+  // Sort naturally: e.g. black-image-1, black-image-2, etc.
+  itemImages.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
 
   if (itemImages.length === 0) {
     warnings.push(`Folder "${folderName}" is empty.`);
   }
 
-  manifest[folderName] = itemImages.map((img) => img.name);
+  manifest[folderName] = itemImages;
 }
 
 // Ensure output directory exists

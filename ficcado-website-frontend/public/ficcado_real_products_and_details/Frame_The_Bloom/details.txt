@@ -1,0 +1,6 @@
+item name: Frame The Bloom
+item Selling price : 699
+Item Description: Frame the bloom tee is inspired by analog nostalgia, a time when every photo had meaning and every frame was a keepsake. Surrounded by bold blossoms and natural motifs, the camera symbolizes not just memory-keeping but creative expression. It's a celebration of growth, reflection, and capturing beauty in everyday life.
+Item available Colours: beige, white and air blue
+Item available sizes: XS,S,M,L,XL
+

@@ -8,7 +8,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { X } from 'lucide-react';
+import { X, Maximize2 } from 'lucide-react';
 import { useModal, getProductModalPayload } from '@/context/ModalContext';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
@@ -16,6 +16,7 @@ import { RatingStars } from '@/components/ui/RatingStars';
 import { getItemImages, PLACEHOLDER_IMAGE } from '@/lib/itemImages';
 import { isCategoryLive } from '@/config/categories';
 import { getSiteUrl } from '@/lib/siteUrl';
+import { ImageZoomModal } from '@/components/modals/ImageZoomModal';
 import type { Product, SizeOption } from '@/types';
 
 const DEFAULT_SIZES: SizeOption[] = ['S', 'M', 'L', 'XL'];
@@ -30,6 +31,7 @@ export function ProductModal() {
   const [activeImageIdx, setActiveImageIdx] = useState(0);
   const [expanded, setExpanded] = useState(false);
   const [prevProductId, setPrevProductId] = useState<string | number | null>(null);
+  const [isZoomOpen, setIsZoomOpen] = useState(false);
 
   const isOpen = activeModal === 'productModal';
   const payload = getProductModalPayload(modalPayload);
@@ -42,13 +44,38 @@ export function ProductModal() {
     setUserColor(null);
     setActiveImageIdx(0);
     setExpanded(false);
+    setIsZoomOpen(false);
   }
 
   if (!isOpen || !product) return null;
 
   const isLive = isCategoryLive(product.category);
+  const selectedColor = userColor || (product.colors && product.colors[0]) || 'Standard';
+
+  function getColorKeyword(colorVal?: string | null): string | null {
+    if (!colorVal) return null;
+    const lower = colorVal.toLowerCase();
+    if (lower === '#111827' || lower.includes('black')) return 'black';
+    if (lower === '#ffffff' || lower.includes('white')) return 'white';
+    if (lower === '#7b1113' || lower.includes('maroon')) return 'maroon';
+    if (lower === '#d4c4a8' || lower.includes('beige')) return 'beige';
+    if (lower === '#99badd' || lower.includes('blue') || lower.includes('air')) return 'blue';
+    return null;
+  }
+
+  function getColorName(colorVal?: string | null): string {
+    if (!colorVal) return 'Standard';
+    const lower = colorVal.toLowerCase();
+    if (lower === '#111827') return 'Black';
+    if (lower === '#ffffff') return 'White';
+    if (lower === '#7b1113') return 'Maroon';
+    if (lower === '#d4c4a8') return 'Beige';
+    if (lower === '#99badd') return 'Air Blue';
+    return colorVal;
+  }
+
   const resolvedFromSlug = getItemImages(product.slug || product.name);
-  const images =
+  const rawImages =
     product.images && product.images.length > 0 && product.images.every((img) => img.startsWith('/') || img.startsWith('http'))
       ? product.images
       : resolvedFromSlug.length > 0 && resolvedFromSlug[0] !== PLACEHOLDER_IMAGE
@@ -56,10 +83,15 @@ export function ProductModal() {
       : product.img && (product.img.startsWith('/') || product.img.startsWith('http'))
       ? [product.img]
       : resolvedFromSlug;
+
+  const colorKeyword = getColorKeyword(selectedColor);
+  const colorFiltered = colorKeyword
+    ? rawImages.filter((img) => img.toLowerCase().includes(colorKeyword))
+    : [];
+  const images = colorFiltered.length > 0 ? colorFiltered : rawImages;
   const activeImage = images[activeImageIdx] || images[0] || PLACEHOLDER_IMAGE;
   const availableSizes = product.sizes && product.sizes.length > 0 ? product.sizes : DEFAULT_SIZES;
   const selectedSize = userSize || availableSizes[0] || 'M';
-  const selectedColor = userColor || (product.colors && product.colors[0]) || 'Standard';
 
   function handleAddToCart() {
     if (!product) return;
@@ -175,15 +207,32 @@ export function ProductModal() {
         <div className="overflow-y-auto flex-1 min-h-0 md:grid md:grid-cols-2 overscroll-contain">
           {/* Left Column: Product Image Gallery */}
           <div className="flex flex-col bg-[var(--bg-surface-alt)] border-b md:border-b-0 md:border-r border-[var(--border-light)]">
-            <div className="relative aspect-[4/3] md:aspect-auto md:flex-1 md:min-h-[300px] overflow-hidden">
+            <div
+              onClick={() => setIsZoomOpen(true)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setIsZoomOpen(true);
+                }
+              }}
+              aria-label={`Inspect ${product.name} image in high resolution`}
+              className="relative aspect-[4/3] md:aspect-auto md:flex-1 md:min-h-[300px] overflow-hidden cursor-zoom-in group select-none"
+            >
               <Image
                 src={activeImage}
                 alt={product.name}
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
                 priority
               />
+              {/* Tap to Zoom pill badge */}
+              <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white text-[11px] font-bold shadow-lg transition-all group-hover:scale-105">
+                <Maximize2 size={13} />
+                <span>Tap to Zoom & Inspect</span>
+              </div>
               <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold text-white uppercase tracking-wider">
                 {product.category}
               </div>
@@ -276,15 +325,23 @@ export function ProductModal() {
               {/* Color selector */}
               {product.colors && product.colors.length > 0 && (
                 <div>
-                  <p className="text-xs md:text-sm font-700 mb-2" style={{ fontWeight: 700, color: 'var(--text-main)' }}>
-                    Available Colorways
-                  </p>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs md:text-sm font-700" style={{ fontWeight: 700, color: 'var(--text-main)' }}>
+                      Available Colorways
+                    </p>
+                    <span className="text-[11px] font-semibold text-[var(--primary)]">
+                      {getColorName(selectedColor)}
+                    </span>
+                  </div>
                   <div className="flex gap-3">
                     {product.colors.map((color) => (
                       <button
                         key={color}
                         id={`color-${color.replace('#', '')}`}
-                        onClick={() => setUserColor(color)}
+                        onClick={() => {
+                          setUserColor(color);
+                          setActiveImageIdx(0);
+                        }}
                         className="h-8 w-8 md:h-9 md:w-9 rounded-full transition-all active:scale-90 cursor-pointer"
                         style={{
                           background: color,
@@ -294,7 +351,7 @@ export function ProductModal() {
                           boxShadow: '0 0 0 1px rgba(0,0,0,0.12)',
                         }}
                         aria-pressed={selectedColor === color}
-                        aria-label={`Select color ${color}`}
+                        aria-label={`Select color ${getColorName(color)}`}
                       />
                     ))}
                   </div>
@@ -367,6 +424,15 @@ export function ProductModal() {
           </button>
         </div>
       </div>
+
+      {/* High-Resolution Interactive Image Zoom Lightbox */}
+      <ImageZoomModal
+        isOpen={isZoomOpen}
+        onClose={() => setIsZoomOpen(false)}
+        images={images}
+        initialIndex={activeImageIdx}
+        productName={product.name}
+      />
     </div>
   );
 }

@@ -31,12 +31,12 @@ export const DEFAULT_FILTER_STATE: FilterState = {
 };
 
 export const TRENDING_TAGS: string[] = [
-  'High Quality T-Shirt',
+  'Echoes of the Empire',
+  'Frame The Bloom',
+  'Silent Sentinel',
+  'The Watchers',
+  '230 GSM Cotton',
   'Oversized Drop',
-  'Upcoming Combos',
-  'Boxy Fit',
-  'Combed Cotton',
-  'Citrus Tee',
 ];
 
 export const WALKTHROUGH_DATA: WalkthroughSlide[] = [
