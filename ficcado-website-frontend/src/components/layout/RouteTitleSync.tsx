@@ -3,34 +3,34 @@
 // =============================================================================
 // RouteTitleSync — Client-side Navigation Tab Title Synchronizer
 // Enforces the standard:
-// - Home: "Ficcado Clothings"
-// - All other routes/sections: "Ficcado Clothings | [Page Name]"
+// - Home: "Ficcado Clothing"
+// - All other routes/sections: "Ficcado Clothing | [Page Name]"
 // =============================================================================
 
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
 const ROUTE_TITLES: Record<string, string> = {
-  '/': 'Ficcado Clothings',
-  '/support': 'Ficcado Clothings | Support',
-  '/faq': "Ficcado Clothings | FAQ's",
-  '/about': 'Ficcado Clothings | About Us',
-  '/journal': 'Ficcado Clothings | Journal',
-  '/blob': 'Ficcado Clothings | Journal',
-  '/blog': 'Ficcado Clothings | Journal',
-  '/settings': 'Ficcado Clothings | Settings',
-  '/search': 'Ficcado Clothings | Search',
-  '/categories': 'Ficcado Clothings | Categories',
-  '/categories/t-shirts': 'Ficcado Clothings | High Quality T-Shirts',
-  '/categories/combos': 'Ficcado Clothings | Streetwear Combos',
-  '/checkout': 'Ficcado Clothings | Checkout',
-  '/checkout/whatsapp-continue': 'Ficcado Clothings | WhatsApp Continue',
-  '/terms': 'Ficcado Clothings | Terms & Conditions',
-  '/privacy': 'Ficcado Clothings | Privacy Policy',
-  '/shipping-delivery': 'Ficcado Clothings | Shipping & Delivery',
-  '/returns-refunds': 'Ficcado Clothings | Returns & Refunds',
-  '/replacements-damages': 'Ficcado Clothings | Replacements & Damages',
-  '/onboarding': 'Ficcado Clothings | Welcome',
+  '/': 'Ficcado Clothing',
+  '/support': 'Ficcado Clothing | Support',
+  '/faq': "Ficcado Clothing | FAQ's",
+  '/about': 'Ficcado Clothing | About Us',
+  '/journal': 'Ficcado Clothing | Journal',
+  '/blob': 'Ficcado Clothing | Journal',
+  '/blog': 'Ficcado Clothing | Journal',
+  '/settings': 'Ficcado Clothing | Settings',
+  '/search': 'Ficcado Clothing | Search',
+  '/categories': 'Ficcado Clothing | Categories',
+  '/categories/t-shirts': 'Ficcado Clothing | High Quality T-Shirts',
+  '/categories/combos': 'Ficcado Clothing | Streetwear Combos',
+  '/checkout': 'Ficcado Clothing | Checkout',
+  '/checkout/whatsapp-continue': 'Ficcado Clothing | WhatsApp Continue',
+  '/terms': 'Ficcado Clothing | Terms & Conditions',
+  '/privacy': 'Ficcado Clothing | Privacy Policy',
+  '/shipping-delivery': 'Ficcado Clothing | Shipping & Delivery',
+  '/returns-refunds': 'Ficcado Clothing | Returns & Refunds',
+  '/replacements-damages': 'Ficcado Clothing | Replacements & Damages',
+  '/onboarding': 'Ficcado Clothing | Welcome',
 };
 
 export function RouteTitleSync() {
@@ -50,7 +50,7 @@ export function RouteTitleSync() {
         .split('-')
         .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
         .join(' ');
-      document.title = `Ficcado Clothings | ${formatted}`;
+      document.title = `Ficcado Clothing | ${formatted}`;
       return;
     }
 
@@ -60,9 +60,9 @@ export function RouteTitleSync() {
         .split('-')
         .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
         .join(' ');
-      document.title = `Ficcado Clothings | ${formatted}`;
+      document.title = `Ficcado Clothing | ${formatted}`;
     } else {
-      document.title = 'Ficcado Clothings';
+      document.title = 'Ficcado Clothing';
     }
   }, [pathname]);
 

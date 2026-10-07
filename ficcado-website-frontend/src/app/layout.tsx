@@ -117,6 +117,7 @@ const globalJsonLd = {
       '@type': 'Organization',
       '@id': `${siteUrl}/#organization`,
       name: 'Ficcado',
+      legalName: 'Ficcado Clothing',
       url: siteUrl,
       logo: `${siteUrl}/images/brand_logo/favicon-rounded.png`,
       foundingDate: '2025',

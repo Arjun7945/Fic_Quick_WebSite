@@ -1,5 +1,5 @@
 // =============================================================================
-// Ficcado Clothings — TypeScript Domain Interfaces
+// Ficcado Clothing — TypeScript Domain Interfaces
 // Refactored per REFACTOR_ON_PREVIOUS_UPDATE.md:
 // - Category list: 6 official slugs ('t-shirts', 'combos', 'shirts', 'hoodies', 'pants', 'sneakers')
 // - Unisex catalog: no gender/audience/ageGroup fields

@@ -11,6 +11,7 @@ Co-Founder & CEO: Sinan MS
 Co-Founder & Operations & Creative Officer: Ganga Lakshmi
 Co-Founder & CFO: Rohith Murali
 Brand: Ficcado
+Legal Name: Ficcado Clothing
 Genesis: 2025
 Ethos: People's Own Brand — Timeless clothing & honest 230 GSM design
 Location: India

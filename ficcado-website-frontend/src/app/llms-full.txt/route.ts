@@ -16,6 +16,7 @@ export async function GET() {
   let text = `# Ficcado — Complete Brand Knowledge Base & Catalog Context
 
 > Brand: Ficcado (F-I-C-C-A-D-O)
+> Legal Name: Ficcado Clothing
 > Tagline: People's Own Brand — Born From A Passion For Timeless Clothing & Honest Design
 > Genesis: Established in 2025 by Sinan MS, Ganga Lakshmi, and Rohith Murali
 > Storefront: ${siteUrl}

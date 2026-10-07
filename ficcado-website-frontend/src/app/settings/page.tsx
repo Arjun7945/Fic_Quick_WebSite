@@ -116,7 +116,7 @@ export default function SettingsPage() {
               />
             </div>
             <div>
-              <h1 className="text-2xl font-900 tracking-tight text-white">Ficcado Clothings</h1>
+              <h1 className="text-2xl font-900 tracking-tight text-white">Ficcado Clothing</h1>
               <p className="text-sm text-blue-100 font-semibold mt-0.5">
                 High Quality Unisex Wears
               </p>

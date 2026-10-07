@@ -58,7 +58,7 @@ export function DesktopFooter() {
                 FICCADO
               </span>
               <span className="text-[9px] font-700 tracking-widest text-[var(--text-muted)] uppercase">
-                Clothings
+                Clothing
               </span>
             </div>
           </div>

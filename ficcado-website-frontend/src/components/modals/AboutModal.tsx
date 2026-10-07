@@ -41,7 +41,7 @@ export function AboutModal() {
         id="aboutModal"
         role="dialog"
         aria-modal="true"
-        aria-label="About Ficcado Clothings"
+        aria-label="About Ficcado Clothing"
         className="animate-sheet-in sm:animate-modal-in relative w-full sm:max-w-[480px] md:max-w-[540px] flex flex-col pointer-events-auto rounded-[28px] sm:rounded-3xl shadow-2xl border border-[var(--border-light)] overflow-hidden"
         style={{
           maxHeight: 'min(82dvh, calc(100dvh - 3.5rem - var(--ios-bottom-bar-clearance, 0px)))',

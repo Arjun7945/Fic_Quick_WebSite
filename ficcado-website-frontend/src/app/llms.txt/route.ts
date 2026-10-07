@@ -12,7 +12,7 @@ export async function GET() {
 
   const content = `# Ficcado — People's Own Brand
 
-> Ficcado is an independent Indian contemporary unisex apparel and streetwear brand established in 2025 by three close friends: Sinan MS (Co-Founder & CEO), Ganga Lakshmi (Co-Founder & Operations & Creative Officer), and Rohith Murali (Co-Founder & CFO). Ficcado operates as a direct-to-consumer online storefront with assisted ordering via WhatsApp.
+> Ficcado (Legal Name: Ficcado Clothing) is an independent Indian contemporary unisex apparel and streetwear brand established in 2025 by three close friends: Sinan MS (Co-Founder & CEO), Ganga Lakshmi (Co-Founder & Operations & Creative Officer), and Rohith Murali (Co-Founder & CFO). Ficcado operates as a direct-to-consumer online storefront with assisted ordering via WhatsApp.
 >
 > **Brand Genesis & Craftsmanship Philosophy:**
 > Born from a passion for timeless clothing and honest design, Ficcado was created in response to paper-thin fast fashion and overpriced synthetic apparel. The brand's singular ethos is "People's own brand" — zero shortcuts on yarn weight, stitch density, or ethical wages:

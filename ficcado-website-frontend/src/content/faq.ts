@@ -497,7 +497,7 @@ export const FAQ_ITEMS: FAQItem[] = [
     group: 'terms-commercial',
     question: 'What are the commercial terms of purchase with Ficcado?',
     answer:
-      'When placing an order, you enter into a direct purchase contract with Ficcado Clothings. We guarantee that garments dispatched match our published descriptions, dimensions, and high-resolution photos. You are protected by our 7-day return guarantee.',
+      'When placing an order, you enter into a direct purchase contract with Ficcado Clothing. We guarantee that garments dispatched match our published descriptions, dimensions, and high-resolution photos. You are protected by our 7-day return guarantee.',
   },
   {
     id: 'are-taxes-included-in-the-price',

@@ -2,7 +2,7 @@
 
 // =============================================================================
 // Terms & Conditions — /terms
-// Transparent, human-first commercial terms for Ficcado Clothings (Est. 2025)
+// Transparent, human-first commercial terms for Ficcado Clothing (Est. 2025)
 // =============================================================================
 
 import Link from 'next/link';
@@ -59,7 +59,7 @@ export default function TermsPage() {
           </h1>
 
           <p className="text-sm md:text-base text-[var(--text-secondary)] max-w-3xl leading-relaxed">
-            At Ficcado Clothings, we believe legal documents shouldn’t be written in obscure legalese designed to trap customers. Below is our plain-language commitment to how we operate, how your orders are fulfilled, and your rights as our community member.
+            At Ficcado Clothing, we believe legal documents shouldn’t be written in obscure legalese designed to trap customers. Below is our plain-language commitment to how we operate, how your orders are fulfilled, and your rights as our community member.
           </p>
 
           {/* Quick Policy Switcher Tabs */}
@@ -93,7 +93,7 @@ export default function TermsPage() {
                 <span>Our Contract With You</span>
               </h2>
               <p className="text-xs md:text-sm text-[var(--text-secondary)] leading-relaxed">
-                When you place an order on Ficcado (via our official store or direct WhatsApp ordering), you are entering into a purchase agreement directly with Ficcado Clothings. We acknowledge receipt of your order directly via WhatsApp with your unique Reference ID (format FIC-A0001) followed by your confirmed Order ID.
+                When you place an order on Ficcado (via our official store or direct WhatsApp ordering), you are entering into a purchase agreement directly with Ficcado Clothing. We acknowledge receipt of your order directly via WhatsApp with your unique Reference ID (format FIC-A0001) followed by your confirmed Order ID.
               </p>
               <p className="text-xs md:text-sm text-[var(--text-secondary)] leading-relaxed">
                 We guarantee that every product displayed on our store is manufactured to our exact specifications (such as our high quality cotton blends) and matches the high-resolution imagery and dimensions published on the product pages.

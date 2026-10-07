@@ -10,6 +10,7 @@ const FORBIDDEN = [
   /\bficcdo\b/i,
   /\bficcodo\b/i,
   /fikado-bag/i,
+  /\bficcado\s+clothings\b/i,
 ];
 
 const SCAN_DIRS = ['src', 'public', '../docs'];
@@ -19,6 +20,8 @@ const ALLOWED_FILES = new Set([
   '../docs/briefs/AGENT_BRIEF_2_WHATSAPP_ORDERING_REFACTOR.md',
   '../docs/briefs/REFACTOR_ON_PREVIOUS_UPDATE.md',
   '../docs/REQUIREMENT_AND_REFACTOR_PART_2.md',
+  '../docs/memory.md',
+  '../docs/prd.md',
 ]);
 
 let violations = [];

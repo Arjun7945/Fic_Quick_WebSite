@@ -1,5 +1,5 @@
 // =============================================================================
-// Ficcado Clothings — Color Utilities & Human-Readable Mapping
+// Ficcado Clothing — Color Utilities & Human-Readable Mapping
 // Maps hex color codes and keywords to customer-facing human colorway names.
 // =============================================================================
 

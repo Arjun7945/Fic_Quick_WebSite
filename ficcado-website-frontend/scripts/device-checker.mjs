@@ -1,5 +1,5 @@
 // =============================================================================
-// Ficcado Clothings — Device Mode & Cross-Platform Quality Checker
+// Ficcado Clothing — Device Mode & Cross-Platform Quality Checker
 // Validates all 11 application routes across Mobile (iOS/Android), Tablet,
 // and Desktop (Windows/Mac) profiles for viewport, layout, and HTML integrity.
 // =============================================================================
@@ -312,7 +312,7 @@ function validateHtmlResponse(route, device, res) {
 // ---------------------------------------------------------------------------
 export async function runQualityChecker() {
   console.log('\n' + '='.repeat(80));
-  console.log('   FICCADO CLOTHINGS — CROSS-DEVICE & QUALITY CHECKER SUITE');
+  console.log('   FICCADO CLOTHING — CROSS-DEVICE & QUALITY CHECKER SUITE');
   console.log(`   Target Server: ${BASE_URL}`);
   console.log(`   Device Profiles: ${DEVICE_PROFILES.length}`);
   console.log(`   Routes Tested: ${ROUTES.length}`);

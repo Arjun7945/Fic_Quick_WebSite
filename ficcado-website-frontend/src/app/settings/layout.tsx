@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Settings',
   description:
-    'Manage your profile, delivery addresses, and preferences on Ficcado Clothings.',
+    'Manage your profile, delivery addresses, and preferences on Ficcado Clothing.',
 };
 
 export default function SettingsLayout({

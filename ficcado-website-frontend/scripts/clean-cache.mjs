@@ -1,5 +1,5 @@
 // =============================================================================
-// Ficcado Clothings — Cache & Build Cleaner
+// Ficcado Clothing — Cache & Build Cleaner
 // Automatically cleans active Next.js disk caches (.next/cache, .next/dev)
 // and updates the build timestamp to ensure fresh asset delivery across restarts.
 // =============================================================================
