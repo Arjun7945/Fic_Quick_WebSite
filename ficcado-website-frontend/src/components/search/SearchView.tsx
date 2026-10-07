@@ -7,7 +7,7 @@
 
 import { useMemo, useState, useEffect, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Search, SlidersHorizontal, X, TrendingUp, Clock, Loader2 } from 'lucide-react';
+import { ArrowLeft, Search, SlidersHorizontal, X, TrendingUp, Clock } from 'lucide-react';
 import { useModal } from '@/context/ModalContext';
 import { ProductCard } from '@/components/ui/ProductCard';
 import { TRENDING_TAGS } from '@/config/site';
@@ -249,9 +249,26 @@ export function SearchView({ initialProducts = [] }: SearchViewProps) {
 
       <div className="no-scrollbar flex-1 overflow-y-auto px-4 md:px-0 max-w-7xl mx-auto w-full py-4 space-y-6">
         {isLoading && (
-          <div className="flex items-center justify-center py-12 gap-2 text-xs text-[var(--text-muted)]">
-            <Loader2 size={16} className="animate-spin text-[var(--primary)]" />
-            <span>Loading catalog...</span>
+          <div className="space-y-4 animate-fade-in">
+            <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
+              <span className="w-2 h-2 rounded-full bg-[var(--primary)] animate-pulse" />
+              <span className="font-semibold tracking-wide">Syncing product catalog...</span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                <div
+                  key={i}
+                  className="card p-2.5 sm:p-3 space-y-2.5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-light)]"
+                >
+                  <div className="w-full aspect-[3/4] rounded-xl skeleton" />
+                  <div className="w-3/4 h-4 rounded skeleton" />
+                  <div className="flex items-center justify-between pt-1">
+                    <div className="w-14 h-4 rounded skeleton" />
+                    <div className="w-6 h-6 rounded-full skeleton" />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

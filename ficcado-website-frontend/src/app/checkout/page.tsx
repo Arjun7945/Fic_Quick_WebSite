@@ -661,9 +661,22 @@ export default function CheckoutPage() {
               </div>
 
               {isLoadingDelivery ? (
-                <div className="flex items-center justify-center p-8 text-xs text-[var(--text-muted)] gap-2">
-                  <Loader2 size={16} className="animate-spin text-[var(--primary)]" />
-                  <span>Loading delivery options...</span>
+                <div className="space-y-3 p-1">
+                  {[1, 2].map((i) => (
+                    <div
+                      key={i}
+                      className="p-4 rounded-2xl border border-[var(--border-light)] bg-[var(--bg-surface-alt)] flex items-center justify-between gap-3 animate-fade-in"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-5 h-5 rounded-full skeleton shrink-0" />
+                        <div className="space-y-1.5">
+                          <div className="w-28 sm:w-36 h-4 rounded skeleton" />
+                          <div className="w-20 sm:w-24 h-3 rounded skeleton" />
+                        </div>
+                      </div>
+                      <div className="w-16 h-5 rounded-full skeleton" />
+                    </div>
+                  ))}
                 </div>
               ) : !hasActiveCouriers ? (
                 <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 space-y-2">

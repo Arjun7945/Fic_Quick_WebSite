@@ -115,7 +115,7 @@ export function CartDrawer() {
                 >
                   {/* Thumbnail */}
                   <div
-                    className="relative shrink-0 overflow-hidden rounded-xl"
+                    className="relative shrink-0 overflow-hidden rounded-xl skeleton"
                     style={{ width: 72, height: 72, background: 'var(--bg-surface)' }}
                   >
                     <Image

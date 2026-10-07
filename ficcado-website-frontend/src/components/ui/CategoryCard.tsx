@@ -22,7 +22,7 @@ export function CategoryCard({ category, priority = false, onClick }: CategoryCa
   return (
     <button
       id={`category-card-${category.slug}`}
-      className="group relative w-full cursor-pointer overflow-hidden text-left"
+      className="group relative w-full cursor-pointer overflow-hidden text-left skeleton"
       style={{
         borderRadius: 'var(--radius-md)',
         aspectRatio: '1 / 1.15',

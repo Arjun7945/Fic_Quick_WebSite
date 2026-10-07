@@ -19,11 +19,8 @@ import { AppShell } from '@/components/layout/AppShell';
 // ---------------------------------------------------------------------------
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800'],
-  style: ['normal', 'italic'],
   variable: '--font-plus-jakarta',
   display: 'swap',
-  preload: true,
 });
 
 import { getSiteUrl } from '@/lib/siteUrl';

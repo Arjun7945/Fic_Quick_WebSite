@@ -201,7 +201,7 @@ export function ProductModal() {
                 }
               }}
               aria-label={`Inspect ${product.name} image in high resolution`}
-              className="relative aspect-[4/3] md:aspect-auto md:flex-1 md:min-h-[300px] overflow-hidden cursor-zoom-in group select-none"
+              className="relative aspect-[4/3] md:aspect-auto md:flex-1 md:min-h-[300px] overflow-hidden cursor-zoom-in group select-none skeleton"
             >
               <Image
                 src={activeImage}
@@ -228,7 +228,7 @@ export function ProductModal() {
                   <button
                     key={img}
                     onClick={() => setActiveImageIdx(idx)}
-                    className={`relative w-12 h-14 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
+                    className={`relative w-12 h-14 rounded-lg overflow-hidden border-2 transition-all cursor-pointer skeleton ${
                       activeImageIdx === idx
                         ? 'border-[var(--primary)] ring-2 ring-[var(--primary)]/20 scale-105'
                         : 'border-transparent opacity-70 hover:opacity-100'

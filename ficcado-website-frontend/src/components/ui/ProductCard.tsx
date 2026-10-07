@@ -5,6 +5,7 @@
 // Hover zoom image, price badge, color swatches, tap-to-open modal
 // =============================================================================
 
+import { useState } from 'react';
 import { useModal } from '@/context/ModalContext';
 import Image from 'next/image';
 import { RatingStars } from './RatingStars';
@@ -18,6 +19,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product, priority = false }: ProductCardProps) {
   const { openProductModal } = useModal();
+  const [isLoaded, setIsLoaded] = useState(false);
   const imageSrc = product.img || product.image_main || getProductMainImage(product.slug);
 
   return (
@@ -40,9 +42,9 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
       }}
       aria-label={`View ${product.name} — ₹${product.price.toLocaleString('en-IN')}`}
     >
-      {/* Image container */}
+      {/* Image container with Ghost Skeleton Shimmer */}
       <div
-        className="relative overflow-hidden"
+        className="relative overflow-hidden skeleton"
         style={{ aspectRatio: '3/4', background: 'var(--bg-surface-alt)' }}
       >
         <Image
@@ -50,7 +52,10 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
           alt={product.name}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          className={`object-cover transition-all duration-500 group-hover:scale-105 ${
+            isLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
+          onLoad={() => setIsLoaded(true)}
           priority={priority || product.id === 1}
         />
 

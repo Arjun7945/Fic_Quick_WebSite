@@ -3,7 +3,7 @@
 // =============================================================================
 // SplashScreen — /src/components/ui/SplashScreen.tsx
 // Luxury brand opening splash presentation with official Ficcado gecko emblem,
-// legal brand entity "Ficcado Clothing", 5-second animated progress beam,
+// legal brand entity "Ficcado Clothing", 3-second animated progress beam,
 // and color palette: Primary Blue (#0066CC) and Secondary Ice (#ACD5F3).
 // =============================================================================
 
@@ -52,12 +52,12 @@ export function SplashScreen() {
     }, 600);
   }, [pathname, router]);
 
-  // 5-second progress animation and auto-transition to storefront
+  // 3-second progress animation and auto-transition to storefront
   useEffect(() => {
     if (!shouldShowInitial || isDismissed || isExiting) return;
 
-    const totalDuration = 5000; // Exact 5 seconds delay per requirement
-    const intervalTime = 25; // 40 updates per second for ultra-fluid motion
+    const totalDuration = 3000; // Exact 3 seconds delay per requirement
+    const intervalTime = 20; // 50 updates per second for ultra-fluid motion
     const step = 100 / (totalDuration / intervalTime);
 
     const timer = setInterval(() => {
@@ -226,8 +226,8 @@ export function SplashScreen() {
               className="relative h-full rounded-full transition-all duration-75 overflow-hidden"
               style={{
                 width: `${progress}%`,
-                background: 'linear-gradient(90deg, #0066CC 0%, #3B82F6 60%, #ACD5F3 100%)',
-                boxShadow: '0 0 16px rgba(0, 102, 204, 0.9), 0 0 6px #ACD5F3',
+                background: 'linear-gradient(90deg, #0066CC 0%, #0066CC 35%, #ACD5F3 100%)',
+                boxShadow: '0 0 18px rgba(0, 102, 204, 0.95), 0 0 8px #ACD5F3',
               }}
             >
               {/* Dynamic Traveling Light Beam Shimmer inside the bar */}
@@ -235,9 +235,9 @@ export function SplashScreen() {
                 className="absolute inset-0 w-full h-full"
                 style={{
                   background:
-                    'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.8) 50%, transparent 100%)',
+                    'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.85) 50%, transparent 100%)',
                   backgroundSize: '200% 100%',
-                  animation: 'shimmerSweep 1.6s infinite linear',
+                  animation: 'shimmerSweep 1.1s infinite linear',
                 }}
               />
             </div>

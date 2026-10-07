@@ -110,9 +110,9 @@ export function HomeView({ initialProducts }: HomeViewProps) {
       </div>
 
       <div className="no-scrollbar flex-1 overflow-y-auto">
-        {/* Hero Banner Drop */}
+        {/* Hero Banner Drop with Ghost Shimmer Backdrop */}
         <div
-          className="relative mx-4 md:mx-0 mt-4 md:mt-2 md:mb-6 overflow-hidden rounded-3xl h-[220px] md:h-[360px]"
+          className="relative mx-4 md:mx-0 mt-4 md:mt-2 md:mb-6 overflow-hidden rounded-3xl h-[220px] md:h-[360px] skeleton"
           style={{ borderRadius: 'var(--radius-lg)' }}
         >
           <Image

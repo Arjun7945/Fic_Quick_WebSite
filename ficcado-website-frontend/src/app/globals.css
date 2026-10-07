@@ -345,17 +345,20 @@ html {
 .animate-marquee        { display: flex; width: max-content; animation: marquee-scroll 45s linear infinite; }
 .animate-marquee:hover { animation-play-state: paused; }
 
-/* Skeleton loading shimmer */
+/* Skeleton loading shimmer — Luxury Ambient Beam with Ice Accent */
 .skeleton {
   background: linear-gradient(
     90deg,
-    var(--bg-surface-alt) 25%,
-    var(--border-light)    50%,
-    var(--bg-surface-alt) 75%
+    var(--bg-surface-alt) 0%,
+    var(--border-light) 25%,
+    rgba(172, 213, 243, 0.32) 50%,
+    var(--border-light) 75%,
+    var(--bg-surface-alt) 100%
   );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
+  background-size: 250% 100%;
+  animation: shimmer 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   border-radius: var(--radius-xs);
+  will-change: background-position;
 }
 
 /* Overlay / backdrop */
