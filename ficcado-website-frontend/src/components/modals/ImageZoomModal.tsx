@@ -245,8 +245,8 @@ export function ImageZoomModal({
       role="dialog"
       aria-modal="true"
       aria-label={`Full resolution view of ${productName}`}
-      className="fixed inset-0 z-[100] flex flex-col bg-black/95 backdrop-blur-md select-none touch-none animate-fadeIn"
-      style={{ isolation: 'isolate' }}
+      className="fixed inset-0 z-[9999] flex flex-col bg-black/95 backdrop-blur-md select-none touch-none animate-fadeIn"
+      style={{ zIndex: 9999, isolation: 'isolate' }}
     >
       {/* Top Header Bar */}
       <header className="shrink-0 h-16 px-4 md:px-6 flex items-center justify-between z-20 bg-gradient-to-b from-black/80 to-transparent">

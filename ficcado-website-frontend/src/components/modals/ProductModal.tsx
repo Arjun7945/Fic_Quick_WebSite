@@ -158,12 +158,16 @@ export function ProductModal() {
   }
 
   return (
-    <div
-      className="fixed inset-0 h-[100dvh] max-h-[100dvh] z-50 flex items-end md:items-center justify-center p-3 sm:p-4 md:p-6 pointer-events-none"
-      style={{
-        paddingBottom: 'calc(var(--ios-bottom-bar-clearance, 0px) + max(0.75rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem)))',
-      }}
-    >
+    <>
+      <div
+        className={`fixed inset-0 h-[100dvh] max-h-[100dvh] z-50 flex items-end md:items-center justify-center p-3 sm:p-4 md:p-6 pointer-events-none transition-opacity duration-200 ${
+          isZoomOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'
+        }`}
+        style={{
+          paddingBottom: 'calc(var(--ios-bottom-bar-clearance, 0px) + max(0.75rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem)))',
+          visibility: isZoomOpen ? 'hidden' : 'visible',
+        }}
+      >
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
@@ -423,9 +427,10 @@ export function ProductModal() {
             {isLive ? 'Add To Bag →' : 'Coming Soon'}
           </button>
         </div>
+        </div>
       </div>
 
-      {/* High-Resolution Interactive Image Zoom Lightbox */}
+      {/* High-Resolution Interactive Image Zoom Lightbox mounted outside hidden modal */}
       <ImageZoomModal
         isOpen={isZoomOpen}
         onClose={() => setIsZoomOpen(false)}
@@ -433,7 +438,7 @@ export function ProductModal() {
         initialIndex={activeImageIdx}
         productName={product.name}
       />
-    </div>
+    </>
   );
 }
 
