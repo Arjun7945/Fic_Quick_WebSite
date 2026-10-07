@@ -47,7 +47,15 @@ export function ProductModal() {
   if (!isOpen || !product) return null;
 
   const isLive = isCategoryLive(product.category);
-  const images = getItemImages(product.name || product.slug);
+  const resolvedFromSlug = getItemImages(product.slug || product.name);
+  const images =
+    product.images && product.images.length > 0 && product.images.every((img) => img.startsWith('/') || img.startsWith('http'))
+      ? product.images
+      : resolvedFromSlug.length > 0 && resolvedFromSlug[0] !== PLACEHOLDER_IMAGE
+      ? resolvedFromSlug
+      : product.img && (product.img.startsWith('/') || product.img.startsWith('http'))
+      ? [product.img]
+      : resolvedFromSlug;
   const activeImage = images[activeImageIdx] || images[0] || PLACEHOLDER_IMAGE;
   const availableSizes = product.sizes && product.sizes.length > 0 ? product.sizes : DEFAULT_SIZES;
   const selectedSize = userSize || availableSizes[0] || 'M';

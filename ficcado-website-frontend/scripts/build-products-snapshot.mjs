@@ -226,7 +226,8 @@ async function run() {
       const featured = featuredIdx !== -1 ? parseBoolean(row[featuredIdx], false) : false;
       const sortOrder = sortOrderIdx !== -1 ? parseInt(row[sortOrderIdx], 10) || i : i;
 
-      const images = manifest[rawSlug] || [];
+      const rawImages = manifest[rawSlug] || [];
+      const images = rawImages.map((f) => `/images/items/${rawSlug}/${f}`);
       const primaryImg = images.length > 0 ? images[0] : null;
       const secondaryImg = images.length > 1 ? images[1] : null;
 

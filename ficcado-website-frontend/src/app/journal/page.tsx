@@ -408,33 +408,46 @@ export default function JournalPage() {
 
       {/* Apparel Community Newsletter Card */}
       <section className="max-w-5xl mx-auto px-4 md:px-8 pt-6">
-        <div className="card p-8 md:p-10 bg-gradient-to-r from-[#111827] via-[#1E293B] to-[#0F172A] text-white rounded-3xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+        <div
+          className="p-8 md:p-10 text-white rounded-3xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, #2B62C6 0%, #163888 100%)',
+            boxShadow: '0 20px 45px -10px rgba(43, 98, 198, 0.4)',
+          }}
+        >
           <div className="space-y-2 text-center md:text-left">
-            <span className="text-xs font-800 uppercase tracking-widest text-[#B4D1EF]">
+            <span
+              className="text-xs font-800 uppercase tracking-wider px-3 py-1 rounded-full inline-block"
+              style={{ background: 'rgba(255, 255, 255, 0.18)', color: '#FFD700' }}
+            >
               The Drop Notification List
             </span>
-            <h3 className="text-xl md:text-2xl font-900">
+            <h3 className="text-xl md:text-2xl font-900 text-white">
               Never Miss A Limited T-Shirt & Future Wear Capsule
             </h3>
-            <p className="text-xs md:text-sm text-gray-400 max-w-md">
+            <p className="text-xs md:text-sm text-blue-100 max-w-md leading-relaxed">
               Be the first to access new t-shirt releases, behind-the-scenes textile logs, and upcoming wear drops.
             </p>
           </div>
 
-          <form onSubmit={handleSubscribe} className="w-full md:auto flex flex-col sm:flex-row gap-2">
+          <form onSubmit={handleSubscribe} className="w-full md:w-auto flex flex-col sm:flex-row gap-2">
             <input
               type="email"
               required
               value={newsletterEmail}
               onChange={(e) => setNewsletterEmail(e.target.value)}
               placeholder="Enter your email"
-              className="px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--primary)] w-full sm:w-64"
+              className="px-4 py-3 rounded-xl bg-white/15 border border-white/25 text-white placeholder-blue-100 text-xs focus:outline-none focus:ring-2 focus:ring-white w-full sm:w-64"
             />
             <button
               type="submit"
-              className="btn-primary px-6 py-3 rounded-xl text-xs font-bold whitespace-nowrap shadow-md cursor-pointer"
+              className="shrink-0 px-6 py-3 rounded-xl font-bold text-xs shadow-md hover:bg-white/95 transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
+              style={{
+                background: '#FFFFFF',
+                color: '#163888',
+              }}
             >
-              Get Early Access
+              Get Early Access 📬
             </button>
           </form>
         </div>

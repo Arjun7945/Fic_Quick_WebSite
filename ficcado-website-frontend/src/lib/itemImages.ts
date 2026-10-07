@@ -15,6 +15,14 @@ export function getItemImages(itemNameOrSlug?: string): string[] {
   const files = manifest[slug];
 
   if (!files || files.length === 0) {
+    // Resilient fallback: search manifest keys by significant token prefix or containment
+    const firstToken = slug.split('-')[0];
+    const matchedKey = Object.keys(manifest).find(
+      (k) => (firstToken && firstToken.length > 3 && k.startsWith(firstToken)) || slug.includes(k) || k.includes(slug)
+    );
+    if (matchedKey && manifest[matchedKey]?.length > 0) {
+      return manifest[matchedKey].map((file) => `/images/items/${matchedKey}/${file}`);
+    }
     return [PLACEHOLDER_IMAGE];
   }
 
