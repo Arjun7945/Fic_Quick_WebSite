@@ -61,7 +61,7 @@ test.describe('Customer Checkout & Order Flow with Fake Sheets Client', () => {
             size: 'L',
             color: 'Citrus Orange',
             qty: 1,
-            image: '/images/hero/main-hero.jpg',
+            image: '/images/hero/ficcado-banner.jpg',
             slug: 'citrus-oversized-tee',
           },
         ])

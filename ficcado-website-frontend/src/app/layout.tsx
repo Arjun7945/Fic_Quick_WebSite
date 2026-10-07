@@ -68,10 +68,10 @@ export const metadata: Metadata = {
       'Ficcado crafts signature high quality 230 GSM unisex streetwear t-shirts. Direct WhatsApp ordering.',
     images: [
       {
-        url: `${siteUrl}/images/hero/main-hero.jpg`,
+        url: `${siteUrl}/images/hero/ficcado-banner.jpg`,
         width: 1200,
         height: 630,
-        alt: 'Ficcado Unisex Streetwear',
+        alt: 'Ficcado Clothing — High Quality Unisex Streetwear',
       },
     ],
   },
@@ -80,7 +80,7 @@ export const metadata: Metadata = {
     title: 'Ficcado',
     description:
       'Ficcado crafts signature high quality 230 GSM unisex streetwear t-shirts. Direct WhatsApp ordering.',
-    images: [`${siteUrl}/images/hero/main-hero.jpg`],
+    images: [`${siteUrl}/images/hero/ficcado-banner.jpg`],
   },
   icons: {
     icon: [
