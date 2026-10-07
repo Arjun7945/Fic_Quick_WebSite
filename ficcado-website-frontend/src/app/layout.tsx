@@ -71,7 +71,7 @@ export const metadata: Metadata = {
         url: `${siteUrl}/images/hero/ficcado-banner.jpg`,
         width: 1200,
         height: 630,
-        alt: 'Ficcado Clothing — High Quality Unisex Streetwear',
+        alt: 'Ficcado Clothing — High Quality Unisex Wears',
       },
     ],
   },
