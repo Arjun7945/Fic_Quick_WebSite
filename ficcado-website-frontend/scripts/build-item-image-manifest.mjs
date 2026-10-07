@@ -11,6 +11,26 @@ const ALLOWED_EXTENSIONS = new Set(['webp', 'jpg', 'jpeg', 'png', 'avif']);
 const ITEMS_DIR = path.resolve(process.cwd(), 'public/images/items');
 const OUTPUT_FILE = path.resolve(process.cwd(), 'src/generated/item-images.json');
 
+// Preferred color ordering per item folder: defines which variant is displayed first in UI cards and defaults
+const ITEM_COLOR_PRIORITY = {
+  'frame-the-bloom': ['white', 'beige', 'air-blue'],
+  'echoes-of-the-empire': ['black', 'maroon', 'white'],
+  'silent-sentinel': ['black', 'white'],
+  'the-watchers': ['black'],
+};
+
+function getColorPriority(folderName, fileName) {
+  const priorities = ITEM_COLOR_PRIORITY[folderName];
+  if (!priorities) return 999;
+  for (let idx = 0; idx < priorities.length; idx++) {
+    const color = priorities[idx];
+    if (fileName.startsWith(`${color}-`)) {
+      return idx;
+    }
+  }
+  return 999;
+}
+
 console.log('====================================================');
 console.log('🖼️  Ficcado Item Image Manifest Generator');
 console.log('====================================================');
@@ -83,8 +103,15 @@ for (const entry of entries) {
     itemImages.push(fileName);
   }
 
-  // Sort naturally: e.g. black-image-1, black-image-2, etc.
-  itemImages.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+  // Sort by defined color priority first, then naturally by image index
+  itemImages.sort((a, b) => {
+    const prioA = getColorPriority(folderName, a);
+    const prioB = getColorPriority(folderName, b);
+    if (prioA !== prioB) {
+      return prioA - prioB;
+    }
+    return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+  });
 
   if (itemImages.length === 0) {
     warnings.push(`Folder "${folderName}" is empty.`);
