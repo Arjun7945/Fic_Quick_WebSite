@@ -1,0 +1,7 @@
+item name: GROUNDED
+item Selling price : 799
+Item Description: Inspired by the strength of staying rooted through every change.
+A minimal design that represents resilience, growth, and new beginnings.
+No matter how far you grow, never forget your roots.
+Item available Colours: black
+Item available sizes: XS,S,M,L,XL

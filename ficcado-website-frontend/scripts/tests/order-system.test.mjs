@@ -236,6 +236,9 @@ describe('WhatsApp Message Builder & Security', () => {
     assert.equal(getColorName('#7B1113'), 'Maroon');
     assert.equal(getColorName('#D4C4A8'), 'Beige');
     assert.equal(getColorName('#99BADD'), 'Air Blue');
+    assert.equal(getColorName('#DC2626'), 'Red');
+    assert.equal(getColorName('#15803D'), 'Green');
+    assert.equal(getColorName('#1E3A8A'), 'Blue');
     assert.equal(getColorName(null), 'Standard');
   });
 

@@ -1,0 +1,5 @@
+item name: CHOSEN
+item Selling price : 699
+Item Description: Different by choice not by chance. Made for those who embrace their individuality. Be whoever you choose to be.
+Item available Colours: red
+Item available sizes: XS,S,M,L,XL

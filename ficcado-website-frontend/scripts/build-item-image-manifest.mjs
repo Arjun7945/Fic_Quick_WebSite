@@ -13,6 +13,10 @@ const OUTPUT_FILE = path.resolve(process.cwd(), 'src/generated/item-images.json'
 
 // Preferred color ordering per item folder: defines which variant is displayed first in UI cards and defaults
 const ITEM_COLOR_PRIORITY = {
+  'chosen': ['red'],
+  'grounded': ['black'],
+  'remember': ['blue'],
+  'reminder': ['green'],
   'frame-the-bloom': ['white', 'beige', 'air-blue'],
   'echoes-of-the-empire': ['black', 'maroon', 'white'],
   'silent-sentinel': ['black', 'white'],

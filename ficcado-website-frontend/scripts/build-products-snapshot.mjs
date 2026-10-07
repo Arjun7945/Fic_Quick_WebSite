@@ -229,7 +229,7 @@ async function run() {
       const rawImages = manifest[rawSlug] || [];
       const images = rawImages.map((f) => `/images/items/${rawSlug}/${f}`);
       const primaryImg = images.length > 0 ? images[0] : null;
-      const secondaryImg = images.length > 1 ? images[1] : null;
+      const secondaryImg = images.length > 1 ? images[1] : images[0] || null;
 
       products.push({
         id: isNaN(Number(rawId)) ? rawId : Number(rawId),

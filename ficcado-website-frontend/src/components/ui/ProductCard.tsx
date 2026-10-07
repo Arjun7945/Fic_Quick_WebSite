@@ -54,6 +54,16 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
           priority={priority || product.id === 1}
         />
 
+        {/* New Launch badge */}
+        {product.featured && (
+          <div className="absolute top-2.5 left-2.5 z-10">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-800 uppercase tracking-wider text-amber-300 bg-neutral-950/85 border border-amber-400/40 backdrop-blur-md shadow-xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+              New Drop
+            </span>
+          </div>
+        )}
+
         {/* Price tag */}
         <div
           className="absolute bottom-2.5 left-2.5 rounded-full px-2.5 py-1 text-xs font-bold text-white tracking-tight"

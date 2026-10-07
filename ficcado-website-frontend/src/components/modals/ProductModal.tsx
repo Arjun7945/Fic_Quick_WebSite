@@ -253,9 +253,19 @@ export function ProductModal() {
             <div className="space-y-4">
               {/* Name + Price */}
               <div className="flex items-start justify-between gap-3">
-                <h2 className="text-xl md:text-2xl font-900 leading-tight" style={{ fontWeight: 900, color: 'var(--text-main)' }}>
-                  {product.name}
-                </h2>
+                <div>
+                  {product.featured && (
+                    <div className="mb-1.5">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-800 uppercase tracking-wider text-amber-300 bg-neutral-950/85 border border-amber-400/40 backdrop-blur-md shadow-xs">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                        New Launch Drop
+                      </span>
+                    </div>
+                  )}
+                  <h2 className="text-xl md:text-2xl font-900 leading-tight" style={{ fontWeight: 900, color: 'var(--text-main)' }}>
+                    {product.name}
+                  </h2>
+                </div>
                 <span className="text-2xl md:text-3xl font-900 shrink-0" style={{ fontWeight: 900, color: 'var(--primary)' }}>
                   ₹{product.price.toLocaleString('en-IN')}
                 </span>

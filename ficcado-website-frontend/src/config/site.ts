@@ -31,6 +31,10 @@ export const DEFAULT_FILTER_STATE: FilterState = {
 };
 
 export const TRENDING_TAGS: string[] = [
+  'Chosen',
+  'Grounded',
+  'Remember',
+  'Reminder',
   'Echoes of the Empire',
   'Frame The Bloom',
   'Silent Sentinel',

@@ -1,0 +1,7 @@
+item name: REMINDER
+item Selling price : 599
+Item Description: Minimal on the front. A statement on the back.
+“Something is better than nothing.”
+An oversized everyday essential made for quiet confidence.
+Item available Colours: Green
+Item available sizes: XS,S,M,L,XL
