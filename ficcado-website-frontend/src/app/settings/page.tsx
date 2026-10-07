@@ -274,12 +274,17 @@ export default function SettingsPage() {
               </div>
             </a>
           </div>
+          <div className="card p-3.5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-light)] text-xs text-[var(--text-muted)] space-y-1">
+            <p><strong className="text-[var(--text-main)]">Business Identity:</strong> Ficcado Clothing • <strong>GSTIN:</strong> 32CVNPR0498H1Z5</p>
+            <p><strong>Support Hours:</strong> 7:00 AM to 7:00 PM IST • <strong>Live Chat:</strong> Mon–Fri, 10:00 AM – 6:00 PM IST</p>
+            <p><strong>Registered Address:</strong> Manadath House, Thaikkattukara P O, Aluva 6, Pin: 683106 (Opposite metro pillar 116)</p>
+          </div>
         </section>
 
         {/* App Info */}
         <footer className="text-center space-y-1 pt-4">
           <p className="text-xs text-[var(--text-muted)] font-medium">
-            Ficcado · Est. 2025 · T-Shirts Now, All Wears in Future
+            Ficcado Clothing · Est. 2025 · High Quality Unisex Wears
           </p>
           <p className="text-[11px] text-[var(--text-muted)]">
             Official Store ·{' '}

@@ -55,7 +55,7 @@ const JOURNAL_ARTICLES: Article[] = [
     readTime: '4 min read',
     date: 'Sep 2026',
     author: 'Sinan MS, Ganga Lakshmi & Rohith Murali',
-    image: '/images/journal/hero_model.jpg',
+    image: '/images/journal/FiccadoClothing_3_Friends.jpg',
     excerpt:
       'Tired of paper-thin high-street drops, we set out to build high quality apparel with uncompromising textile honesty. Here is the untold story of late nights, mill visits, and the birth of Ficcado.',
     sections: [
@@ -84,7 +84,7 @@ const JOURNAL_ARTICLES: Article[] = [
     readTime: '6 min read',
     date: 'Aug 2026',
     author: 'Rohith Murali',
-    image: '/images/journal/product_1_colorado.jpg',
+    image: '/images/journal/FiccadoColorado_230 GSM_Cotton.jpg',
     excerpt:
       'Why does fabric weight matter? We break down yarn count, combed ring-spun cotton jersey, and why structural drape outlasts fast-fashion trends.',
     sections: [
@@ -113,7 +113,7 @@ const JOURNAL_ARTICLES: Article[] = [
     readTime: '3 min read',
     date: 'Aug 2026',
     author: 'Ganga Lakshmi',
-    image: '/images/journal/product_3_overshirt.jpg',
+    image: '/images/journal/FiccadoClothing_Capsule_Philosophy.jpg',
     excerpt:
       'We never mass-produce thousands of identical items. Every season is designed in numbered batches, preserving uniqueness for our community.',
     sections: [
@@ -173,14 +173,38 @@ export default function JournalPage() {
     };
   }, [selectedArticle]);
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const [isSubscribing, setIsSubscribing] = useState(false);
+
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newsletterEmail || !newsletterEmail.includes('@')) {
       showToast('Please enter a valid email address.', 'error');
       return;
     }
-    showToast('Subscribed to drop notifications & design chronicles!', 'success');
-    setNewsletterEmail('');
+    setIsSubscribing(true);
+    try {
+      const res = await fetch('/api/drop-notification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: newsletterEmail.trim(),
+          source: 'Journal — The Drop Notification List',
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error?.message || data.error || 'Failed to join list');
+      }
+      showToast(
+        `You're on the list! (ID: ${data.data?.subscriberId || 'Registered'}) Ficcado will connect via email. 🎉`,
+        'success'
+      );
+      setNewsletterEmail('');
+    } catch (err: unknown) {
+      showToast((err as Error).message || 'Unable to register. Please try again.', 'error');
+    } finally {
+      setIsSubscribing(false);
+    }
   };
 
   const handleShare = (article: Article) => {
@@ -356,7 +380,7 @@ export default function JournalPage() {
               key={article.slug}
               className="card group flex flex-col bg-[var(--bg-surface)] border border-[var(--border-light)] hover:border-[var(--primary)]/30 transition-all rounded-3xl overflow-hidden shadow-xs hover:shadow-hover"
             >
-              <div className="relative w-full aspect-[16/10] bg-gray-100 overflow-hidden">
+              <div className="relative w-full aspect-[16/9] bg-gray-100 overflow-hidden">
                 <Image
                   src={article.image}
                   alt={article.title}
@@ -441,13 +465,14 @@ export default function JournalPage() {
             />
             <button
               type="submit"
-              className="shrink-0 px-6 py-3 rounded-xl font-bold text-xs shadow-md hover:bg-white/95 transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
+              disabled={isSubscribing}
+              className="shrink-0 px-6 py-3 rounded-xl font-bold text-xs shadow-md hover:bg-white/95 transition-all hover:scale-105 cursor-pointer whitespace-nowrap disabled:opacity-75"
               style={{
                 background: '#FFFFFF',
                 color: '#163888',
               }}
             >
-              Get Early Access 📬
+              {isSubscribing ? 'Saving to List...' : 'Get Early Access 📬'}
             </button>
           </form>
         </div>

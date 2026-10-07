@@ -31,8 +31,8 @@ export function DesktopFooter() {
           </div>
           <div className="flex flex-col items-center gap-1.5">
             <ShieldCheck size={20} className="text-[var(--primary)]" />
-            <span className="text-xs font-bold text-[var(--text-main)]">Priority Care Guarantee</span>
-            <span className="text-[11px] text-[var(--text-muted)]">support@ficcado.store with rapid resolution</span>
+            <span className="text-xs font-bold text-[var(--text-main)]">Priority Care (7 AM – 7 PM)</span>
+            <span className="text-[11px] text-[var(--text-muted)]">ficcado.clothing@gmail.com with rapid resolution</span>
           </div>
         </div>
       </div>
@@ -63,13 +63,30 @@ export function DesktopFooter() {
             </div>
           </div>
           <p className="text-xs leading-relaxed text-[var(--text-muted)]">
-            Ficcado sells signature high quality wears now. Current new drops are T-shirts and all other apparel wears and silhouettes will be available in future drops.
+            Ficcado Clothing crafts signature high quality unisex wear. Current drops feature heavyweight 230 GSM combed cotton t-shirts, designed for longevity.
           </p>
-          <div className="flex items-center gap-2 text-xs font-semibold text-[var(--primary)]">
-            <Mail size={14} />
-            <a href="mailto:support@ficcado.store" className="hover:underline">
-              support@ficcado.store
-            </a>
+          <div className="space-y-1 text-xs text-[var(--text-muted)]">
+            <div className="flex items-center gap-2 font-semibold text-[var(--primary)]">
+              <Mail size={14} />
+              <a href="mailto:ficcado.clothing@gmail.com" className="hover:underline">
+                ficcado.clothing@gmail.com
+              </a>
+            </div>
+            <p className="text-[11px] text-[var(--text-muted)]">
+              Phone: <a href="tel:6282000729" className="text-[var(--text-main)] font-semibold">6282000729</a> (+91 6282000729)
+            </p>
+            <p className="text-[11px] text-[var(--text-muted)]">
+              Support Hours: 7:00 AM – 7:00 PM IST
+            </p>
+            <p className="text-[11px] text-[var(--text-muted)]">
+              Live Chat: Mon–Fri, 10:00 AM – 6:00 PM
+            </p>
+            <p className="text-[11px] leading-relaxed text-[var(--text-muted)]">
+              Manadath House, Thaikkattukara P O, Aluva 6, Pin: 683106 (Opposite metro pillar 116)
+            </p>
+            <p className="text-[11px] text-[var(--text-muted)]">
+              GSTIN: <span className="font-mono font-semibold text-[var(--text-main)]">32CVNPR0498H1Z5</span> • All India
+            </p>
           </div>
 
           {/* Quick Hub: Settings & Slide Menu under support mail */}

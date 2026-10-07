@@ -104,6 +104,9 @@ const REQUIRED_TABS = {
   'Support Requests': [
     'timestamp', 'inquiry_id', 'type', 'order_id', 'name', 'email', 'phone',
     'category', 'message', 'status'
+  ],
+  'Drop Notification List': [
+    'subscriber_id', 'created_at', 'email', 'status', 'source'
   ]
 };
 

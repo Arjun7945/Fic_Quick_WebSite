@@ -254,33 +254,62 @@ export default function SupportPage() {
             </h2>
           </div>
 
-          <div className="card p-6 md:p-8 bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-surface-alt)] border border-[var(--border-light)] rounded-3xl shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-xs font-bold text-[var(--primary)] uppercase tracking-wider">
-                <Mail size={16} />
-                <span>Official Support Desk</span>
+          <div className="card p-6 md:p-8 bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-surface-alt)] border border-[var(--border-light)] rounded-3xl shadow-xs space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-xs font-bold text-[var(--primary)] uppercase tracking-wider">
+                  <Mail size={16} />
+                  <span>Official Support Desk & Direct Contact</span>
+                </div>
+                <a
+                  href={`mailto:${BRAND.support}`}
+                  className="text-xl md:text-2xl font-900 text-[var(--primary)] hover:underline block tracking-tight"
+                >
+                  {BRAND.support}
+                </a>
+                <p className="text-xs text-[var(--text-muted)] max-w-lg leading-relaxed">
+                  Support is active <strong>{BRAND.supportHours}</strong>. Live chat is available through this contact desk and WhatsApp (<strong>{BRAND.liveChat.timingShort}</strong>).
+                </p>
               </div>
-              <a
-                href={`mailto:${BRAND.support}`}
-                className="text-xl md:text-2xl font-900 text-[var(--primary)] hover:underline block tracking-tight"
-              >
-                {BRAND.support}
-              </a>
-              <p className="text-xs text-[var(--text-muted)] max-w-lg leading-relaxed">
-                Send us an email anytime. Our customer care team responds to every inquiry within <strong>2 to 4 hours</strong> during operational hours.
-              </p>
+
+              <div className="shrink-0 flex flex-col gap-2">
+                <a
+                  href={`mailto:${BRAND.support}?subject=Inquiry%20from%20Ficcado%20Storefront`}
+                  className="btn-primary py-3 px-6 text-xs font-bold rounded-xl shadow-xs text-center"
+                >
+                  Launch Mail App ✉️
+                </a>
+                <span className="text-[11px] text-center text-[var(--text-muted)]">
+                  Support Hours: {BRAND.supportHours}
+                </span>
+              </div>
             </div>
 
-            <div className="shrink-0 flex flex-col gap-2">
-              <a
-                href={`mailto:${BRAND.support}?subject=Inquiry%20from%20Ficcado%20Storefront`}
-                className="btn-primary py-3 px-6 text-xs font-bold rounded-xl shadow-xs"
-              >
-                Launch Mail App ✉️
-              </a>
-              <span className="text-[11px] text-center text-[var(--text-muted)]">
-                Average reply time: &lt; 4 hours
-              </span>
+            {/* Business Identity & Compliance Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-4 border-t border-[var(--border-light)] text-xs text-[var(--text-secondary)]">
+              <div className="p-3.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-light)] space-y-1">
+                <span className="font-bold text-[var(--text-main)] block">Direct Phone & WhatsApp</span>
+                <p><a href={`tel:${BRAND.phone}`} className="text-[var(--primary)] font-bold">{BRAND.phone}</a> (+91 6282000729)</p>
+                <p className="text-[11px] text-[var(--text-muted)]">Live Chat: {BRAND.liveChat.timingShort}</p>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-light)] space-y-1">
+                <span className="font-bold text-[var(--text-main)] block">Grievance Officer (POG)</span>
+                <p className="font-semibold text-[var(--text-main)]">{BRAND.pog.name}</p>
+                <p><a href={`mailto:${BRAND.pog.email}`} className="text-[var(--primary)] hover:underline text-[11px] font-mono">{BRAND.pog.email}</a></p>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-light)] space-y-1 sm:col-span-2 md:col-span-1">
+                <span className="font-bold text-[var(--text-main)] block">Business Identity & GST</span>
+                <p className="font-semibold text-[var(--text-main)]">{BRAND.legalName}</p>
+                <p className="text-[11px]">GSTIN: <span className="font-mono font-bold text-[var(--text-main)]">{BRAND.gst}</span></p>
+                <p className="text-[11px] text-[var(--text-muted)]">Delivery & Sales: {BRAND.deliverySalesRegion}</p>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-light)] text-[11px] text-[var(--text-muted)] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <span><strong>Registered Address:</strong> {BRAND.address.full}</span>
+              <span className="shrink-0 font-semibold text-[var(--text-main)]">User Eligibility: Age &ge; 18</span>
             </div>
           </div>
         </section>

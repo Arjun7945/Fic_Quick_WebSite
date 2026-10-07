@@ -163,7 +163,7 @@ export const FAQ_ITEMS: FAQItem[] = [
     group: 'about-ficcado',
     question: 'How do I contact the Ficcado team?',
     answer:
-      'You can reach our founding team directly on WhatsApp at +91 94971 44795 or by emailing support@ficcado.store. Our team is available to assist with sizing advice, order updates, and customer inquiries.',
+      'You can reach our team directly on WhatsApp or by emailing ficcado.clothing@gmail.com. Phone support is available at +91 6282000729 (Mon-Fri, 10 AM - 6 PM). Our team is available to assist with sizing advice, order updates, and customer inquiries.',
   },
   {
     id: 'what-is-ficcados-official-website',
@@ -454,7 +454,7 @@ export const FAQ_ITEMS: FAQItem[] = [
     group: 'replacements-damages',
     question: 'What should I do if my garment arrives damaged or defective?',
     answer:
-      'In the rare event of transit damage, parcel tampering, or a fabric defect, photograph the package and garment upon delivery and contact our team on WhatsApp or at support@ficcado.store within 48 hours.',
+      'In the rare event of transit damage, parcel tampering, or a fabric defect, photograph the package and garment upon delivery and contact our team on WhatsApp or at ficcado.clothing@gmail.com within 48 hours.',
   },
   {
     id: 'does-ficcado-offer-free-replacements',
@@ -504,14 +504,14 @@ export const FAQ_ITEMS: FAQItem[] = [
     group: 'terms-commercial',
     question: 'Are taxes included in the displayed product prices?',
     answer:
-      'Yes. All product prices on Ficcado are in Indian Rupees (INR, ₹) and are fully inclusive of all applicable standard GST and manufacturing taxes with zero hidden fees.',
+      'Yes. All product prices on Ficcado are in Indian Rupees (INR, ₹) and are fully inclusive of all applicable standard GST and manufacturing taxes with zero hidden fees. Ficcado Clothing is registered with GSTIN: 32CVNPR0498H1Z5.',
   },
   {
     id: 'how-are-disputes-handled',
     group: 'terms-commercial',
     question: 'How does Ficcado handle customer disputes or complaints?',
     answer:
-      'As a people’s company, we handle all feedback and concerns personally. If any issue arises, our founding team provides same-day direct attention via WhatsApp or at support@ficcado.store.',
+      'As a people’s company, we handle all feedback personally. You can reach our Customer Support at ficcado.clothing@gmail.com or our Point of Grievance (POG) Officer, Rohith Murali, at rohithficcado@gmail.com.',
   },
 
   // ---------------------------------------------------------------------------
@@ -534,16 +534,16 @@ export const FAQ_ITEMS: FAQItem[] = [
   {
     id: 'how-fast-does-the-team-respond',
     group: 'support-help',
-    question: 'How quickly does the Ficcado support team respond?',
+    question: 'How quickly does the Ficcado support team respond and what are the support hours?',
     answer:
-      'Our team typically responds to WhatsApp messages within a few business hours during standard daytime hours (IST). Email inquiries are reviewed within 24 to 48 hours.',
+      'Our customer support hours are 7:00 AM to 7:00 PM IST daily. Live chat assistance is available through our website contact desk and WhatsApp from Monday to Friday, 10:00 AM to 6:00 PM IST.',
   },
   {
     id: 'what-is-the-support-email',
     group: 'support-help',
-    question: 'What is the official support email address?',
+    question: 'What is the official support email address and contact phone?',
     answer:
-      'Our official support email is support@ficcado.store. Please include your Reference ID or Order ID in the subject line for faster assistance.',
+      'Our official support email is ficcado.clothing@gmail.com, and phone support is available at 6282000729 (+91 6282000729). Please include your Reference ID or Order ID for faster assistance.',
   },
 
   // ---------------------------------------------------------------------------
@@ -575,7 +575,7 @@ export const FAQ_ITEMS: FAQItem[] = [
     group: 'website-privacy',
     question: 'Can I request deletion of my contact information?',
     answer:
-      'Yes, you can request complete deletion of your contact records at any time by emailing support@ficcado.store. Please review our full Privacy Policy (/privacy) for more details.',
+      'Yes, you can request complete deletion of your contact records at any time by emailing ficcado.clothing@gmail.com. Please review our full Privacy Policy (/privacy) for more details.',
   },
 
   // ---------------------------------------------------------------------------

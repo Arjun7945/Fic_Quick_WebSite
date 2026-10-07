@@ -115,7 +115,7 @@ export default function CheckoutPage() {
     addressLine1: '',
     addressLine2: '',
     city: '',
-    state: 'Karnataka',
+    state: 'Kerala',
     pincode: '',
     landmark: '',
   });
@@ -168,10 +168,10 @@ export default function CheckoutPage() {
           const data: CourierOption[] = Array.isArray(json)
             ? json
             : Array.isArray(json?.options)
-            ? json.options
-            : Array.isArray(json?.data)
-            ? json.data
-            : [];
+              ? json.options
+              : Array.isArray(json?.data)
+                ? json.data
+                : [];
           if (isMounted) {
             setCourierOptions(data);
             if (data.length > 0) {
@@ -406,7 +406,7 @@ export default function CheckoutPage() {
       clearCart();
       try {
         localStorage.removeItem(FORM_STORAGE_KEY);
-      } catch {}
+      } catch { }
 
       // Launch WhatsApp
       try {
@@ -706,11 +706,10 @@ export default function CheckoutPage() {
                         key={opt.id}
                         type="button"
                         onClick={() => setSelectedCourierId(opt.id)}
-                        className={`p-4 rounded-2xl border text-left transition-all relative flex flex-col justify-between cursor-pointer ${
-                          isSelected
+                        className={`p-4 rounded-2xl border text-left transition-all relative flex flex-col justify-between cursor-pointer ${isSelected
                             ? 'border-[var(--primary)] bg-[var(--primary-light)]/30 shadow-xs'
                             : 'border-[var(--border-light)] hover:border-gray-300 bg-[var(--bg-surface-alt)]'
-                        }`}
+                          }`}
                       >
                         <div className="space-y-1">
                           <div className="flex items-center justify-between">

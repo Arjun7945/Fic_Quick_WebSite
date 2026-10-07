@@ -126,12 +126,29 @@ const globalJsonLd = {
       sameAs: [
         'https://instagram.com/ficcado.clothing',
       ],
-      contactPoint: {
-        '@type': 'ContactPoint',
-        telephone: `+${whatsappNumber}`,
-        contactType: 'customer service',
-        availableLanguage: ['English', 'Hindi', 'Malayalam'],
+      taxID: '32CVNPR0498H1Z5',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Manadath House, Thaikkattukara P O, Opposite metro pillar 116',
+        addressLocality: 'Aluva 6',
+        postalCode: '683106',
+        addressCountry: 'IN',
       },
+      contactPoint: [
+        {
+          '@type': 'ContactPoint',
+          telephone: '+91 6282000729',
+          email: 'ficcado.clothing@gmail.com',
+          contactType: 'customer service',
+          availableLanguage: ['English', 'Hindi', 'Malayalam'],
+        },
+        {
+          '@type': 'ContactPoint',
+          telephone: `+${whatsappNumber}`,
+          contactType: 'WhatsApp ordering',
+          availableLanguage: ['English', 'Hindi', 'Malayalam'],
+        },
+      ],
     },
     {
       '@type': 'WebSite',
