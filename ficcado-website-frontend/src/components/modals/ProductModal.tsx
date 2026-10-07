@@ -23,7 +23,18 @@ import type { Product, SizeOption } from '@/types';
 const DEFAULT_SIZES: SizeOption[] = ['S', 'M', 'L', 'XL'];
 
 export function ProductModal() {
-  const { activeModal, modalPayload, closeModal, openModal } = useModal();
+  const { activeModal, modalPayload } = useModal();
+  const isOpen = activeModal === 'productModal';
+  const payload = getProductModalPayload(modalPayload);
+  const product: Product | null = payload?.product ?? null;
+
+  if (!isOpen || !product) return null;
+
+  return <ProductModalDialog key={product.id} product={product} />;
+}
+
+function ProductModalDialog({ product }: { product: Product }) {
+  const { closeModal, openModal } = useModal();
   const { addToCart } = useCart();
   const { showToast } = useToast();
 
@@ -31,24 +42,7 @@ export function ProductModal() {
   const [userColor, setUserColor] = useState<string | null>(null);
   const [activeImageIdx, setActiveImageIdx] = useState(0);
   const [expanded, setExpanded] = useState(false);
-  const [prevProductId, setPrevProductId] = useState<string | number | null>(null);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
-
-  const isOpen = activeModal === 'productModal';
-  const payload = getProductModalPayload(modalPayload);
-  const product: Product | null = payload?.product ?? null;
-
-  // Reset selections when product changes without cascading render
-  if (product && product.id !== prevProductId) {
-    setPrevProductId(product.id);
-    setUserSize(null);
-    setUserColor(null);
-    setActiveImageIdx(0);
-    setExpanded(false);
-    setIsZoomOpen(false);
-  }
-
-  if (!isOpen || !product) return null;
 
   const isLive = isCategoryLive(product.category);
   const selectedColor = userColor || (product.colors && product.colors[0]) || 'Standard';
@@ -147,8 +141,8 @@ export function ProductModal() {
           visibility: isZoomOpen ? 'hidden' : 'visible',
         }}
       >
-      <script
-        type="application/ld+json"
+      <template
+        id="product-jsonld"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
       />
       {/* Backdrop */}

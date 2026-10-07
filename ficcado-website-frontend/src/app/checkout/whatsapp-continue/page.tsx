@@ -94,7 +94,7 @@ export default function WhatsAppContinuePage() {
   return (
     <div className="min-h-full py-10 px-4 md:px-8 max-w-3xl mx-auto animate-fade-in space-y-6">
       {/* Celebration card */}
-      <div className="card p-8 md:p-12 text-center rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-light)] shadow-lg space-y-6">
+      <div suppressHydrationWarning className="card p-8 md:p-12 text-center rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-light)] shadow-lg space-y-6">
         {/* WhatsApp Icon */}
         <div
           className="w-18 h-18 rounded-full flex items-center justify-center mx-auto text-white shadow-md animate-bounce-in"

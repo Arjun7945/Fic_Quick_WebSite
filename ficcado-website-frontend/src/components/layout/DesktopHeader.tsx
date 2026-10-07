@@ -40,7 +40,10 @@ export function DesktopHeader() {
   }
 
   return (
-    <header className="hidden md:block w-full sticky top-0 z-40 bg-[var(--bg-surface)]/95 backdrop-blur-md border-b border-[var(--border-light)] shadow-xs">
+    <header
+      suppressHydrationWarning
+      className="hidden md:block w-full sticky top-0 z-40 bg-[var(--bg-surface)]/95 backdrop-blur-md border-b border-[var(--border-light)] shadow-xs"
+    >
 
       {/* Main Navigation Bar */}
       <div className="max-w-7xl mx-auto px-4 lg:px-6 h-18 flex items-center justify-between gap-2.5 lg:gap-6">

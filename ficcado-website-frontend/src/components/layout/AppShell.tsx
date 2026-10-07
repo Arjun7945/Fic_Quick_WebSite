@@ -62,6 +62,7 @@ export function AppShell({ children }: AppShellProps) {
   return (
     <div
       id="app-shell-standard"
+      suppressHydrationWarning
       className="relative w-full min-h-screen flex flex-col bg-[var(--bg-app)]"
     >
       {/* Brand Opening / Loading Presentation */}

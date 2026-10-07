@@ -7,11 +7,9 @@
 // and color palette: Primary Blue (#0066CC) and Secondary Ice (#ACD5F3).
 // =============================================================================
 
-import React, { useEffect, useState, useCallback, useSyncExternalStore } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-
-const emptySubscribe = () => () => {};
 
 function getInitialShowSnapshot(): boolean {
   if (typeof window === 'undefined') return false;
@@ -24,18 +22,23 @@ function getInitialShowSnapshot(): boolean {
   }
 }
 
-function getServerSnapshot(): boolean {
-  return false;
-}
-
 export function SplashScreen() {
-  const shouldShowInitial = useSyncExternalStore(emptySubscribe, getInitialShowSnapshot, getServerSnapshot);
+  const [mounted, setMounted] = useState(false);
+  const [shouldShow, setShouldShow] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
   const [progress, setProgress] = useState(0);
 
   const pathname = usePathname();
   const router = useRouter();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMounted(true);
+      setShouldShow(getInitialShowSnapshot());
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleDismiss = useCallback(() => {
     setIsExiting(true);
@@ -54,7 +57,7 @@ export function SplashScreen() {
 
   // 3-second progress animation and auto-transition to storefront
   useEffect(() => {
-    if (!shouldShowInitial || isDismissed || isExiting) return;
+    if (!mounted || !shouldShow || isDismissed || isExiting) return;
 
     const totalDuration = 3000; // Exact 3 seconds delay per requirement
     const intervalTime = 20; // 50 updates per second for ultra-fluid motion
@@ -73,11 +76,11 @@ export function SplashScreen() {
     }, intervalTime);
 
     return () => clearInterval(timer);
-  }, [shouldShowInitial, isDismissed, isExiting, handleDismiss]);
+  }, [mounted, shouldShow, isDismissed, isExiting, handleDismiss]);
 
   // Handle escape / enter key to dismiss immediately
   useEffect(() => {
-    if (!shouldShowInitial || isDismissed) return;
+    if (!mounted || !shouldShow || isDismissed) return;
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' || e.key === 'Enter') {
         handleDismiss();
@@ -85,9 +88,9 @@ export function SplashScreen() {
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [shouldShowInitial, isDismissed, handleDismiss]);
+  }, [mounted, shouldShow, isDismissed, handleDismiss]);
 
-  if (!shouldShowInitial || isDismissed) return null;
+  if (!mounted || !shouldShow || isDismissed) return null;
 
   return (
     <div
