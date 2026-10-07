@@ -116,11 +116,11 @@ export function HomeView({ initialProducts }: HomeViewProps) {
           style={{ borderRadius: 'var(--radius-lg)' }}
         >
           <Image
-            src="/images/hero/main-hero.jpg"
-            alt="Ficcado Drop — High Quality Unisex Wears"
+            src="/images/hero/ficcado-banner.jpg"
+            alt="Ficcado Clothing — High Quality Stylish Daily Wear"
             fill
             sizes="(max-width: 768px) 100vw, 1200px"
-            className="object-cover object-top"
+            className="object-cover object-center"
             priority
             unoptimized
           />
@@ -208,7 +208,7 @@ export function HomeView({ initialProducts }: HomeViewProps) {
         {/* Section header */}
         <div className="flex items-center justify-between px-4 md:px-0 pt-4 pb-2">
           <h2 className="text-base md:text-xl font-800" style={{ fontWeight: 800, color: 'var(--text-main)' }}>
-            Available T-Shirt Drops
+            Available Wear Drops
           </h2>
           <span className="text-xs md:text-sm font-semibold text-[var(--text-muted)]">
             {filteredProducts.length} Item{filteredProducts.length !== 1 ? 's' : ''} in Catalog
