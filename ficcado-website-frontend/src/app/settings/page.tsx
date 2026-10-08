@@ -39,9 +39,9 @@ const QUICK_LINKS = [
 ];
 
 const BRAND_PILLARS = [
-  { label: 'T-Shirts Live', detail: 'Signature high quality unisex T-shirts (230 GSM)' },
-  { label: 'Premium Cotton', detail: '230 GSM ring-spun combed cotton with dense gauge weave' },
-  { label: 'Founded 2025', detail: 'By Sinan MS, Ganga Lakshmi & Rohith Murali' },
+  { label: 'T-Shirts Live', detail: 'Signature high quality unisex T-shirts (240 GSM)' },
+  { label: 'Premium Cotton', detail: '240 GSM ring-spun combed cotton with dense gauge weave' },
+  { label: 'Founded 2024', detail: 'By Sinan MS, Ganga Lakshmi & Rohith Murali' },
   { label: 'Pan-India Dispatch', detail: 'Verified courier delivery across all of India' },
 ];
 
@@ -125,19 +125,19 @@ export default function SettingsPage() {
             </div>
           </div>
           <p className="text-xs md:text-sm text-blue-50 leading-relaxed relative z-10 font-normal">
-            Ficcado was founded in 2025 by three friends — Sinan MS, Ganga Lakshmi, and Rohith Murali —
+            Ficcado was founded in 2024 by three friends — Sinan MS, Ganga Lakshmi, and Rohith Murali —
             dedicated to crafting high quality, honest apparel. We currently sell signature unisex
-            T-shirts crafted with premium 230 GSM combed cotton.
+            T-shirts crafted with premium 240 GSM combed cotton.
           </p>
           <div className="flex flex-wrap gap-2 pt-1 relative z-10">
             <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold text-white border border-white/20">
-              Est. 2025
+              Est. 2024
             </span>
             <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold text-white border border-white/20">
               T-Shirts Live 🔥
             </span>
             <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold text-white border border-white/20">
-              230 GSM Cotton
+              240 GSM Cotton
             </span>
           </div>
         </section>
@@ -284,7 +284,7 @@ export default function SettingsPage() {
         {/* App Info */}
         <footer className="text-center space-y-1 pt-4">
           <p className="text-xs text-[var(--text-muted)] font-medium">
-            Ficcado Clothing · Est. 2025 · High Quality Unisex Wears
+            Ficcado Clothing · Est. 2024 · High Quality Unisex Wears
           </p>
           <p className="text-[11px] text-[var(--text-muted)]">
             Official Store ·{' '}

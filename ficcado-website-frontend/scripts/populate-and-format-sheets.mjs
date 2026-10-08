@@ -356,7 +356,7 @@ const SHEETS_DATA = {
         'vikram.nair@live.com',
         '9845012345',
         'sizing',
-        'Wanted to confirm if the 230 GSM tee fits true to size for a 6ft broad build, or if I should size up to XL for an exaggerated streetwear look.',
+        'Wanted to confirm if the 240 GSM tee fits true to size for a 6ft broad build, or if I should size up to XL for an exaggerated streetwear look.',
         'ANSWERED'
       ],
       [

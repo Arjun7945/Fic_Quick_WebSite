@@ -67,8 +67,10 @@ function parseColors(colorsStr?: string): string[] {
 function normalizeProductDescription(desc: string): string {
   if (!desc) return '';
   return desc
-    .replace(/380\s*gsm/gi, '230 GSM')
-    .replace(/380/g, '230')
+    .replace(/380\s*gsm/gi, '240 GSM')
+    .replace(/380/g, '240')
+    .replace(/240\s*gsm/gi, '240 GSM')
+    .replace(/240/g, '240')
     .replace(/heavyweight/gi, 'high quality');
 }
 

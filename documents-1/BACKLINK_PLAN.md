@@ -45,14 +45,14 @@ These must be configured and maintained symmetrically:
    - Developer GitHub / portfolio linking back to `https://ficcado.store`.
 
 5. **Pinterest & Behance / Visual Design Portfolio:**
-   - Curate aesthetic lookbooks, typography boards, and 230 GSM textile photography with outbound links back to `https://ficcado.store/categories/t-shirts` and `https://ficcado.store/journal`.
+   - Curate aesthetic lookbooks, typography boards, and 240 GSM textile photography with outbound links back to `https://ficcado.store/categories/t-shirts` and `https://ficcado.store/journal`.
 
 ---
 
 ## 3. High-Quality Editorial & Industry Backlinks
 
 1. **Independent Streetwear & Fashion Publications:**
-   - Pitch authentic founder stories (e.g. how three friends founded Ficcado in 2025 focusing on 230 GSM combed cotton unisex t-shirts and refusing fast-fashion shortcuts) to Indian fashion/lifestyle platforms (Homegrown, Grazia India, LBB, Youth Incorporated, Rolling Stone India).
+   - Pitch authentic founder stories (e.g. how three friends founded Ficcado in 2024 focusing on 240 GSM combed cotton unisex t-shirts and refusing fast-fashion shortcuts) to Indian fashion/lifestyle platforms (Homegrown, Grazia India, LBB, Youth Incorporated, Rolling Stone India).
 2. **Local Business & Startup Databases:**
    - Register on verified, non-spam Indian startup directories (YourStory, Inc42 directories, Startup India, Tracxn).
 3. **Collaborative Capsule Drops:**

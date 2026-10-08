@@ -147,7 +147,7 @@ export function HomeView({ initialProducts }: HomeViewProps) {
               High Quality Unisex Wears
             </h1>
             <p className="text-xs md:text-sm text-white/90 mt-1.5 mb-4 leading-relaxed">
-              Ficcado crafts signature high quality unisex streetwear with premium 230 GSM cotton and lasting comfort.
+              Ficcado crafts signature high quality unisex streetwear with premium 240 GSM cotton and lasting comfort.
             </p>
             <div className="flex items-center gap-3">
               {heroFeaturedProduct && (
@@ -237,7 +237,7 @@ export function HomeView({ initialProducts }: HomeViewProps) {
             </p>
             {products.length === 0 && (
               <a
-                href="https://wa.me/919497144795"
+                href="https://wa.me/916282000729"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-primary mt-2 text-xs py-2 px-4"

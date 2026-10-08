@@ -49,8 +49,8 @@ interface Article {
 
 const JOURNAL_ARTICLES: Article[] = [
   {
-    slug: 'the-2025-founding-story',
-    title: 'How 3 Friends Reimagined High Quality T-Shirts in 2025',
+    slug: 'the-2024-founding-story',
+    title: 'How 3 Friends Reimagined High Quality T-Shirts in 2024',
     category: "Founders' Log",
     readTime: '4 min read',
     date: 'Sep 2026',
@@ -61,11 +61,11 @@ const JOURNAL_ARTICLES: Article[] = [
     sections: [
       {
         heading: 'The Late-Night Frustration',
-        body: 'In late 2024 and early 2025, three friends — Sinan MS, Ganga Lakshmi, and Rohith Murali — found themselves having the same recurring conversation: why was it nearly impossible to find streetwear that possessed genuine structural weight, rich tailored colors, and real durability without an exorbitant 400% designer markup? Fast-fashion had flooded the market with paper-thin polyester-heavy tees that lost their shape and curled at the collar after two washes.',
+        body: 'In 2024, three friends — Sinan MS, Ganga Lakshmi, and Rohith Murali — found themselves having the same recurring conversation: why was it nearly impossible to find streetwear that possessed genuine structural weight, rich tailored colors, and real durability without an exorbitant 400% designer markup? Fast-fashion had flooded the market with paper-thin polyester-heavy tees that lost their shape and curled at the collar after two washes.',
       },
       {
         heading: 'Sourcing From Ground Zero',
-        body: 'We refused to buy white-label blanks off the shelf. We pooled our personal savings, visited textile and spinning mills directly across the subcontinent, and tested dozens of yarn counts. Rohith took charge of textile engineering, insisting on 230 GSM ring-spun combed cotton with dense gauge knitting that breathes naturally while hanging with undeniable presence.',
+        body: 'We refused to buy white-label blanks off the shelf. We pooled our personal savings, visited textile and spinning mills directly across the subcontinent, and tested dozens of yarn counts. Rohith took charge of textile engineering, insisting on 240 GSM ring-spun combed cotton with dense gauge knitting that breathes naturally while hanging with undeniable presence.',
       },
       {
         heading: 'Architectural Silhouettes & Direct Community Care',
@@ -78,19 +78,19 @@ const JOURNAL_ARTICLES: Article[] = [
     ],
   },
   {
-    slug: 'anatomy-of-230-gsm-cotton',
-    title: '230 GSM High Quality Cotton: The Anatomy of Our Colorado Cut',
+    slug: 'anatomy-of-240-gsm-cotton',
+    title: '240 GSM High Quality Cotton: The Anatomy of Our Colorado Cut',
     category: 'Textile Lab',
     readTime: '6 min read',
     date: 'Aug 2026',
     author: 'Rohith Murali',
-    image: '/images/journal/FiccadoColorado_230 GSM_Cotton.jpg',
+    image: '/images/journal/FiccadoColorado_240 GSM_Cotton.jpg',
     excerpt:
       'Why does fabric weight matter? We break down yarn count, combed ring-spun cotton jersey, and why structural drape outlasts fast-fashion trends.',
     sections: [
       {
-        heading: 'The 230 GSM Difference',
-        body: 'Most mass-market t-shirts sit between 140 and 180 GSM (grams per square meter). At 230 GSM, our cotton jersey provides balanced, substantial weight. This creates an architectural drape that stays away from the body, providing exceptional airflow and a bold, sculpted silhouette.',
+        heading: 'The 240 GSM Difference',
+        body: 'Most mass-market t-shirts sit between 140 and 180 GSM (grams per square meter). At 240 GSM, our cotton jersey provides balanced, substantial weight. This creates an architectural drape that stays away from the body, providing exceptional airflow and a bold, sculpted silhouette.',
       },
       {
         heading: 'The Anti-Bacon Ribbed Collar',
@@ -263,7 +263,7 @@ export default function JournalPage() {
         <div className="max-w-5xl mx-auto space-y-4 text-center">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[var(--primary-light)] text-[var(--primary)] text-xs font-800 uppercase tracking-wider border border-[var(--primary)]/20 shadow-xs">
             <Sparkles size={14} />
-            <span>Ficcado Design Chronicles & 230 GSM Cotton Science</span>
+            <span>Ficcado Design Chronicles & 240 GSM Cotton Science</span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-900 text-[var(--text-main)] tracking-tight">
@@ -271,7 +271,7 @@ export default function JournalPage() {
           </h1>
 
           <p className="text-sm md:text-base text-[var(--text-secondary)] max-w-2xl mx-auto leading-relaxed">
-            Welcome to the aesthetic core of Ficcado. Explore our interactive color palettes, organic silhouettes, and deep-dive chronicles into 230 GSM cotton engineering and our founding ethos.
+            Welcome to the aesthetic core of Ficcado. Explore our interactive color palettes, organic silhouettes, and deep-dive chronicles into 240 GSM cotton engineering and our founding ethos.
           </p>
 
           {/* Interactive Mood Selector */}
@@ -347,7 +347,7 @@ export default function JournalPage() {
                 Designed for Movement
               </h3>
               <p className="text-xs text-gray-200 max-w-sm mt-1">
-                High Quality 230 GSM combed cotton cut with architectural drape and effortless street presence.
+                High Quality 240 GSM combed cotton cut with architectural drape and effortless street presence.
               </p>
             </div>
           </div>

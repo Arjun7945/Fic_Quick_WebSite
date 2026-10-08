@@ -243,15 +243,15 @@ describe('WhatsApp Message Builder & Security', () => {
   });
 
   test('builds correct WhatsApp url', () => {
-    const url = buildWhatsAppUrl('Hello Ficcado', '919497144795');
-    assert.equal(url, 'https://wa.me/919497144795?text=Hello%20Ficcado');
+    const url = buildWhatsAppUrl('Hello Ficcado', '916282000729');
+    assert.equal(url, 'https://wa.me/916282000729?text=Hello%20Ficcado');
   });
 });
 
 describe('Spreadsheet Formula Injection Defense', () => {
   test('escapes malicious formula prefixes with single quote', () => {
     assert.equal(sanitizeCell('=SUM(A1:A10)'), "'=SUM(A1:A10)");
-    assert.equal(sanitizeCell('+919497144795'), "'+919497144795");
+    assert.equal(sanitizeCell('+916282000729'), "'+916282000729");
     assert.equal(sanitizeCell('-100'), "'-100");
     assert.equal(sanitizeCell('@malicious'), "'@malicious");
   });

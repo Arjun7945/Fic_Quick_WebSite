@@ -2,7 +2,7 @@
 
 // =============================================================================
 // Terms & Conditions — /terms
-// Transparent, human-first commercial terms for Ficcado Clothing (Est. 2025)
+// Transparent, human-first commercial terms for Ficcado Clothing (Est. 2024)
 // =============================================================================
 
 import Link from 'next/link';
@@ -105,7 +105,7 @@ export default function TermsPage() {
                 </p>
               </div>
               <p className="text-xs md:text-sm text-[var(--text-secondary)] leading-relaxed">
-                We guarantee that every product displayed on our store is manufactured to our exact specifications (such as our high quality 230 GSM cotton blends) and matches the high-resolution imagery and dimensions published on the product pages.
+                We guarantee that every product displayed on our store is manufactured to our exact specifications (such as our high quality 240 GSM cotton blends) and matches the high-resolution imagery and dimensions published on the product pages.
               </p>
             </section>
 
@@ -145,7 +145,7 @@ export default function TermsPage() {
                 <span>Fabric Longevity & Care Instructions</span>
               </h2>
               <p className="text-xs md:text-sm text-[var(--text-secondary)] leading-relaxed">
-                Ficcado products utilize natural high quality 230 GSM combed fibers. To maintain color saturation and the relaxed boxy silhouette, we advise cold machine wash (30°C) with like colors, gentle spin, and hang drying in the shade. Do not tumble dry high-heat or iron directly on screen-printed or embroidered graphics.
+                Ficcado products utilize natural high quality 240 GSM combed fibers. To maintain color saturation and the relaxed boxy silhouette, we advise cold machine wash (30°C) with like colors, gentle spin, and hang drying in the shade. Do not tumble dry high-heat or iron directly on screen-printed or embroidered graphics.
               </p>
             </section>
 

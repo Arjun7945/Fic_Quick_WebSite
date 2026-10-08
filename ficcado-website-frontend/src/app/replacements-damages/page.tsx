@@ -121,7 +121,7 @@ export default function ReplacementsDamagesPage() {
                 <span>Textile & Stitching Quality Defect</span>
               </h2>
               <p className="text-xs md:text-sm text-[var(--text-secondary)] leading-relaxed">
-                We take immense pride in our high quality 230 GSM cotton fabrics and double-needle hems. In the improbable event of a seam slippage, fabric run, or dye inconsistency, we offer a <strong>30-day replacement warranty</strong> against structural defects.
+                We take immense pride in our high quality 240 GSM cotton fabrics and double-needle hems. In the improbable event of a seam slippage, fabric run, or dye inconsistency, we offer a <strong>30-day replacement warranty</strong> against structural defects.
               </p>
               <ul className="space-y-2 text-xs text-[var(--text-secondary)]">
                 <li className="flex items-start gap-2">

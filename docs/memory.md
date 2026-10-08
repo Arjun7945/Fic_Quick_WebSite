@@ -14,7 +14,7 @@
 - **[F-003]** Google Sheets target spreadsheet has 4 required tabs: `'Item Management'`, `'Courier Partners'`, `'New Sale Request'`, and `'Support Requests'`. ID: `<44-char sheet id>`. — Source: `src/lib/sheets/schema.ts` — 2026-10-06
 - **[F-004]** Delivery charge of ₹0 represents Free Delivery per Section R4. — Source: `src/lib/couriers.ts` — 2026-10-06
 - **[F-005]** The application sets zero cookies. All client state is stored in `localStorage` (`ficcado-bag-v3`, `ficcado-checkout-form-draft`, `ficcado-recent-searches`) and `sessionStorage` (`ficcado-last-order`, `fc_is_ios`). — Source: Phase 1 Code Scan — 2026-10-06
-- **[F-006]** Founders' names (Sinan MS, Ganga Lakshmi, Rohith Murali), "founded in 2025", and 230 GSM combed cotton specifications are sourced directly from codebase metadata (`src/app/layout.tsx:L119-L124`, `src/app/journal/page.tsx`, and `public/images/founders/`). Pending final confirmation in D10. — Source: Codebase — 2026-10-06
+- **[F-006]** Founders' names (Sinan MS, Ganga Lakshmi, Rohith Murali), "founded in 2024", and 240 GSM combed cotton specifications are sourced directly from codebase metadata (`src/app/layout.tsx:L119-L124`, `src/app/journal/page.tsx`, and `public/images/founders/`). Pending final confirmation in D10. — Source: Codebase — 2026-10-06
 - **[F-007]** Service account key file in `credentials/` was verified clean: 0 files tracked in git, 0 commits in git history, and covered by root `.gitignore:L8`. — Source: Git command verification — 2026-10-06
 - **[F-008]** Next.js ImageResponse RCE advisory (GHSA-vcvr-r3jv-pc5j) patched range is `>=16.3.6`. The latest release `16.3.8` is inside the patched range. — Source: `npm audit --json` & `npm view next dist-tags` — 2026-10-06
 - **[F-009]** `source-map-js` vulnerability (GHSA-68fv-2mgg-jv7q) patched version `1.2.2` exists on npm registry. — Source: `npm view source-map-js versions` — 2026-10-06
@@ -43,7 +43,7 @@
 - **[D7] Deploy Gating:** Option A. `.github/workflows/ci.yml` and branch protection documentation.
 - **[D8] Target Traffic:** 100,000 visitors, 10,000 peak concurrent, 100 orders/minute peak.
 - **[D9] Combos Status:** Coming soon (`combos are coming soon only as of now`).
-- **[D10] Brand Facts:** Approved by owner: All current details correct (2025, 230 GSM, drop-shoulder, anti-sag collar, colour packs).
+- **[D10] Brand Facts:** Approved by owner: All current details correct (2024, 240 GSM, drop-shoulder, anti-sag collar, colour packs).
 - **[D11] Repo Visibility:** Public currently (developer can set private in GitHub). Remote key exposure: 0 keys in Git history (verified).
 - **[D12] Living Log:** `docs/progress.md` confirmed as canonical.
 - **[D13] CSP & HSTS:** `Content-Security-Policy-Report-Only` first (pragmatic policy); remove `X-XSS-Protection`; keep HSTS `max-age=31536000`, drop `preload` and `includeSubDomains`.

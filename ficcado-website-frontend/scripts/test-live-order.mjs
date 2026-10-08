@@ -74,7 +74,7 @@ async function testOrder() {
     'Indian Post (Speed Post)',             // O: delivery_option
     '0',                                    // P: delivery_fee
     '799',                                  // Q: total
-    '919497144795',                         // R: whatsapp_number
+    '916282000729',                         // R: whatsapp_number
     '',                                     // S: final_order_id
     '',                                     // T: admin_notes
     testSubmissionId,                       // U: submission_id
@@ -128,7 +128,7 @@ async function testOrder() {
     date: testDate,
   });
 
-  const waUrl = buildWhatsAppUrl(waMsg, '919497144795');
+  const waUrl = buildWhatsAppUrl(waMsg, '916282000729');
   console.log('\nGenerated WhatsApp message preview:');
   console.log(waMsg);
   console.log('\nGenerated WhatsApp URL:', waUrl.substring(0, 100) + '...');

@@ -3,7 +3,7 @@
 // =============================================================================
 // SplashScreen — /src/components/ui/SplashScreen.tsx
 // Luxury brand opening splash presentation with official Ficcado gecko emblem,
-// legal brand entity "Ficcado Clothing", 3-second animated progress beam,
+// legal brand entity "Ficcado Clothing", 2-second animated progress beam,
 // and color palette: Primary Blue (#0066CC) and Secondary Ice (#ACD5F3).
 // =============================================================================
 
@@ -55,11 +55,11 @@ export function SplashScreen() {
     }, 600);
   }, [pathname, router]);
 
-  // 3-second progress animation and auto-transition to storefront
+  // 2-second progress animation and auto-transition to storefront
   useEffect(() => {
     if (!mounted || !shouldShow || isDismissed || isExiting) return;
 
-    const totalDuration = 3000; // Exact 3 seconds delay per requirement
+    const totalDuration = 2000; // Exact 2 seconds delay per requirement
     const intervalTime = 20; // 50 updates per second for ultra-fluid motion
     const step = 100 / (totalDuration / intervalTime);
 
@@ -198,7 +198,7 @@ export function SplashScreen() {
           </span>
           <span className="text-[#ACD5F3]/60">•</span>
           <span className="text-[11px] font-semibold text-[#ACD5F3]/90 tracking-wider">
-            Est. 2025
+            Est. 2024
           </span>
         </div>
 

@@ -704,7 +704,7 @@ export default function CheckoutPage() {
                     Please contact us on WhatsApp to check delivery options and place your order directly.
                   </p>
                   <a
-                    href="https://wa.me/919497144795?text=Hello%20Ficcado%20team%2C%20I%20would%20like%20to%20place%20an%20order%20and%20check%20delivery%20options."
+                    href="https://wa.me/916282000729?text=Hello%20Ficcado%20team%2C%20I%20would%20like%20to%20place%20an%20order%20and%20check%20delivery%20options."
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-[#128C7E] hover:underline pt-1"

@@ -90,7 +90,7 @@ export function AboutModal() {
               <span>About Ficcado</span>
             </div>
             <p className="text-xs md:text-sm leading-relaxed text-[var(--text-secondary)]">
-              Ficcado crafts signature high quality unisex streetwear with premium 230 GSM combed cotton. We combine thoughtful design with personal WhatsApp-assisted ordering.
+              Ficcado crafts signature high quality unisex streetwear with premium 240 GSM combed cotton. We combine thoughtful design with personal WhatsApp-assisted ordering.
             </p>
           </div>
 

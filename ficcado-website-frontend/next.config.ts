@@ -19,7 +19,7 @@ if (isProd) {
   const cleanNumber = whatsappNumber.replace(/[^0-9]/g, '');
   if (!/^\d{10,15}$/.test(cleanNumber)) {
     throw new Error(
-      `[CRITICAL BUILD ERROR] NEXT_PUBLIC_WHATSAPP_NUMBER ("${whatsappNumber}") must contain international digits only (e.g. 919497144795).`
+      `[CRITICAL BUILD ERROR] NEXT_PUBLIC_WHATSAPP_NUMBER ("${whatsappNumber}") must contain international digits only (e.g. 916282000729).`
     );
   }
   const dummyPatterns = [

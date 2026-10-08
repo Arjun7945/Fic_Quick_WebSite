@@ -29,7 +29,7 @@ import { getSiteUrl } from '@/lib/siteUrl';
 // SEO Metadata (Unisex, WhatsApp Ordering) per Phase 2 Section 10.1
 // ---------------------------------------------------------------------------
 const siteUrl = getSiteUrl();
-const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919497144795';
+const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '916282000729';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -38,12 +38,12 @@ export const metadata: Metadata = {
     template: '%s | Ficcado',
   },
   description:
-    'Ficcado crafts signature high quality 230 GSM unisex streetwear t-shirts. Direct WhatsApp ordering and verified pan-India dispatch.',
+    'Ficcado crafts signature high quality 240 GSM unisex streetwear t-shirts. Direct WhatsApp ordering and verified pan-India dispatch.',
   keywords: [
     'Ficcado',
     'high quality t-shirts',
     'unisex t-shirts',
-    '230 gsm cotton',
+    '240 gsm cotton',
     'streetwear',
     'combos coming soon',
     'hoodies coming soon',
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
     siteName: 'Ficcado',
     title: 'Ficcado',
     description:
-      'Ficcado crafts signature high quality 230 GSM unisex streetwear t-shirts. Direct WhatsApp ordering.',
+      'Ficcado crafts signature high quality 240 GSM unisex streetwear t-shirts. Direct WhatsApp ordering.',
     images: [
       {
         url: `${siteUrl}/images/hero/ficcado-banner.jpg`,
@@ -76,7 +76,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Ficcado',
     description:
-      'Ficcado crafts signature high quality 230 GSM unisex streetwear t-shirts. Direct WhatsApp ordering.',
+      'Ficcado crafts signature high quality 240 GSM unisex streetwear t-shirts. Direct WhatsApp ordering.',
     images: [`${siteUrl}/images/hero/ficcado-banner.jpg`],
   },
   icons: {
@@ -117,7 +117,7 @@ const globalJsonLd = {
       legalName: 'Ficcado Clothing',
       url: siteUrl,
       logo: `${siteUrl}/images/brand_logo/favicon-rounded.png`,
-      foundingDate: '2025',
+      foundingDate: '2024',
       founders: [
         { '@type': 'Person', name: 'Sinan MS' },
         { '@type': 'Person', name: 'Ganga Lakshmi' },

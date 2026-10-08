@@ -3,7 +3,7 @@
 // Single source of truth for all FAQ questions and answers.
 // Compliant with Section 0 Anti-Hallucination protocol, Section R6,
 // and Store Owner directives:
-// - Real founders: Sinan MS, Ganga, Rohith Murali (Est. 2025)
+// - Real founders: Sinan MS, Ganga, Rohith Murali (Est. 2024)
 // - Real selling status: Currently selling T-Shirts ONLY; others coming in future
 // - Full coverage of Terms, Policies, Returns, Replacements, Damages & Privacy
 // =============================================================================
@@ -114,14 +114,14 @@ export const FAQ_ITEMS: FAQItem[] = [
     group: 'about-ficcado',
     question: 'Who founded Ficcado?',
     answer:
-      'Ficcado was founded in 2025 by three close friends: Sinan MS, Ganga Lakshmi, and Rohith Murali. Frustrated by flimsy fast fashion and overpriced designer markup, they united to build an authentic clothing brand focused on fabric integrity and honest design.',
+      'Ficcado was founded in 2024 by three close friends: Sinan MS, Ganga Lakshmi, and Rohith Murali. Frustrated by flimsy fast fashion and overpriced designer markup, they united to build an authentic clothing brand focused on fabric integrity and honest design.',
   },
   {
     id: 'what-is-the-ficcado-story',
     group: 'about-ficcado',
     question: 'What is the founding story behind Ficcado?',
     answer:
-      'In late 2024 and early 2025, three friends—Sinan MS, Ganga Lakshmi, and Rohith Murali—decided to stop searching for quality apparel and create it themselves. They pooled their savings, visited textile mills, engineered custom high quality knits, and officially unveiled Ficcado in 2025 with a "Peoples’ own brand" philosophy: honest materials, zero shortcuts, and personal customer service.',
+      'In 2024, three friends—Sinan MS, Ganga Lakshmi, and Rohith Murali—decided to stop searching for quality apparel and create it themselves. They pooled their savings, visited textile mills, engineered custom high quality knits, and officially unveiled Ficcado in 2024 with a "Peoples’ own brand" philosophy: honest materials, zero shortcuts, and personal customer service.',
   },
   {
     id: 'who-are-the-founders-and-their-roles',
@@ -255,7 +255,7 @@ export const FAQ_ITEMS: FAQItem[] = [
     group: 'sizes-fit',
     question: 'Can I get personalized sizing advice before ordering?',
     answer:
-      'Yes! You can contact us on WhatsApp (+91 94971 44795) with your height, build, and preferred fit (oversized vs regular), and our team will recommend the ideal size.',
+      'Yes! You can contact us on WhatsApp (+91 6282000729) with your height, build, and preferred fit (oversized vs regular), and our team will recommend the ideal size.',
   },
 
   // ---------------------------------------------------------------------------
@@ -429,7 +429,7 @@ export const FAQ_ITEMS: FAQItem[] = [
     group: 'returns-refunds',
     question: 'How do I initiate a return or size exchange?',
     answer:
-      'Reach out directly via WhatsApp (+91 94971 44795) or submit a ticket on our Support page (/support) under "Returns & Exchanges" with your Order ID. Our team will coordinate doorstep reverse pickup.',
+      'Reach out directly via WhatsApp (+91 6282000729) or submit a ticket on our Support page (/support) under "Returns & Exchanges" with your Order ID. Our team will coordinate doorstep reverse pickup.',
   },
   {
     id: 'what-condition-must-returned-items-be-in',

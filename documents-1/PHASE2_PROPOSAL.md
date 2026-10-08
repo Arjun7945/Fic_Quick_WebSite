@@ -3,7 +3,7 @@
 > **Document Status:** PROPOSAL ONLY — Pending Explicit Owner Approval (Section 9 Stop Gate)  
 > **Target Repo:** `Fic_Quick_WebSite` / `ficcado-website-frontend`  
 > **Brand:** Ficcado (F-I-C-C-A-D-O)  
-> **Founders:** Ganga Lakshmi, Rohith Murali, Sinan (Est. 2025)  
+> **Founders:** Ganga Lakshmi, Rohith Murali, Sinan (Est. 2024)  
 > **Active Collection:** T-Shirts ONLY (Combos, Shirts, Hoodies, Pants, Sneakers coming soon)  
 > **Prerequisites:** Phase 1 Production Refactor & Integrity Verification Completed & Passing.
 
@@ -12,7 +12,7 @@
 ## 1. Overview & Scope
 
 Phase 2 enhances the organic search indexing, social sharing richness, and AI engine discoverability (ChatGPT Search, Perplexity, Claude, Gemini) of the Ficcado storefront. In accordance with the Anti-Hallucination Protocol (Section 0) and the owner's explicit guidance:
-1. **Founders & Story:** Incorporates the verified founding trio (Ganga Lakshmi, Rohith Murali, Sinan) and the 2025 brand genesis in Organization metadata, `llms.txt`, and `humans.txt`.
+1. **Founders & Story:** Incorporates the verified founding trio (Ganga Lakshmi, Rohith Murali, Sinan) and the 2024 brand genesis in Organization metadata, `llms.txt`, and `humans.txt`.
 2. **Current Catalog Reality:** Recognizes that Ficcado currently sells **T-Shirts only**, while Combos, Shirts, Hoodies, Pants, and Sneakers remain marked as upcoming roadmapped collections.
 3. **Verified Data Only:** All metadata, structured data, and AI manifests will be strictly derived from verified Google Sheets catalog items and established policy pages. No synthetic data, unverified claims, or fabricated reviews will ever be published.
 
@@ -79,7 +79,7 @@ export default function robots(): MetadataRoute.Robots {
 ```markdown
 # Ficcado
 
-> Ficcado is an independent Indian contemporary unisex streetwear brand founded in 2025 by three close friends: Ganga Lakshmi (Creative Director), Rohith Murali (Production & Sourcing), and Sinan (Product & Experience). Ficcado operates as a direct-to-consumer online storefront with assisted ordering via WhatsApp.
+> Ficcado is an independent Indian contemporary unisex streetwear brand founded in 2024 by three close friends: Ganga Lakshmi (Creative Director), Rohith Murali (Production & Sourcing), and Sinan (Product & Experience). Ficcado operates as a direct-to-consumer online storefront with assisted ordering via WhatsApp.
 
 ## Active Shop Collection
 - [T-Shirts](https://ficcado.store/categories/t-shirts): Unisex graphic, oversized, and H everyday t-shirts (Currently selling).
@@ -89,7 +89,7 @@ export default function robots(): MetadataRoute.Robots {
 - Shirts, Hoodies, Pants, and Sneakers: Under active prototyping for future batch releases.
 
 ## Customer Support, Story & Policy Documents
-- [About Ficcado & Founders](https://ficcado.store/about): The 2025 founding story by Ganga Lakshmi, Rohith Murali, and Sinan.
+- [About Ficcado & Founders](https://ficcado.store/about): The 2024 founding story by Ganga Lakshmi, Rohith Murali, and Sinan.
 - [Frequently Asked Questions (FAQ)](https://ficcado.store/faq): Comprehensive answers regarding sizes, ordering, delivery, and support.
 - [Support Desk](https://ficcado.store/support): Inquire about orders using Reference ID (FIC-A...) or Order ID.
 - [Shipping & Delivery Policy](https://ficcado.store/shipping-delivery): Delivery partner selection and shipping timelines.

@@ -8,7 +8,7 @@
 ---
 
 ## 1. Product Vision & Target Audience
-- **Vision:** Ficcado is an independent contemporary Indian apparel label crafting signature, high-quality 230 GSM combed cotton unisex streetwear.
+- **Vision:** Ficcado is an independent contemporary Indian apparel label crafting signature, high-quality 240 GSM combed cotton unisex streetwear.
 - **Target Audience:** Streetwear enthusiasts, youth, and young professionals seeking structured architectural silhouettes, heavy fabric weight, and curated capsule drops without extreme designer markups.
 - **Brand Ethos:** Radical textile honesty, small-batch capsule drops, transparent founder involvement, and direct human-to-human commerce assistance over WhatsApp.
 
@@ -19,7 +19,7 @@
 > [!NOTE]
 > The following personas are inferred patterns from current user journeys and feature designs, pending formal customer research confirmation by the founders.
 
-1. **[ASSUMPTION] The Minimalist Streetwear Enthusiast:** Prioritizes fabric weight (230 GSM), ribbed collar retention, drop-shoulder silhouettes, and neutral color palettes (Colorado, Citrus, Monochrome packs).
+1. **[ASSUMPTION] The Minimalist Streetwear Enthusiast:** Prioritizes fabric weight (240 GSM), ribbed collar retention, drop-shoulder silhouettes, and neutral color palettes (Colorado, Citrus, Monochrome packs).
 2. **[ASSUMPTION] The Direct WhatsApp Shopper:** Prefers configuring an order bag online, reviewing verified prices, and finalizing delivery details, questions, and payments directly with a brand representative on WhatsApp.
 3. **[ASSUMPTION] The Return/Care Customer:** Uses the support portal with their temporary Reference ID or Order ID to request size replacements, delivery status updates, or transit damage care.
 

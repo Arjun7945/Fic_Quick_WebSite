@@ -32,8 +32,8 @@
 
 ## 1. Overview
 Ficcado is a contemporary unisex streetwear and apparel direct-to-consumer storefront.
-- **Core Product Offering:** High-quality 230 GSM combed cotton unisex t-shirts engineered with architectural drop-shoulder silhouettes, anti-sag double-ribbed collars, and relaxed unisex draping (`src/app/layout.tsx:L41-L47`, `src/app/journal/page.tsx:L81-L108`). Future capsule roadmap includes apparel combos, structured overshirts, fleece hoodies, articulated pants, and minimalist sneakers (`src/config/categories.ts:L19-L68`).
-- **Founders:** Founded in 2025 by three friends: Sinan MS (strategic operations & customer care), Ganga Lakshmi (creative operations & silhouette design), and Rohith Murali (textile engineering & mill sourcing) (`src/app/layout.tsx:L119-L124`, `src/app/journal/page.tsx:L51-L78`, `public/images/founders/`).
+- **Core Product Offering:** High-quality 240 GSM combed cotton unisex t-shirts engineered with architectural drop-shoulder silhouettes, anti-sag double-ribbed collars, and relaxed unisex draping (`src/app/layout.tsx:L41-L47`, `src/app/journal/page.tsx:L81-L108`). Future capsule roadmap includes apparel combos, structured overshirts, fleece hoodies, articulated pants, and minimalist sneakers (`src/config/categories.ts:L19-L68`).
+- **Founders:** Founded in 2024 by three friends: Sinan MS (strategic operations & customer care), Ganga Lakshmi (creative operations & silhouette design), and Rohith Murali (textile engineering & mill sourcing) (`src/app/layout.tsx:L119-L124`, `src/app/journal/page.tsx:L51-L78`, `public/images/founders/`).
 - **Commerce Model:** Dynamic catalog driven by Google Sheets as the administrative database, client-side shopping bag state persisted in `localStorage`, server-verified checkout, sequential reference ID generation (`FIC-<SERIES><4-DIGIT-NUM>`, e.g., `FIC-A0001`), and direct WhatsApp order dispatch with personalized manual human verification.
 
 ---
@@ -318,7 +318,7 @@ Fic_Quick_WebSite/
 ### 7.7 Editorial Journal (`/journal` — `src/app/journal/page.tsx`)
 - **Purpose:** Brand storytelling and textile education.
 - **Interactive Aura Canvas:** Morphing SVG blob reacting to user-selected color moods (`Royal Ficcado`, `Citrus Dawn`, `Sage Mint`, `Nocturne Black`) with speed toggle (`gentle` vs `pulse`).
-- **Articles:** 3 in-depth chronicles (Founders' story, 230 GSM cotton anatomy, capsule philosophy) with reading modal rendered via React portal.
+- **Articles:** 3 in-depth chronicles (Founders' story, 240 GSM cotton anatomy, capsule philosophy) with reading modal rendered via React portal.
 
 ### 7.8 About Us (`/about` — `src/app/about/page.tsx`)
 - **Purpose:** Detailed founder profiles (Sinan MS, Ganga Lakshmi, Rohith Murali), craft philosophy, and brand mission.
@@ -327,7 +327,7 @@ Fic_Quick_WebSite/
 - **Purpose:** Client preferences: displays currency (INR ₹), clears search history, reviews cache, and developer credits.
 
 ### 7.10 FAQ (`/faq` — `src/app/faq/page.tsx`)
-- **Purpose:** Comprehensive FAQ covering WhatsApp ordering, 230 GSM fabric specs, payment options, and delivery timelines. Injects `FAQPage` schema.
+- **Purpose:** Comprehensive FAQ covering WhatsApp ordering, 240 GSM fabric specs, payment options, and delivery timelines. Injects `FAQPage` schema.
 
 ---
 
@@ -630,7 +630,7 @@ Google Sheets API v4 limits are 60 read requests per minute per user and 60 writ
 - **Offline Reference ID:** Temporary fallback identifier generated if Google Sheets is unreachable (Format: `FIC-T<6-ALPHANUMERIC>`, e.g., `FIC-T8X4M2`).
 - **Final Order ID:** Permanent order identifier issued by Ficcado operations team after payment verification.
 - **Submission ID:** Unique client-generated UUID used to enforce idempotency on order creation.
-- **230 GSM:** Fabric weight specification: 230 grams per square meter combed cotton jersey.
+- **240 GSM:** Fabric weight specification: 240 grams per square meter combed cotton jersey.
 - **Capsule Drop:** Limited-quantity seasonal apparel release.
 
 ---
@@ -655,7 +655,7 @@ Google Sheets API v4 limits are 60 read requests per minute per user and 60 writ
 - **D7 (Deploy Gating):** **RESOLVED & IMPLEMENTED** — GitHub Actions CI workflow (`.github/workflows/ci.yml`) and step-by-step setup guide (`docs/BRANCH_PROTECTION.md`).
 - **D8 (Netlify Plan & Peak Traffic):** **RESOLVED** — Target 100,000 visitors, 10,000 peak concurrent, 100 orders/minute peak. Caching (ISR 60s) absorbs storefront page traffic without burning Google Sheets quota.
 - **D9 (Combos Category Status):** **RESOLVED** — Coming soon ("combos are coming soon only as of now"). Catalog, FAQ, PRD, and memory updated consistently.
-- **D10 (Brand Facts Owner Confirmation):** **RESOLVED & APPROVED** — All current details confirmed correct: 2025 founding year, 230 GSM, drop-shoulder, anti-sag collar, colour packs.
+- **D10 (Brand Facts Owner Confirmation):** **RESOLVED & APPROVED** — All current details confirmed correct: 2024 founding year, 240 GSM, drop-shoulder, anti-sag collar, colour packs.
 - **D11 (Credentials Remote Exposure):** **VERIFIED CLEAN** — 0 commits in git history contain private keys or service account credentials; credentials folder and .env.local verified git-ignored.
 - **D12 (`progress.md` Location):** **CONFIRMED** — `docs/progress.md` canonical living log.
 - **D13 (CSP Approach & HSTS Preload):** **RESOLVED & IMPLEMENTED** — Pragmatic `Content-Security-Policy-Report-Only` header; removed obsolete `X-XSS-Protection`; HSTS `max-age=31536000` (dropped `preload` and `includeSubDomains`). Consolidated to single root `netlify.toml`.

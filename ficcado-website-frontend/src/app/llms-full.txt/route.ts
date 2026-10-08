@@ -18,15 +18,15 @@ export async function GET() {
 > Brand: Ficcado (F-I-C-C-A-D-O)
 > Legal Name: Ficcado Clothing
 > Tagline: People's Own Brand — Born From A Passion For Timeless Clothing & Honest Design
-> Genesis: Established in 2025 by Sinan MS, Ganga Lakshmi, and Rohith Murali
+> Genesis: Established in 2024 by Sinan MS, Ganga Lakshmi, and Rohith Murali
 > Storefront: ${siteUrl}
-> Official WhatsApp Ordering Line: +91 94971 44795
+> Official WhatsApp Ordering Line: +91 6282000729
 
 ---
 
 ## 1. Brand Story, Ethos & Craftsmanship
 
-Ficcado was founded in 2025 by three close friends who refused to accept paper-thin fast fashion and overpriced synthetic apparel. Frustrated by the lack of high-quality streetwear that balanced true structural weight, rich tailored colors, and durability without a 400% markup, they pooled their resources, visited spinning mills across the subcontinent, and developed custom 230 GSM combed cotton weaves with relaxed drop-shoulder unisex cuts.
+Ficcado was founded in 2024 by three close friends who refused to accept paper-thin fast fashion and overpriced synthetic apparel. Frustrated by the lack of high-quality streetwear that balanced true structural weight, rich tailored colors, and durability without a 400% markup, they pooled their resources, visited spinning mills across the subcontinent, and developed custom 240 GSM combed cotton weaves with relaxed drop-shoulder unisex cuts.
 
 ### Core Philosophy
 - "People's own brand" — transparent materials, limited capsule drops, and garments engineered to become the favorite staple in your wardrobe.
@@ -34,7 +34,7 @@ Ficcado was founded in 2025 by three close friends who refused to accept paper-t
 - "Clothing shouldn't be disposable. It should feel reassuringly heavy when you put it on, look effortless on the street, and stay just as vibrant years later."
 
 ### Trust & Quality Pillars
-1. **230 GSM High Quality:** Dense custom combed cotton weaves that keep structure wash after wash.
+1. **240 GSM High Quality:** Dense custom combed cotton weaves that keep structure wash after wash.
 2. **100% Quality Inspected:** Every garment is hand-verified before dispatch from our facility.
 3. **7-Day Transparent Returns:** Risk-free home try-on. If the drape or fit isn't right, doorstep pickup is provided.
 4. **WhatsApp Dispatch Updates:** Direct dispatch alerts and courier AWB tracking links sent directly to your WhatsApp.

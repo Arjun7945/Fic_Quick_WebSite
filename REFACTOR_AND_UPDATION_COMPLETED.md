@@ -61,7 +61,7 @@ Fikado is now an authentic, contemporary unisex streetwear showcase. Visitors ex
 ### 3.3 Desktop Footer
 - **Before:** Contained links to "Track Live Order" and "Saved Items (Wishlist)" across 5 columns.
 - **After:** Balanced 4-column layout:
-  - Column 1: Brand story, 2025 genesis, and WhatsApp ordering commitment.
+  - Column 1: Brand story, 2024 genesis, and WhatsApp ordering commitment.
   - Column 2: Official Collections (T-Shirts, Combos, Shirts, Hoodies, Pants, Sneakers).
   - Column 3: Customer Care & Policies (Terms, Privacy, Returns & Refunds, Replacements & Damages, Shipping).
   - Column 4: Contact & Socials (Direct WhatsApp link, Email, Instagram).

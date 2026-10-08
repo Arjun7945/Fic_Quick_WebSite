@@ -2,7 +2,7 @@
 
 > **Brand:** Ficcado (F-I-C-C-A-D-O)  
 > **Status:** Phase 1 (Production Readiness & Data Integrity) COMPLETED & UPDATED per owner feedback.  
-> **Founders:** Ganga Lakshmi, Rohith Murali, Sinan (Est. 2025) — Verified & Maintained.  
+> **Founders:** Ganga Lakshmi, Rohith Murali, Sinan (Est. 2024) — Verified & Maintained.  
 > **Active Collection:** T-Shirts ONLY (Combos, Shirts, Hoodies, Pants, Sneakers coming soon).  
 > **Stop Gate:** Section 9 Gate ENFORCED. Phase 2 (AI & Search Discoverability) is strictly gated pending explicit owner approval.  
 > **Execution Environment:** Windows Shell, Node.js v20+, Next.js 16.3.5 (Turbopack), TypeScript 5, React 19.  
@@ -15,9 +15,9 @@
 Phase 1 refactored the entire Ficcado storefront into a production-hardened web application backed solely by Google Sheets and local item images. 
 
 Following direct owner feedback, the following key corrections and verifications were applied:
-1. **Founders & Story Maintained (True & Authentic):** Verified and retained the complete founding story of Ficcado (established in 2025 by three close friends: Ganga Lakshmi, Rohith Murali, and Sinan) across `/about`, the About Modal, and the FAQ. The founder profile image directory `public/images/founders/` (`Ganga Lakshmi.jpg`, `Rohith Murali.jpg`, `Sinan.jpg`) is kept intact so the owner only needs to replace the image files before publishing.
+1. **Founders & Story Maintained (True & Authentic):** Verified and retained the complete founding story of Ficcado (established in 2024 by three close friends: Ganga Lakshmi, Rohith Murali, and Sinan) across `/about`, the About Modal, and the FAQ. The founder profile image directory `public/images/founders/` (`Ganga Lakshmi.jpg`, `Rohith Murali.jpg`, `Sinan.jpg`) is kept intact so the owner only needs to replace the image files before publishing.
 2. **Current Catalog Reality (T-Shirts Only):** Updated the application and FAQ to reflect that Ficcado currently sells **T-Shirts ONLY**. All other categories (Combos, Shirts, Hoodies, Pants, Sneakers) are classified as coming soon for future batch drops.
-3. **Comprehensive Terms & Policies in FAQ:** Expanded the FAQ to 14 groups covering the founders, the 2025 genesis story, active collections, size guidance, order processes, courier delivery, 7-day doorstep returns, 100% free transit damage replacements, fabric wash care, commercial terms, and privacy protections.
+3. **Comprehensive Terms & Policies in FAQ:** Expanded the FAQ to 14 groups covering the founders, the 2024 genesis story, active collections, size guidance, order processes, courier delivery, 7-day doorstep returns, 100% free transit damage replacements, fabric wash care, commercial terms, and privacy protections.
 4. **Deterministic Local Image Architecture:** Standardized on native `next/image` with a deterministic folder structure: `public/images/items/<item-slug>/image-N.webp` mapped via build-time manifest `src/generated/item-images.json`.
 5. **Dynamic Courier Partner System:** Delivery options are dynamically loaded from the `Courier Partners` Google Sheets tab, with ₹0 displaying as "Free", automatic fallback disabling at checkout if zero couriers exist, and full server-side rate verification on `POST /api/orders`.
 6. **Zero Mock Fallbacks:** Deleted `products.snapshot.json` and fake customer reviews. Storefront catalog reads directly from Google Sheets `Item Management` tab with live ISR caching (`products-cache.json`).
@@ -211,7 +211,7 @@ Following direct owner feedback, the following key corrections and verifications
 | **Preserved** | `public/images/founders/` (3 images) | Kept placeholder images so owner can simply replace files before publishing |
 | **Updated** | `src/config/categories.ts` | Set `Combos` status to `coming-soon` per owner directive (T-shirts only currently live) |
 | **Updated** | `src/components/home/HomeView.tsx` | Category pills dynamically derived from live categories; updated hero copy |
-| **Updated** | `src/content/faq.ts` & `content/faq.ts` | 14 groups featuring verified founders, 2025 story, T-shirts only status, and all terms/policies |
+| **Updated** | `src/content/faq.ts` & `content/faq.ts` | 14 groups featuring verified founders, 2024 story, T-shirts only status, and all terms/policies |
 | **Updated** | `src/app/about/page.tsx` | Maintained full founding story of Ganga Lakshmi, Rohith Murali, and Sinan |
 | **Updated** | `docs/PHASE2_PROPOSAL.md` | Pre-flight proposal updated with real founders and T-shirts only live catalog status |
 | **Deleted** | `src/config/delivery.ts` | Removed hard-coded delivery options per R4.1 |
@@ -279,7 +279,7 @@ Every removed component, mock dataset, and utility was verified via rip-grep bef
 | Order Reference ID | Cryptographic Sequential Generator (`FIC-A0001`) | `checkout/whatsapp-continue/page.tsx`, `support/page.tsx` | Validated by 9 dedicated unit tests in `scripts/tests/order-system.test.mjs` |
 | Store Policies | Local Editorial Markdown / TS | `/privacy`, `/terms`, `/returns-refunds`, `/shipping-delivery`, `/replacements-damages` | Static policy pages written by owner |
 | FAQ Content | `src/content/faq.ts` (Editorial Source) | `src/app/faq/page.tsx` | 14 groups verified against existing policy documents and owner directives |
-| Founders & Story | Verified Editorial Source | `/about`, `AboutModal.tsx`, `content/faq.ts` | 3 founders: Ganga Lakshmi, Rohith Murali, Sinan (Est. 2025) |
+| Founders & Story | Verified Editorial Source | `/about`, `AboutModal.tsx`, `content/faq.ts` | 3 founders: Ganga Lakshmi, Rohith Murali, Sinan (Est. 2024) |
 
 ---
 
@@ -482,7 +482,7 @@ The following environment variables are required in production (e.g. Netlify App
 
 ## 13. Phase 1 Acceptance Sign-Off
 
-- [x] Founder details (Ganga Lakshmi, Rohith Murali, Sinan) and 2025 founding story verified and maintained.
+- [x] Founder details (Ganga Lakshmi, Rohith Murali, Sinan) and 2024 founding story verified and maintained.
 - [x] Founder image directory preserved for simple drop-in replacement.
 - [x] Catalog accurately configured to sell T-Shirts only; other silhouettes roadmapped as coming soon.
 - [x] Items load only from Google Sheets; no fake fallbacks.
@@ -514,7 +514,7 @@ The following environment variables are required in production (e.g. Netlify App
   - `src/app/api/products/route.ts`: Enforced `dynamic = 'force-dynamic'`, `revalidate = 0`, and `no-store` headers.
 
 ### 14.2 Dev Server Clean Restart (Issue 2)
-- Terminated lingering background Node process (`PID 23088`) listening on port 3000.
+- Terminated lingering background Node process (`PID 24088`) listening on port 3000.
 - Verified port 3000 was completely released.
 - Launched clean dev server via `npm run dev` with Turbopack, listening on `http://localhost:3000`.
 
@@ -527,7 +527,7 @@ The following environment variables are required in production (e.g. Netlify App
 - `src/app/settings/page.tsx`: Updated collection description to `Browse T-Shirts and upcoming category drops`.
 - `src/components/modals/AboutModal.tsx`: Updated copy to clarify T-shirts today and future unisex silhouettes in upcoming drops.
 - `src/app/layout.tsx`: Updated metadata descriptions to emphasize T-shirts currently and future drops.
-- `src/app/about/page.tsx`: Refined textile narrative to focus on 230 GSM combed cotton.
+- `src/app/about/page.tsx`: Refined textile narrative to focus on 240 GSM combed cotton.
 
 ### 14.4 Complete Retrieval & Showcase of The Journal (Issue 4)
 - Recovered the full authentic Journal content and interactive aura canvas from the original codebase.
@@ -535,8 +535,8 @@ The following environment variables are required in production (e.g. Netlify App
   - 4 interactive aesthetic color moods (`Royal Ficcado`, `Citrus Dawn`, `Sage Mint`, `Nocturne Black`).
   - Organic morphing SVG aura canvas with gentle float and dynamic pulse intensity toggles.
   - All 3 authentic articles with complete narratives:
-    1. *The 2025 Founding Story: How 3 Friends Reimagined Everyday Streetwear in 2025* (Ganga Lakshmi, Rohith Murali, Sinan)
-    2. *Textile Lab: 230 GSM Heavyweight Cotton — The Anatomy of Our Colorado Cut* (Rohith Murali)
+    1. *The 2024 Founding Story: How 3 Friends Reimagined Everyday Streetwear in 2024* (Ganga Lakshmi, Rohith Murali, Sinan)
+    2. *Textile Lab: 240 GSM Heavyweight Cotton — The Anatomy of Our Colorado Cut* (Rohith Murali)
     3. *Design Philosophy: Capsule Philosophy — Why Scarcity and Small Batches Beat Mass Production* (Ganga Lakshmi)
   - Interactive Article Modal allowing users to read the full story of any article directly on page, share links, and explore founders.
   - Streetwear Community Drop Notification subscription with toast confirmation.
@@ -637,7 +637,7 @@ Extracted and validated via `scripts/tests/test-jsonld-parser.mjs`:
    - Name: `Ficcado`
    - URL: `https://ficcado.store`
    - Logo: `https://ficcado.store/images/brand_logo/favicon-rounded.png`
-   - Founding Date: `2025`
+   - Founding Date: `2024`
    - Founders: `Ganga Lakshmi`, `Rohith Murali`, `Sinan`
    - ContactPoint: Telephone `+919497144795` (WhatsApp Customer Service)
    - Status: **PASSED (100% Valid)**

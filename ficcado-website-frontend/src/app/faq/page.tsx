@@ -13,7 +13,7 @@ import { getSiteUrl } from '@/lib/siteUrl';
 export const metadata: Metadata = {
   title: "FAQ's",
   description:
-    'Comprehensive answers to frequently asked questions about Ficcado. Covers our high quality 230 GSM unisex T-shirts, ordering via WhatsApp, sizing, delivery, returns, and customer support.',
+    'Comprehensive answers to frequently asked questions about Ficcado. Covers our high quality 240 GSM unisex T-shirts, ordering via WhatsApp, sizing, delivery, returns, and customer support.',
 };
 
 export default function FAQPage() {
@@ -60,7 +60,7 @@ export default function FAQPage() {
           </h1>
 
           <p className="text-sm md:text-base text-[var(--text-secondary)] max-w-2xl leading-relaxed">
-            Find clear answers about Ficcado — our high quality 230 GSM unisex T-shirts, our WhatsApp ordering workflow, size guidance, delivery times, and store policies.
+            Find clear answers about Ficcado — our high quality 240 GSM unisex T-shirts, our WhatsApp ordering workflow, size guidance, delivery times, and store policies.
           </p>
 
           <p className="text-xs text-[var(--text-muted)] pt-1">
@@ -158,7 +158,7 @@ export default function FAQPage() {
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
           <a
-            href="https://wa.me/919497144795"
+            href="https://wa.me/916282000729"
             target="_blank"
             rel="noopener noreferrer"
             className="btn-primary text-xs md:text-sm py-3 px-6 rounded-xl font-bold shadow-md"

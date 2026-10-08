@@ -12,7 +12,7 @@ export const BRAND = {
   tagline: 'High Quality Unisex Wears',
   logo: '/images/brand_logo/Ficcado Brand Logo.jpeg',
   description:
-    'Ficcado Clothing crafts signature high quality unisex streetwear with 230 GSM combed cotton. Direct WhatsApp ordering and verified pan-India dispatch.',
+    'Ficcado Clothing crafts signature high quality unisex streetwear with 240 GSM combed cotton. Direct WhatsApp ordering and verified pan-India dispatch.',
   get url() {
     return getSiteUrl();
   },
@@ -38,7 +38,7 @@ export const BRAND = {
     timing: 'Mon–Fri, 10:00 AM – 6:00 PM IST',
     timingShort: 'Mon-Friday from 10am - 6pm',
   },
-  whatsapp: '919497144795',
+  whatsapp: '916282000729',
   instagram: 'https://instagram.com/ficcado.store',
   address: {
     line1: 'Manadath House',
@@ -69,7 +69,7 @@ export const TRENDING_TAGS: string[] = [
   'Frame The Bloom',
   'Silent Sentinel',
   'The Watchers',
-  '230 GSM Cotton',
+  '240 GSM Cotton',
   'Oversized Drop',
 ];
 
@@ -83,7 +83,7 @@ export const WALKTHROUGH_DATA: WalkthroughSlide[] = [
   {
     title: 'Engineered For Contemporary Living',
     subtitle:
-      'Premium high quality 230 GSM cotton, precision tailored silhouettes, and unisex comfort crafted for longevity.',
+      'Premium high quality 240 GSM cotton, precision tailored silhouettes, and unisex comfort crafted for longevity.',
     img: '/images/walkthrough/ficcado_walkthrough_2.jpg',
   },
   {

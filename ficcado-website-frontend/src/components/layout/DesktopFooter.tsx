@@ -63,7 +63,7 @@ export function DesktopFooter() {
             </div>
           </div>
           <p className="text-xs leading-relaxed text-[var(--text-muted)]">
-            Ficcado Clothing crafts signature high quality unisex wear. Current drops feature heavyweight 230 GSM combed cotton t-shirts, designed for longevity.
+            Ficcado Clothing crafts signature high quality unisex wear. Current drops feature heavyweight 240 GSM combed cotton t-shirts, designed for longevity.
           </p>
           <div className="space-y-1 text-xs text-[var(--text-muted)]">
             <div className="flex items-center gap-2 font-semibold text-[var(--primary)]">

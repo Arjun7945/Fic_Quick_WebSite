@@ -2,7 +2,7 @@
 
 // =============================================================================
 // About Us — /about
-// The 2025 Founding Story of Ficcado by 3 Friends
+// The 2024 Founding Story of Ficcado by 3 Friends
 // Founders: Sinan MS, Ganga, Rohith Murali
 // Inspiring customer trust, craftsmanship transparency & first-order confidence
 // =============================================================================
@@ -53,7 +53,7 @@ const FOUNDERS = [
 const TRUST_METRICS = [
   {
     icon: Award,
-    title: '230 GSM High Quality',
+    title: '240 GSM High Quality',
     desc: 'Dense custom combed cotton weaves that keep structure wash after wash.',
   },
   {
@@ -110,7 +110,7 @@ export default function AboutPage() {
         <div className="max-w-4xl mx-auto text-center relative z-10 space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--primary-light)] text-[var(--primary)] text-xs font-800 tracking-wider uppercase border border-[var(--primary)]/20 shadow-xs">
             <Sparkles size={14} />
-            <span>The Ficcado Story • Launched in 2025</span>
+            <span>The Ficcado Story • Launched in 2024</span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-900 tracking-tight text-[var(--text-main)] leading-tight">
@@ -118,7 +118,7 @@ export default function AboutPage() {
           </h1>
 
           <p className="text-base md:text-lg text-[var(--text-secondary)] max-w-2xl mx-auto leading-relaxed">
-            Ficcado was founded in 2025 by three close friends who refused to accept paper-thin fast fashion and overpriced synthetic apparel. We set out to build the clothing brand we always wished existed — starting with the perfect high quality T-shirt.
+            Ficcado was founded in 2024 by three close friends who refused to accept paper-thin fast fashion and overpriced synthetic apparel. We set out to build the clothing brand we always wished existed — starting with the perfect high quality T-shirt.
           </p>
 
           <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
@@ -138,7 +138,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* The 2025 Genesis Story */}
+      {/* The 2024 Genesis Story */}
       <section className="max-w-5xl mx-auto px-4 md:px-8 py-12 md:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-center">
           <div className="lg:col-span-6 space-y-5">
@@ -152,15 +152,15 @@ export default function AboutPage() {
             </div>
 
             <p className="text-sm md:text-base text-[var(--text-secondary)] leading-relaxed">
-              In late 2024 and early 2025, three friends — <strong>Sinan MS</strong>, <strong>Ganga Lakshmi</strong>, and <strong>Rohith Murali</strong> — found themselves repeatedly having the same conversation: why was it so hard to find high quality t-shirts that possessed true structural weight, rich tailored colors, and durability without a 400% designer markup?
+              In 2024, three friends — <strong>Sinan MS</strong>, <strong>Ganga Lakshmi</strong>, and <strong>Rohith Murali</strong> — found themselves repeatedly having the same conversation: why was it so hard to find high quality t-shirts that possessed true structural weight, rich tailored colors, and durability without a 400% designer markup?
             </p>
 
             <p className="text-sm md:text-base text-[var(--text-secondary)] leading-relaxed">
-              We decided to stop searching and start building. We pooled our savings, visited spinning mills across the subcontinent, and spent months prototyping custom 230 GSM combed cotton and relaxed drop-shoulder patterns.
+              We decided to stop searching and start building. We pooled our savings, visited spinning mills across the subcontinent, and spent months prototyping custom 240 GSM combed cotton and relaxed drop-shoulder patterns.
             </p>
 
             <p className="text-sm md:text-base text-[var(--text-secondary)] leading-relaxed">
-              Ficcado was officially unveiled in <strong>2025</strong> with a singular ethos: <em>Peoples’ own brand</em> — transparent materials, limited capsule drops, and garments engineered to become the favorite piece in your wardrobe.
+              Ficcado was officially unveiled in <strong>2024</strong> with a singular ethos: <em>Peoples’ own brand</em> — transparent materials, limited capsule drops, and garments engineered to become the favorite piece in your wardrobe.
             </p>
 
             <div
@@ -212,13 +212,13 @@ export default function AboutPage() {
                 >
                   <div>
                     <span className="font-800 block text-white text-sm">The Founding Trio</span>
-                    <span className="text-slate-300 text-xs">Sinan MS, Ganga &amp; Rohith Murali • Ficcado 2025</span>
+                    <span className="text-slate-300 text-xs">Sinan MS, Ganga &amp; Rohith Murali • Ficcado 2024</span>
                   </div>
                   <span
                     className="px-3.5 py-1 rounded-full font-bold text-xs"
                     style={{ background: 'rgba(255, 255, 255, 0.12)', color: '#93C5FD' }}
                   >
-                    Est. 2025
+                    Est. 2024
                   </span>
                 </div>
               </div>
@@ -374,7 +374,7 @@ export default function AboutPage() {
               Risk-Free Shopping Experience
             </span>
             <h3 className="text-xl md:text-2xl font-900 text-white">
-              Ready to feel the difference of authentic 230 GSM high quality cotton?
+              Ready to feel the difference of authentic 240 GSM high quality cotton?
             </h3>
             <p className="text-xs md:text-sm text-blue-100 max-w-xl leading-relaxed">
               Experience our signature quality, custom knit fabrics, and relaxed unisex silhouettes. Fully covered by our 7-day hassle-free doorstep return policy.

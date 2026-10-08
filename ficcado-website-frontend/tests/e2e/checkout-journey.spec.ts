@@ -36,7 +36,7 @@ test.describe('Customer Checkout & Order Flow with Fake Sheets Client', () => {
           success: true,
           data: {
             referenceId: 'FIC-A0042',
-            whatsappUrl: 'https://wa.me/919497144795?text=Order%20FIC-A0042',
+            whatsappUrl: 'https://wa.me/916282000729?text=Order%20FIC-A0042',
             subtotal: 799,
             deliveryCharge: 0,
             total: 799,

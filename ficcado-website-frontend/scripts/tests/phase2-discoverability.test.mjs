@@ -48,7 +48,7 @@ describe('Phase 2: Crawler & AI Ingestion Manifests', () => {
     assert.match(content, /Ganga Lakshmi/, 'llms.txt must credit Ganga Lakshmi');
     assert.match(content, /Rohith Murali/, 'llms.txt must credit Rohith Murali');
     assert.match(content, /Arjun PS/, 'llms.txt must credit developer Arjun PS');
-    assert.match(content, /230 GSM/, 'llms.txt must mention 230 GSM high quality fabric');
+    assert.match(content, /240 GSM/, 'llms.txt must mention 240 GSM high quality fabric');
     assert.match(content, /T-Shirts/, 'llms.txt must state T-Shirts is active collection');
     assert.match(content, /Coming Soon/, 'llms.txt must mark other collections as coming soon');
     assert.match(content, /WhatsApp/, 'llms.txt must explain WhatsApp assisted ordering');

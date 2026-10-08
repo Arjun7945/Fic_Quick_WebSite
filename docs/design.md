@@ -13,7 +13,7 @@ Ficcado’s aesthetic balances architectural minimalism with high-energy streetw
 
 **Content Tone:**
 - Confident, understated, authentic, and technically precise.
-- Speaks directly about fabric weight ("230 GSM combed cotton"), collar construction ("anti-bacon double-ribbed weave"), and silhouette drape.
+- Speaks directly about fabric weight ("240 GSM combed cotton"), collar construction ("anti-bacon double-ribbed weave"), and silhouette drape.
 - Avoids generic discount hype, flash sale countdown timers, or spammy marketing copy.
 
 ---

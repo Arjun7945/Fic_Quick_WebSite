@@ -158,6 +158,6 @@ export function buildOrderMessage({
  * Builds the direct wa.me link with encoded order message
  */
 export function buildWhatsAppUrl(message: string, whatsappNumber?: string): string {
-  const number = (whatsappNumber || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919497144795').replace(/[^0-9]/g, '');
+  const number = (whatsappNumber || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '916282000729').replace(/[^0-9]/g, '');
   return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 }

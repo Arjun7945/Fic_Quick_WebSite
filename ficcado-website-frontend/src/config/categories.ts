@@ -21,7 +21,7 @@ export const CATEGORIES_CONFIG: CategoryConfig[] = [
     name: 'T-Shirts',
     slug: 't-shirts',
     status: 'live',
-    description: 'High quality 230gsm combed cotton tees with signature relaxed unisex silhouettes.',
+    description: 'High quality 240gsm combed cotton tees with signature relaxed unisex silhouettes.',
     sortOrder: 1,
     image: '/images/categories/t-shirts.jpg',
   },

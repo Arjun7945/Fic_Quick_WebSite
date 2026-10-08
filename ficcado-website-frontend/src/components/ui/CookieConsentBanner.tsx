@@ -39,12 +39,12 @@ export function CookieConsentBanner() {
   if (isSettingsOpen) {
     return (
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-fade-in"
+        className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fade-in"
         role="dialog"
         aria-modal="true"
         aria-labelledby="cookie-settings-title"
       >
-        <div className="bg-[#141414] border border-zinc-800 rounded-2xl max-w-lg w-full p-6 text-zinc-100 shadow-2xl space-y-5">
+        <div className="bg-[#141414] border border-zinc-800 rounded-2xl max-w-lg w-full max-h-[90dvh] overflow-y-auto p-5 sm:p-6 text-zinc-100 shadow-2xl space-y-5">
           <div className="flex items-center justify-between border-b border-zinc-800/80 pb-4">
             <div className="flex items-center gap-2.5">
               <ShieldCheck className="w-5 h-5 text-emerald-400" />
@@ -151,10 +151,10 @@ export function CookieConsentBanner() {
     );
   }
 
-  // Floating banner on bottom of screen
+  // Floating banner on bottom of screen, positioned above Mobile BottomNav on mobile
   return (
     <div
-      className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-40 p-4 sm:p-5 rounded-2xl bg-[#141414]/95 border border-zinc-800/90 shadow-2xl text-zinc-100 backdrop-blur-md animate-fade-in"
+      className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] left-3 right-3 sm:left-auto sm:right-6 sm:bottom-6 sm:max-w-md z-[150] p-4 sm:p-5 rounded-2xl bg-[#141414]/98 border border-zinc-700/80 shadow-[0_12px_40px_rgba(0,0,0,0.85)] text-zinc-100 backdrop-blur-md animate-fade-in"
       role="region"
       aria-label="Cookie consent banner"
     >
@@ -190,13 +190,13 @@ export function CookieConsentBanner() {
         <div className="pt-1 flex gap-2">
           <button
             onClick={acceptAll}
-            className="flex-1 py-2 px-3 rounded-xl bg-white text-black font-semibold text-xs hover:bg-zinc-200 transition-colors text-center cursor-pointer shadow-xs"
+            className="flex-1 py-2.5 px-3 rounded-xl bg-white text-black font-semibold text-xs hover:bg-zinc-200 active:scale-95 transition-all text-center cursor-pointer shadow-xs"
           >
             Accept All
           </button>
           <button
             onClick={rejectNonEssential}
-            className="flex-1 py-2 px-3 rounded-xl bg-zinc-800 text-zinc-200 font-semibold text-xs hover:bg-zinc-700 transition-colors text-center cursor-pointer border border-zinc-700/80 shadow-xs"
+            className="flex-1 py-2.5 px-3 rounded-xl bg-zinc-800 text-zinc-200 font-semibold text-xs hover:bg-zinc-700 active:scale-95 transition-all text-center cursor-pointer border border-zinc-700/80 shadow-xs"
           >
             Reject Non-Essential
           </button>
