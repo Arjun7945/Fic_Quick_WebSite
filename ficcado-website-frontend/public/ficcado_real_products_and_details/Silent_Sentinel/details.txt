@@ -1,7 +1,0 @@
-item name: Silent Sentinel
-item Selling price : 499
-Item Description: Inspired by the myth of the eternal guardian who watches over sacred grounds, this tee represents the energy of protectiveness and silent strength. The fiery red design
-evokes ancient legends where dragons were not just feared but revered as symbols
-of endurance, power, and wisdom. This tee is for the ones who lead from the shadows, whose energy is felt before their words are heard.
-Item available Colours: white and black
-Item available sizes: XS,S,M,L,XL

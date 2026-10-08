@@ -51,6 +51,10 @@ if (!clientEmail || !privateKey) {
   process.exit(process.env.SHEETS_STRICT === 'true' ? 1 : 0);
 }
 
+if (privateKey && !privateKey.includes('\n') && privateKey.includes('\\n')) {
+  privateKey = privateKey.replace(/\\n/g, '\n');
+}
+
 function createJwt(email, key) {
   const header = { alg: 'RS256', typ: 'JWT' };
   const now = Math.floor(Date.now() / 1000);

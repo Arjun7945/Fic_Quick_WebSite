@@ -57,6 +57,10 @@ if (keyFileCandidate) {
   }
 }
 
+if (privateKey && !privateKey.includes('\n') && privateKey.includes('\\n')) {
+  privateKey = privateKey.replace(/\\n/g, '\n');
+}
+
 function parsePrice(val) {
   if (typeof val === 'number') return Math.max(0, Math.round(val));
   if (!val) return 0;
