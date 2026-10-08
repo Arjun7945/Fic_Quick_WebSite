@@ -5,8 +5,42 @@
 // =============================================================================
 
 import http from 'http';
+import { spawn } from 'child_process';
+import path from 'path';
 
 const BASE_URL = process.env.TEST_URL || 'http://localhost:3000';
+
+function isServerAvailable(url) {
+  return new Promise((resolve) => {
+    try {
+      const parsed = new URL('/', url);
+      const req = http.request(
+        parsed,
+        { method: 'GET', timeout: 1500 },
+        (res) => {
+          resolve(res.statusCode >= 200 && res.statusCode < 500);
+        }
+      );
+      req.on('error', () => resolve(false));
+      req.on('timeout', () => {
+        req.destroy();
+        resolve(false);
+      });
+      req.end();
+    } catch {
+      resolve(false);
+    }
+  });
+}
+
+async function waitForServer(url, timeoutMs = 30000) {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    if (await isServerAvailable(url)) return true;
+    await new Promise((r) => setTimeout(r, 600));
+  }
+  return false;
+}
 
 // ---------------------------------------------------------------------------
 // Device Profile Matrix
@@ -311,97 +345,153 @@ function validateHtmlResponse(route, device, res) {
 // Test Runner
 // ---------------------------------------------------------------------------
 export async function runQualityChecker() {
-  console.log('\n' + '='.repeat(80));
-  console.log('   FICCADO CLOTHING — CROSS-DEVICE & QUALITY CHECKER SUITE');
-  console.log(`   Target Server: ${BASE_URL}`);
-  console.log(`   Device Profiles: ${DEVICE_PROFILES.length}`);
-  console.log(`   Routes Tested: ${ROUTES.length}`);
-  console.log(`   Total Matrix Tests: ${DEVICE_PROFILES.length * ROUTES.length}`);
-  console.log('='.repeat(80) + '\n');
+  let spawnedServer = null;
+  const isAvailable = await isServerAvailable(BASE_URL);
 
-  let passedTests = 0;
-  let warningTests = 0;
-  let failedTests = 0;
-  const resultsByDevice = {};
+  if (!isAvailable) {
+    console.log(`⚡ No server active at ${BASE_URL}. Spawning Next.js production server automatically...`);
+    const isWindows = process.platform === 'win32';
+    const npmCmd = isWindows ? 'npm.cmd' : 'npm';
+    const port = new URL(BASE_URL).port || '3000';
+    spawnedServer = spawn(npmCmd, ['run', 'start', '--', '-p', port], {
+      cwd: path.resolve(process.cwd()),
+      stdio: 'ignore',
+      shell: true,
+      env: {
+        ...process.env,
+        NODE_ENV: 'production',
+        PORT: port,
+      },
+    });
 
-  for (const device of DEVICE_PROFILES) {
-    resultsByDevice[device.id] = { device, routes: [], failures: 0, warnings: 0 };
-    console.log(`📱 Testing Profile: [${device.category}] ${device.name} (${device.width}x${device.height} | ${device.os})`);
+    const ready = await waitForServer(BASE_URL, 35000);
+    if (!ready) {
+      if (spawnedServer) {
+        try {
+          if (isWindows) {
+            spawn('taskkill', ['/pid', spawnedServer.pid.toString(), '/T', '/F']);
+          } else {
+            spawnedServer.kill('SIGTERM');
+          }
+        } catch {}
+      }
+      throw new Error(`Timed out waiting for server at ${BASE_URL} to respond.`);
+    }
+    console.log(`✓ Next.js server is ready at ${BASE_URL}.\n`);
+  }
 
-    for (const route of ROUTES) {
-      try {
-        const response = await fetchRoute(route.path, device.userAgent);
-        const issues = validateHtmlResponse(route, device, response);
+  try {
+    console.log('\n' + '='.repeat(80));
+    console.log('   FICCADO CLOTHING — CROSS-DEVICE & QUALITY CHECKER SUITE');
+    console.log(`   Target Server: ${BASE_URL}`);
+    console.log(`   Device Profiles: ${DEVICE_PROFILES.length}`);
+    console.log(`   Routes Tested: ${ROUTES.length}`);
+    console.log(`   Total Matrix Tests: ${DEVICE_PROFILES.length * ROUTES.length}`);
+    console.log('='.repeat(80) + '\n');
 
-        const criticals = issues.filter((i) => i.severity === 'CRITICAL');
-        const warnings = issues.filter((i) => i.severity !== 'CRITICAL');
+    let passedTests = 0;
+    let warningTests = 0;
+    let failedTests = 0;
+    const resultsByDevice = {};
 
-        if (criticals.length > 0) {
+    for (const device of DEVICE_PROFILES) {
+      resultsByDevice[device.id] = { device, routes: [], failures: 0, warnings: 0 };
+      console.log(`📱 Testing Profile: [${device.category}] ${device.name} (${device.width}x${device.height} | ${device.os})`);
+
+      for (const route of ROUTES) {
+        try {
+          const response = await fetchRoute(route.path, device.userAgent);
+          const issues = validateHtmlResponse(route, device, response);
+
+          const criticals = issues.filter((i) => i.severity === 'CRITICAL');
+          const warnings = issues.filter((i) => i.severity !== 'CRITICAL');
+
+          if (criticals.length > 0) {
+            failedTests++;
+            resultsByDevice[device.id].failures++;
+            console.log(`   ❌ [${route.path}] FAIL — ${criticals.map((c) => c.message).join('; ')}`);
+          } else if (warnings.length > 0) {
+            warningTests++;
+            resultsByDevice[device.id].warnings++;
+            console.log(`   ⚠️  [${route.path}] PASS with warnings — ${warnings.map((w) => w.message).join('; ')}`);
+          } else {
+            passedTests++;
+            console.log(`   ✅ [${route.path}] PASS (${response.status} OK)`);
+          }
+
+          resultsByDevice[device.id].routes.push({
+            path: route.path,
+            status: response.status,
+            issues,
+          });
+        } catch (err) {
           failedTests++;
           resultsByDevice[device.id].failures++;
-          console.log(`   ❌ [${route.path}] FAIL — ${criticals.map((c) => c.message).join('; ')}`);
-        } else if (warnings.length > 0) {
-          warningTests++;
-          resultsByDevice[device.id].warnings++;
-          console.log(`   ⚠️  [${route.path}] PASS with warnings — ${warnings.map((w) => w.message).join('; ')}`);
-        } else {
-          passedTests++;
-          console.log(`   ✅ [${route.path}] PASS (${response.status} OK)`);
+          console.log(`   ❌ [${route.path}] ERROR — ${err.message}`);
+          resultsByDevice[device.id].routes.push({
+            path: route.path,
+            status: 0,
+            error: err.message,
+          });
         }
-
-        resultsByDevice[device.id].routes.push({
-          path: route.path,
-          status: response.status,
-          issues,
-        });
-      } catch (err) {
-        failedTests++;
-        resultsByDevice[device.id].failures++;
-        console.log(`   ❌ [${route.path}] ERROR — ${err.message}`);
-        resultsByDevice[device.id].routes.push({
-          path: route.path,
-          status: 0,
-          error: err.message,
-        });
       }
+      console.log('');
     }
-    console.log('');
+
+    // -------------------------------------------------------------------------
+    // Summary Report
+    // -------------------------------------------------------------------------
+    const totalTests = passedTests + warningTests + failedTests;
+    console.log('='.repeat(80));
+    console.log('   QUALITY AUDIT SUMMARY REPORT');
+    console.log('='.repeat(80));
+    console.log(`Total Matrix Validations: ${totalTests}`);
+    console.log(`Passed (100% Clean):     ${passedTests} (${((passedTests / totalTests) * 100).toFixed(1)}%)`);
+    console.log(`Warnings (Non-critical): ${warningTests}`);
+    console.log(`Failures (Critical):     ${failedTests}`);
+    console.log('-'.repeat(80));
+
+    console.log('\nDevice Compatibility Summary:');
+    for (const [, data] of Object.entries(resultsByDevice)) {
+      const badge = data.failures === 0 ? '✅ 100% COMPATIBLE' : `❌ ${data.failures} FAILURES`;
+      console.log(` - ${data.device.name.padEnd(36)} [${data.device.width}x${data.device.height}]: ${badge}`);
+    }
+
+    console.log('\n' + '='.repeat(80));
+    if (failedTests === 0) {
+      console.log('🎉 AUDIT PASSED: Application is 100% capable across Mobile, Tablet, and Desktop!');
+    } else {
+      console.log('⚠️ AUDIT COMPLETED WITH ISSUES: Review the error logs above.');
+    }
+    console.log('='.repeat(80) + '\n');
+
+    return { passedTests, warningTests, failedTests, resultsByDevice };
+  } finally {
+    if (spawnedServer) {
+      console.log('🧹 Terminating auto-spawned Next.js server...');
+      try {
+        if (process.platform === 'win32') {
+          spawn('taskkill', ['/pid', spawnedServer.pid.toString(), '/T', '/F']);
+        } else {
+          spawnedServer.kill('SIGTERM');
+        }
+      } catch {}
+    }
   }
-
-  // -------------------------------------------------------------------------
-  // Summary Report
-  // -------------------------------------------------------------------------
-  const totalTests = passedTests + warningTests + failedTests;
-  console.log('='.repeat(80));
-  console.log('   QUALITY AUDIT SUMMARY REPORT');
-  console.log('='.repeat(80));
-  console.log(`Total Matrix Validations: ${totalTests}`);
-  console.log(`Passed (100% Clean):     ${passedTests} (${((passedTests / totalTests) * 100).toFixed(1)}%)`);
-  console.log(`Warnings (Non-critical): ${warningTests}`);
-  console.log(`Failures (Critical):     ${failedTests}`);
-  console.log('-'.repeat(80));
-
-  console.log('\nDevice Compatibility Summary:');
-  for (const [, data] of Object.entries(resultsByDevice)) {
-    const badge = data.failures === 0 ? '✅ 100% COMPATIBLE' : `❌ ${data.failures} FAILURES`;
-    console.log(` - ${data.device.name.padEnd(36)} [${data.device.width}x${data.device.height}]: ${badge}`);
-  }
-
-  console.log('\n' + '='.repeat(80));
-  if (failedTests === 0) {
-    console.log('🎉 AUDIT PASSED: Application is 100% capable across Mobile, Tablet, and Desktop!');
-  } else {
-    console.log('⚠️ AUDIT COMPLETED WITH ISSUES: Review the error logs above.');
-  }
-  console.log('='.repeat(80) + '\n');
-
-  return { passedTests, warningTests, failedTests, resultsByDevice };
 }
 
 // Execute if run directly
 if (process.argv[1]?.endsWith('device-checker.mjs')) {
-  runQualityChecker().catch((err) => {
-    console.error('Fatal execution error:', err);
-    process.exit(1);
-  });
+  runQualityChecker()
+    .then(({ failedTests }) => {
+      if (failedTests > 0) {
+        console.error(`❌ Cross-device checks failed with ${failedTests} critical errors.`);
+        process.exit(1);
+      }
+      process.exit(0);
+    })
+    .catch((err) => {
+      console.error('Fatal execution error:', err);
+      process.exit(1);
+    });
 }

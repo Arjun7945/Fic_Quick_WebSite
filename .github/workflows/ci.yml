@@ -33,6 +33,9 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Generate Build Manifests & Metadata
+        run: npm run generate
+
       - name: Brand Spelling Verification
         run: npm run check:brand
 
@@ -54,6 +57,16 @@ jobs:
           ORDER_ID_MODE: "sheet-row"
           RATE_LIMIT_STORE: "memory"
         run: npm run build
+
+      - name: Cross-Device & Viewport Responsiveness Checks
+        env:
+          NODE_ENV: production
+          NEXT_PUBLIC_WHATSAPP_NUMBER: "916282000729"
+          NEXT_PUBLIC_SITE_URL: "https://ficcado.in"
+          NEXT_PUBLIC_PRIVACY_EMAIL: "ficcado.clothing@gmail.com"
+          ORDER_ID_MODE: "sheet-row"
+          RATE_LIMIT_STORE: "memory"
+        run: npm run check:devices
 
   deploy:
     name: Deploy to Netlify
