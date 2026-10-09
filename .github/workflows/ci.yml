@@ -1,0 +1,103 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, fic/website]
+  pull_request:
+    branches: [main, fic/website]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Lint, Test & Build Validation
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ficcado-website-frontend
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: ficcado-website-frontend/package-lock.json
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Generate Build Manifests & Metadata
+        run: npm run generate
+
+      - name: Brand Spelling Verification
+        run: npm run check:brand
+
+      - name: ESLint Code Quality
+        run: npm run lint
+
+      - name: TypeScript Typecheck
+        run: npm run typecheck
+
+      - name: Automated Unit & Concurrency Tests
+        run: npm test
+
+      - name: Production Build Verification
+        env:
+          NODE_ENV: production
+          NEXT_PUBLIC_WHATSAPP_NUMBER: "916282000729"
+          NEXT_PUBLIC_SITE_URL: "https://ficcado.in"
+          NEXT_PUBLIC_PRIVACY_EMAIL: "ficcado.clothing@gmail.com"
+          ORDER_ID_MODE: "sheet-row"
+          RATE_LIMIT_STORE: "memory"
+        run: npm run build
+
+      - name: Cross-Device & Viewport Responsiveness Checks
+        env:
+          NODE_ENV: production
+          NEXT_PUBLIC_WHATSAPP_NUMBER: "916282000729"
+          NEXT_PUBLIC_SITE_URL: "https://ficcado.in"
+          NEXT_PUBLIC_PRIVACY_EMAIL: "ficcado.clothing@gmail.com"
+          ORDER_ID_MODE: "sheet-row"
+          RATE_LIMIT_STORE: "memory"
+        run: npm run check:devices
+
+  deploy:
+    name: Deploy to Netlify
+    needs: validate
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fic/website')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: ficcado-website-frontend/package-lock.json
+
+      - name: Install Dependencies
+        run: npm ci
+        working-directory: ficcado-website-frontend
+
+      - name: Deploy to Netlify
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          if [ -n "$NETLIFY_AUTH_TOKEN" ] && [ -n "$NETLIFY_SITE_ID" ]; then
+            echo "Deploying production build to Netlify..."
+            npx netlify-cli deploy --build --prod --auth "$NETLIFY_AUTH_TOKEN" --site "$NETLIFY_SITE_ID"
+          else
+            echo "NETLIFY_AUTH_TOKEN or NETLIFY_SITE_ID secret not set in GitHub repository."
+            echo "Skipping GitHub Actions CLI deploy. If using Netlify Git Integration, Netlify will auto-deploy on push."
+          fi

@@ -1,0 +1,56 @@
+# =============================================================================
+# Netlify Configuration — Ficcado E-Commerce / Showcase
+# Single canonical Netlify configuration file per D13 & Scope Item 6
+# =============================================================================
+
+[build]
+  base = "ficcado-website-frontend"
+  command = "npm run build"
+  publish = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# -----------------------------------------------------------------------------
+# Global Security Headers (D13: CSP Report-Only, modern security headers, HSTS max-age=31536000)
+# -----------------------------------------------------------------------------
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=()"
+    Strict-Transport-Security = "max-age=31536000"
+    Content-Security-Policy-Report-Only = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https:; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https://api.whatsapp.com https://wa.me;"
+
+# -----------------------------------------------------------------------------
+# API Route Cache Protections (Item 6: no-store on /api/orders and /api/inquiry)
+# -----------------------------------------------------------------------------
+[[headers]]
+  for = "/api/orders"
+  [headers.values]
+    Cache-Control = "no-store, no-cache, must-revalidate, proxy-revalidate"
+
+[[headers]]
+  for = "/api/inquiry"
+  [headers.values]
+    Cache-Control = "no-store, no-cache, must-revalidate, proxy-revalidate"
+
+# -----------------------------------------------------------------------------
+# Static Asset Caching
+# -----------------------------------------------------------------------------
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

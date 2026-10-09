@@ -1,0 +1,1 @@
+reference_id,created_at,status,final_order_id,customer_name,customer_email,customer_phone,address_line1,address_line2,city,state,pincode,landmark,courier_partner_id,courier_partner_name,delivery_charge,subtotal,total_amount,item_count,items_summary,items_json,submission_id
