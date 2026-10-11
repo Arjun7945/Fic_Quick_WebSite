@@ -1,9 +1,11 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Sparkles, Clock } from 'lucide-react';
 import { CATEGORIES_CONFIG, getCategoryBySlug, isCategoryLive } from '@/config/categories';
 import { ProductCard } from '@/components/ui/ProductCard';
+import { CategoryProductGrid } from '@/components/category/CategoryProductGrid';
 import { getProducts } from '@/lib/products';
 import { getSiteUrl } from '@/lib/siteUrl';
 
@@ -192,19 +194,17 @@ export default async function CategoryDetailPage({ params }: CategoryPageProps) 
         </p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 pt-2">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} priority={true} />
-        ))}
-      </div>
-
-      {products.length === 0 && (
-        <div className="card p-12 text-center rounded-3xl bg-[var(--bg-surface)]">
-          <p className="text-sm font-semibold text-[var(--text-muted)]">
-            New items are currently being added to this collection. Check back shortly!
-          </p>
-        </div>
-      )}
+      <Suspense
+        fallback={
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 pt-2">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} priority={true} />
+            ))}
+          </div>
+        }
+      >
+        <CategoryProductGrid initialProducts={products} categoryName={category.name} />
+      </Suspense>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-# AGENT BRIEF: Fikado Team – Audit, Optimize & Convert to Google Sheets + Netlify
+# AGENT BRIEF: Fikado Team – Audit, Optimize & Convert to Google Sheets + Vercel
 
 > **Read this entire file before touching any code.**
 > You are working inside an existing **Next.js** project for **Fikado Team**: a portfolio + e-commerce website that sells clothing (t-shirts, shirts, etc.). Your job has three phases: **Understand → Plan (write `EXPANSION.md`) → Implement**.
@@ -8,7 +8,7 @@
 ## 1. Background & Business Context
 
 - The project was originally designed to use a backend (Spring Boot) and a database.
-- **The client has asked for a simpler setup:** no custom backend, no database. The site will be hosted on **Netlify** and later connected to a **GoDaddy** domain.
+- **The client has asked for a simpler setup:** no custom backend, no database. The site will be hosted on **Vercel** and later connected to a **GoDaddy** domain.
 - **Google Sheets replaces the database.**
   - Products shown on the site are currently hard-coded in the code → they must come from Google Sheets.
   - Inquiries / requests / orders submitted by visitors must be **saved into Google Sheets**.
@@ -47,13 +47,13 @@ Flag anything ambiguous and ask me **before** proceeding if a decision could bre
 In the project root, create **`EXPANSION.md`** *before* making large changes. It must explain, in clear language, the following sections:
 
 1. **Current Architecture Summary** – what the app is today, what you found in Phase 1.
-2. **Target Architecture** – Next.js on Netlify + Google Sheets as data store (include a simple diagram in Mermaid or ASCII).
+2. **Target Architecture** – Next.js on Vercel + Google Sheets as data store (include a simple diagram in Mermaid or ASCII).
 3. **List of Planned Changes** – grouped by: Data layer, Images/assets, Performance, Forms/Inquiries, Security, Deployment, Cleanup.
 4. **Google Sheets Design** – tabs, column schemas, how reads and writes work (see Section 5).
 5. **Image & Asset Strategy** – folder structure, naming rules, formats, how to add new products (see Section 4).
 6. **Performance Plan** – techniques, budgets, and how each is verified (see Section 6).
 7. **High-Traffic Plan (1,000+ concurrent users)** – caching layers, rate-limit protection, failure fallbacks (see Section 7).
-8. **Netlify Deployment Plan** – config, env vars, build settings (see Section 8).
+8. **Vercel Deployment Plan** – config, env vars, build settings (see Section 8).
 9. **GoDaddy Domain Plan** – DNS steps (see Section 9).
 10. **Risks & Trade-offs** – e.g., Google Sheets API quotas, no real-time inventory, spam risk.
 11. **Pre-Launch Checklist** – with checkboxes you tick off as you complete them.
@@ -157,7 +157,7 @@ Migrate **all existing hard-coded product data** into the Products tab format an
 Google Sheets API has strict quotas. With 1,000+ users, reading the sheet per visit **will fail**. Therefore:
 
 - Fetch products **on the server** using the Google Sheets API (service account) or a published-CSV fallback, and **cache the result**.
-- Prefer **static generation with ISR** (`revalidate`, e.g., 300–600 seconds) or `fetch` with `next: { revalidate }` / cache tags, so visitors are served pre-built pages from Netlify's CDN.
+- Prefer **static generation with ISR** (`revalidate`, e.g., 300–600 seconds) or `fetch` with `next: { revalidate }` / cache tags, so visitors are served pre-built pages from Vercel's CDN.
 - Add an optional **on-demand revalidation endpoint** (secured by a secret token) so editing the sheet can trigger a refresh (e.g., via Apps Script `onEdit` → webhook).
 - Add a **build-time snapshot**: at build, write `data/products.snapshot.json`. If Sheets is unreachable at runtime or build, **fall back to the last snapshot** so the site never goes blank.
 - Validate all sheet data with a schema (e.g., **zod**): trim strings, coerce numbers/booleans, skip invalid rows with a logged warning (don't crash the page).
@@ -229,10 +229,10 @@ Do all of the following where applicable:
 
 The architecture must make sure **visitors almost never trigger work on your servers or Google**:
 
-1. **CDN-first:** pages, JS, CSS, fonts, and images served from Netlify's global CDN with long cache lifetimes. Hashed static assets: `Cache-Control: public, max-age=31536000, immutable`.
+1. **CDN-first:** pages, JS, CSS, fonts, and images served from Vercel's global CDN with long cache lifetimes. Hashed static assets: `Cache-Control: public, max-age=31536000, immutable`.
 2. **Static + ISR for all product/portfolio pages** – no per-request Sheets reads.
 3. **Sheets protection layers:** ISR cache → in-memory cache (short TTL) → build-time JSON snapshot fallback.
-4. **Image optimization at the edge** via Netlify's image CDN / `next/image` (so no image is processed per visit more than once).
+4. **Image optimization at the edge** via Vercel's image CDN / `next/image` (so no image is processed per visit more than once).
 5. **Inquiry endpoint** is the only dynamic write path: keep it light, rate-limited, validated, and resilient (retry/backoff, graceful errors).
 6. **Graceful degradation:** if Google Sheets is down, the site still loads (snapshot), and inquiry forms show a helpful message with a fallback contact method (email/WhatsApp from config).
 7. **No layout shift / no font flash / no broken images** under load: fixed image dimensions, `next/font`, skeletons, placeholders.
@@ -242,10 +242,10 @@ Be honest in `EXPANSION.md` about the **Google Sheets API quota limits** and whe
 
 ---
 
-## 8. Netlify Deployment Preparation
+## 8. Vercel Deployment Preparation
 
-- Confirm the Next.js version works with Netlify's current Next.js runtime (OpenNext-based adapter). Check Netlify's current docs rather than assuming; if a plugin or version pin is needed, add it.
-- Create **`netlify.toml`** with:
+- Confirm the Next.js version works with Vercel's current Next.js runtime (OpenNext-based adapter). Check Vercel's current docs rather than assuming; if a plugin or version pin is needed, add it.
+- Create **`next.config.ts`** with:
   - build command and publish settings appropriate to the project,
   - Node version pin,
   - security + caching headers (static assets immutable; HTML short/revalidate; `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`/frame-ancestors, a sensible CSP if feasible without breaking the app),
@@ -258,7 +258,7 @@ Be honest in `EXPANSION.md` about the **Google Sheets API quota limits** and whe
   - `NEXT_PUBLIC_SITE_URL`
   - (any Apps Script URL / captcha keys if used)
 - Make sure `.gitignore` excludes `.env*` (except `.env.example`), `.next`, `node_modules`.
-- Write **`docs/DEPLOYMENT.md`**: step-by-step for me (push to GitHub → connect repo in Netlify → add env vars → deploy → verify), including how to set up the Google Cloud service account and share the sheet with it.
+- Write **`docs/DEPLOYMENT.md`**: step-by-step for me (push to GitHub → connect repo in Vercel → add env vars → deploy → verify), including how to set up the Google Cloud service account and share the sheet with it.
 - Provide a **post-deploy smoke test checklist** (home loads, products show, inquiry saves to sheet, images/fonts load, 404 page works, sitemap reachable).
 
 ---
@@ -267,13 +267,13 @@ Be honest in `EXPANSION.md` about the **Google Sheets API quota limits** and whe
 
 In `docs/DEPLOYMENT.md`, include clear steps for connecting the custom domain:
 
-1. Add the custom domain in Netlify (Domain management).
-2. In GoDaddy DNS: set the records Netlify instructs for the apex domain and a **CNAME for `www`** pointing to the Netlify site subdomain. **Use the exact values shown in the Netlify dashboard / current Netlify docs** – do not hard-code IPs from memory.
+1. Add the custom domain in Vercel (Domain management).
+2. In GoDaddy DNS: set the records Vercel instructs for the apex domain and a **CNAME for `www`** pointing to the Vercel site subdomain. **Use the exact values shown in the Vercel dashboard / current Vercel docs** – do not hard-code IPs from memory.
 3. Remove conflicting default GoDaddy records (parked A record, etc.).
-4. Enable HTTPS (Netlify's automatic certificate) and force HTTPS.
+4. Enable HTTPS (Vercel's automatic certificate) and force HTTPS.
 5. Set the primary domain (apex or `www`) and redirect the other.
 6. Note DNS propagation time and how to verify.
-7. Mention the alternative of delegating DNS to Netlify DNS and its trade-offs.
+7. Mention the alternative of delegating DNS to Vercel DNS and its trade-offs.
 
 ---
 
@@ -304,8 +304,8 @@ In `docs/DEPLOYMENT.md`, include clear steps for connecting the custom domain:
 - [ ] Spring Boot / backend / localhost code and unused dependencies removed
 - [ ] `next/font`, `next/image`, dynamic imports, script deferral applied
 - [ ] SEO: metadata, sitemap, robots, JSON-LD, alt text
-- [ ] `netlify.toml`, `.env.example`, `.gitignore` verified
-- [ ] `docs/DEPLOYMENT.md` (Netlify + Google service account + GoDaddy)
+- [ ] `next.config.ts`, `.env.example`, `.gitignore` verified
+- [ ] `docs/DEPLOYMENT.md` (Vercel + Google service account + GoDaddy)
 - [ ] Load-test plan/scripts in `scripts/loadtest/`
 - [ ] Clean `npm run build` with zero errors
 - [ ] Before/after performance scores recorded in `EXPANSION.md`

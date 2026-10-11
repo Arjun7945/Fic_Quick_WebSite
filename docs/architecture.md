@@ -9,15 +9,15 @@
 
 ## 1. System Overview
 
-Ficcado is built on Next.js 16 (App Router) deployed to Netlify with Google Sheets serving as the dynamic datastore. It eliminates SQL database hosting overhead while providing an immediately editable administrative spreadsheet interface for inventory, pricing, courier partner rates, and order tracking.
+Ficcado is built on Next.js 16 (App Router) deployed to Vercel with Google Sheets serving as the dynamic datastore. It eliminates SQL database hosting overhead while providing an immediately editable administrative spreadsheet interface for inventory, pricing, courier partner rates, and order tracking.
 
 ```mermaid
 graph TD
-    User([Customer Browser]) --> CDN[Netlify CDN / Edge Network]
+    User([Customer Browser]) --> CDN[Vercel Global Edge Network]
     CDN --> NextStatic[Static Pre-rendered Routes / Images]
     CDN --> NextSSR[Next.js App Router Functions]
     
-    subgraph Serverless Functions [Netlify Next.js Serverless Execution]
+    subgraph Serverless Functions [Vercel Serverless Function Execution]
         NextSSR --> PageSSR[Dynamic Pages: /, /categories/slug]
         NextSSR --> APIRoutes[API Routes: /api/orders, /api/products, /api/inquiry, /api/delivery-options]
         APIRoutes --> LibSheets[src/lib/sheets/client.ts RS256 JWT]
@@ -121,9 +121,9 @@ Google Sheets API v4 limits are **60 read requests per minute per user** and **6
 
 | Resource | Cache Layer | TTL / Strategy | Purpose |
 |---|---|---|---|
-| `/_next/static/*` | Netlify CDN / Browser | `max-age=31536000, immutable` | Permanent caching for hashed static build chunks |
-| `/images/*` | Netlify CDN / Browser | `max-age=86400, stale-while-revalidate=604800` | 1-day edge cache with 7-day background refresh |
-| `/fonts/*` | Netlify CDN / Browser | `max-age=31536000, immutable` | Permanent font asset caching |
+| `/_next/static/*` | Vercel Edge / Browser | `max-age=31536000, immutable` | Permanent caching for hashed static build chunks |
+| `/images/*` | Vercel Edge / Browser | `max-age=86400, stale-while-revalidate=604800` | 1-day edge cache with 7-day background refresh |
+| `/fonts/*` | Vercel Edge / Browser | `max-age=31536000, immutable` | Permanent font asset caching |
 | Product Catalog Cache | Node.js Memory & Snapshot | Shared cached object + build-time snapshot | Fallback cache during Google API downtime |
 | Google OAuth2 Bearer Token | In-Memory Object | 3600s with 300s margin | Reuses access token across serverless requests |
 
@@ -141,10 +141,9 @@ Application-layer rate limiting is enforced via `/src/lib/rateLimit.ts` using Up
 | `/api/products` | GET | 60 s (1 min) | 60 per IP | Upstash (`rl:products:<ip>`) / Mem | 429 `{ error: { code: 'RATE_LIMIT_EXCEEDED', message: '...' } }` |
 | `/api/delivery-options` | GET | 60 s (1 min) | 60 per IP | Upstash (`rl:delivery:<ip>`) / Mem | 429 `{ error: { code: 'RATE_LIMIT_EXCEEDED', message: '...' } }` |
 
-### Platform Rate Limiting Evaluation (Netlify)
-- **Netlify Free / Starter & Pro Plans:** Do **not** provide configurable edge/WAF rate-limiting rules. Standard CDN DDoS mitigations operate globally at Layer 4/7, but custom per-endpoint IP rate limiting is unavailable.
-- **Netlify Enterprise:** Includes Advanced Rate Limiting / WAF capabilities at the edge.
-- **Architectural Decision (D2):** Application relies on Upstash REST rate limiting with fail-open in-memory sliding window fallback, ensuring protection across all Netlify plan tiers without blocking legitimate traffic if Redis is momentarily unreachable.
+### Platform Rate Limiting Evaluation (Vercel)
+- **Vercel Edge Network:** Edge DDoS mitigations operate globally at Layer 4/7, providing fast Anycast routing.
+- **Architectural Decision (D2):** Application enforces Upstash REST rate limiting with fail-open in-memory sliding window fallback, ensuring robust application-layer protection across all deployment tiers without blocking legitimate traffic if Redis is momentarily unreachable.
 
 ---
 
@@ -171,15 +170,15 @@ Application-layer rate limiting is enforced via `/src/lib/rateLimit.ts` using Up
 
 ### 6.1 Rotating Google Service Account Keys
 1. In Google Cloud Console: IAM & Admin → Service Accounts → generate new JSON key.
-2. In Netlify Site Settings: update `GOOGLE_SERVICE_ACCOUNT_EMAIL` and `GOOGLE_PRIVATE_KEY` with new credentials.
+2. In Vercel Project Settings: update `GOOGLE_SERVICE_ACCOUNT_EMAIL` and `GOOGLE_PRIVATE_KEY` with new credentials.
 3. Delete previous key in Google Cloud Console.
 
 ### 6.2 Traffic Spikes & 429 Handling
-1. With ISR enabled, public traffic is absorbed by Netlify CDN.
+1. With ISR enabled, public traffic is absorbed by Vercel Global Edge Network.
 2. Order writes automatically engage offline reference IDs (`FIC-T...`) if Google Sheets operations exceed 8 seconds.
 
 ### 6.3 Updating Public WhatsApp Business Number
-1. Update `NEXT_PUBLIC_WHATSAPP_NUMBER` in Netlify Environment Variables.
+1. Update `NEXT_PUBLIC_WHATSAPP_NUMBER` in Vercel Project Environment Variables.
 2. Trigger production rebuild (as `NEXT_PUBLIC_*` values are embedded into client JavaScript at build time).
 
 ---

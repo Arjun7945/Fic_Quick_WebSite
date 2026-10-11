@@ -63,6 +63,7 @@ export function DesktopHeader() {
                 sizes="40px"
                 className="object-contain p-0.5"
                 priority
+                loading="eager"
               />
             </div>
             <div>

@@ -26,13 +26,16 @@ import {
   ShoppingBag,
   HelpCircle,
   Feather,
+  Cookie,
 } from 'lucide-react';
 import { useModal } from '@/context/ModalContext';
 import { useCart } from '@/context/CartContext';
+import { useConsent } from '@/context/ConsentContext';
 import { BRAND } from '@/config/site';
 
 export function MobileNavDrawer() {
   const { activeModal, closeModal, openModal } = useModal();
+  const { openSettings: openConsentSettings } = useConsent();
   const pathname = usePathname();
   const { totalItemsCount, subtotalAmount } = useCart();
   const [isClosing, setIsClosing] = useState(false);
@@ -89,6 +92,8 @@ export function MobileNavDrawer() {
                 fill
                 sizes="36px"
                 className="object-contain p-0.5"
+                priority
+                loading="eager"
               />
             </div>
             <div>
@@ -318,6 +323,30 @@ export function MobileNavDrawer() {
                 <span>Shipping & Delivery Speeds</span>
               </div>
             </Link>
+
+            <Link
+              href="/cookies"
+              onClick={navigateTo}
+              className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <Cookie size={15} className="text-gray-400" />
+                <span>Cookie & Storage Policy</span>
+              </div>
+            </Link>
+
+            <button
+              onClick={() => {
+                handleClose();
+                openConsentSettings();
+              }}
+              className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors cursor-pointer text-left"
+            >
+              <div className="flex items-center gap-3">
+                <Settings size={15} className="text-gray-400" />
+                <span>Manage Cookie Settings</span>
+              </div>
+            </button>
           </div>
         </div>
 

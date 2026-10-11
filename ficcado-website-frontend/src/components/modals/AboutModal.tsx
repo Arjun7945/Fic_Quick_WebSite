@@ -66,6 +66,8 @@ export function AboutModal() {
                   fill
                   sizes="48px"
                   className="object-contain p-1"
+                  priority
+                  loading="eager"
                 />
               </div>
               <h2 className="text-xl font-900 leading-tight" style={{ fontWeight: 900, color: 'var(--text-main)' }}>

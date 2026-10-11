@@ -2,24 +2,43 @@
 
 // =============================================================================
 // Home Storefront View — /src/components/home/HomeView.tsx
-// Renders live catalog items fetched server-side from Google Sheets
+// Renders live catalog items fetched server-side from Google Sheets.
+// Full 2-way synchronization with URL search parameters for FilterModal
+// (category, price min/max, sizes, colors, sort).
 // =============================================================================
 
-import { useState } from 'react';
+import { useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Search, SlidersHorizontal, Settings, Menu } from 'lucide-react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { Search, SlidersHorizontal, Settings, Menu, X } from 'lucide-react';
 import { useModal } from '@/context/ModalContext';
 import { ProductCard } from '@/components/ui/ProductCard';
 import { getLiveCategories } from '@/config/categories';
+import { getColorName } from '@/lib/colors';
 import type { Product } from '@/types';
 
 interface HomeViewProps {
   initialProducts: Product[];
 }
 
+function matchesColors(productColors: string[], selectedColors: string[]): boolean {
+  if (selectedColors.length === 0) return true;
+  return productColors.some((pColor) => {
+    const pClean = pColor.trim().toLowerCase();
+    const pName = getColorName(pClean).toLowerCase();
+    return selectedColors.some((sColor) => {
+      const decoded = decodeURIComponent(sColor).trim().toLowerCase();
+      const sName = getColorName(decoded).toLowerCase();
+      return pClean === decoded || pName === decoded || pName === sName;
+    });
+  });
+}
+
 export function HomeView({ initialProducts }: HomeViewProps) {
-  const [activeCategory, setActiveCategory] = useState('all');
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { openModal, openProductModal } = useModal();
 
   const liveCategories = getLiveCategories();
@@ -28,12 +47,93 @@ export function HomeView({ initialProducts }: HomeViewProps) {
     ...liveCategories.map((c) => ({ label: c.name, slug: c.slug })),
   ];
 
+  // Parse active filter parameters from URL
+  const categoryParam = searchParams.get('category') || searchParams.get('categories') || 'all';
+  const sizesParam = useMemo(() => {
+    const val = searchParams.get('sizes');
+    return val ? val.split(',').map((s) => s.trim().toUpperCase()).filter(Boolean) : [];
+  }, [searchParams]);
+
+  const colorsParam = useMemo(() => {
+    const val = searchParams.get('colors');
+    return val ? val.split(',').map((c) => c.trim()).filter(Boolean) : [];
+  }, [searchParams]);
+
+  const minPrice = useMemo(() => {
+    const val = searchParams.get('min') || searchParams.get('minPrice');
+    return val ? Math.max(1, Number(val)) : 1;
+  }, [searchParams]);
+
+  const maxPrice = useMemo(() => {
+    const val = searchParams.get('max') || searchParams.get('maxPrice');
+    return val ? Math.max(1, Number(val)) : 5000;
+  }, [searchParams]);
+
+  const sortParam = searchParams.get('sort') || '';
+
+  // Active filter count calculation
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (categoryParam !== 'all') count += 1;
+    if (sizesParam.length > 0) count += sizesParam.length;
+    if (colorsParam.length > 0) count += colorsParam.length;
+    if (minPrice > 1 || maxPrice < 5000) count += 1;
+    if (sortParam) count += 1;
+    return count;
+  }, [categoryParam, sizesParam, colorsParam, minPrice, maxPrice, sortParam]);
+
   const products = (initialProducts || []).filter((p) => p.inStock);
 
-  const filteredProducts =
-    activeCategory === 'all'
-      ? products
-      : products.filter((p) => p.category === activeCategory);
+  // Apply filters strictly
+  const filteredProducts = useMemo(() => {
+    let list = products.filter((p) => {
+      // 1. Category check
+      if (categoryParam !== 'all' && p.category !== categoryParam) {
+        return false;
+      }
+      // 2. Price bounds check
+      if (p.price < minPrice || p.price > maxPrice) {
+        return false;
+      }
+      // 3. Sizes check
+      if (sizesParam.length > 0) {
+        const hasSize = p.sizes.some((s) => sizesParam.includes(s.toUpperCase()));
+        if (!hasSize) return false;
+      }
+      // 4. Colors check
+      if (colorsParam.length > 0) {
+        if (!matchesColors(p.colors, colorsParam)) return false;
+      }
+      return true;
+    });
+
+    // 5. Sorting
+    if (sortParam === 'price-asc') {
+      list = [...list].sort((a, b) => a.price - b.price);
+    } else if (sortParam === 'price-desc') {
+      list = [...list].sort((a, b) => b.price - a.price);
+    } else if (sortParam === 'rating') {
+      list = [...list].sort((a, b) => b.rating - a.rating);
+    }
+
+    return list;
+  }, [products, categoryParam, minPrice, maxPrice, sizesParam, colorsParam, sortParam]);
+
+  function handleCategorySelect(slug: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (slug === 'all') {
+      params.delete('category');
+      params.delete('categories');
+    } else {
+      params.set('category', slug);
+    }
+    const qs = params.toString();
+    router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }
+
+  function handleClearFilters() {
+    router.push(pathname, { scroll: false });
+  }
 
   const heroFeaturedProduct = products.length > 0 ? products[0] : null;
 
@@ -64,6 +164,7 @@ export function HomeView({ initialProducts }: HomeViewProps) {
                 sizes="32px"
                 className="object-contain p-0.5"
                 priority
+                loading="eager"
               />
             </div>
             <span className="text-sm font-900 tracking-tight text-[var(--text-main)]">FICCADO</span>
@@ -101,18 +202,23 @@ export function HomeView({ initialProducts }: HomeViewProps) {
         <button
           id="home-filter-btn"
           onClick={() => openModal('filterModal')}
-          className="btn-icon h-10 w-10 cursor-pointer"
+          className="relative btn-icon h-10 w-10 cursor-pointer"
           style={{ background: 'var(--primary-light)', borderRadius: 'var(--radius-sm)' }}
           aria-label="Open filters"
         >
           <SlidersHorizontal size={17} style={{ color: 'var(--primary)' }} />
+          {activeFilterCount > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--primary)] text-[9px] font-bold text-white shadow-xs">
+              {activeFilterCount}
+            </span>
+          )}
         </button>
       </div>
 
       <div className="no-scrollbar flex-1 overflow-y-auto">
         {/* Hero Banner Drop with Ghost Shimmer Backdrop */}
         <div
-          className="relative mx-4 md:mx-0 mt-4 md:mt-2 md:mb-6 overflow-hidden rounded-3xl h-[220px] md:h-[360px] skeleton"
+          className="relative mx-4 md:mx-0 mt-4 md:mt-2 md:mb-6 overflow-hidden rounded-3xl h-[220px] md:h-[360px]"
           style={{ borderRadius: 'var(--radius-lg)' }}
         >
           <Image
@@ -174,12 +280,12 @@ export function HomeView({ initialProducts }: HomeViewProps) {
         <div className="flex items-center justify-between px-4 md:px-0 pt-4 pb-2">
           <div className="scroll-row gap-2 md:gap-3">
             {categoryPills.map((cat) => {
-              const isActive = activeCategory === cat.slug;
+              const isActive = categoryParam === cat.slug;
               return (
                 <button
                   key={cat.slug}
                   id={`pill-${cat.slug}`}
-                  onClick={() => setActiveCategory(cat.slug)}
+                  onClick={() => handleCategorySelect(cat.slug)}
                   className="rounded-full px-4 md:px-5 py-1.5 md:py-2 text-xs md:text-sm font-semibold whitespace-nowrap transition-all active:scale-95 cursor-pointer"
                   style={{
                     background: isActive ? 'var(--primary)' : 'var(--bg-surface)',
@@ -197,19 +303,36 @@ export function HomeView({ initialProducts }: HomeViewProps) {
 
           {/* Desktop Filter Drawer Trigger */}
           <button
+            id="desktop-home-filter-btn"
             onClick={() => openModal('filterModal')}
             className="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl border border-[var(--border-light)] bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-alt)] text-xs font-bold text-[var(--text-main)] transition-colors shrink-0 cursor-pointer"
           >
             <SlidersHorizontal size={14} className="text-[var(--primary)]" />
             <span>Filters</span>
+            {activeFilterCount > 0 && (
+              <span className="flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[var(--primary)] text-[10px] font-bold text-white">
+                {activeFilterCount}
+              </span>
+            )}
           </button>
         </div>
 
         {/* Section header */}
         <div className="flex items-center justify-between px-4 md:px-0 pt-4 pb-2">
-          <h2 className="text-base md:text-xl font-800" style={{ fontWeight: 800, color: 'var(--text-main)' }}>
-            Available Wear Drops
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-base md:text-xl font-800" style={{ fontWeight: 800, color: 'var(--text-main)' }}>
+              Available Wear Drops
+            </h2>
+            {activeFilterCount > 0 && (
+              <button
+                onClick={handleClearFilters}
+                className="flex items-center gap-1 text-xs font-semibold text-[var(--primary)] hover:underline cursor-pointer"
+              >
+                <X size={12} />
+                <span>Clear filters</span>
+              </button>
+            )}
+          </div>
           <span className="text-xs md:text-sm font-semibold text-[var(--text-muted)]">
             {filteredProducts.length} Item{filteredProducts.length !== 1 ? 's' : ''} in Catalog
           </span>
@@ -228,13 +351,21 @@ export function HomeView({ initialProducts }: HomeViewProps) {
             <p className="text-sm font-bold text-[var(--text-main)]">
               {products.length === 0
                 ? 'Catalog temporarily unavailable'
-                : 'No items in this category'}
+                : 'No items match your filter selection'}
             </p>
             <p className="text-xs text-[var(--text-muted)] max-w-sm">
               {products.length === 0
                 ? 'Please check back shortly or connect with our team on WhatsApp.'
-                : 'Please check other categories or browse all t-shirt drops.'}
+                : 'Try expanding your price range, clearing color/size filters, or selecting All categories.'}
             </p>
+            {activeFilterCount > 0 && (
+              <button
+                onClick={handleClearFilters}
+                className="rounded-full px-4 py-2 text-xs font-bold text-white bg-[var(--primary)] hover:opacity-90 active:scale-95 transition-all mt-2 cursor-pointer"
+              >
+                Reset All Filters
+              </button>
+            )}
             {products.length === 0 && (
               <a
                 href="https://wa.me/916282000729"

@@ -213,6 +213,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                             (platform === 'MacIntel' && navigator.maxTouchPoints > 1) ||
                             search.indexOf('_mvua=mv-ios') !== -1 ||
                             (window.name && /iphone|ios|ipad/i.test(window.name)) ||
+                            (typeof CSS !== 'undefined' && CSS.supports && CSS.supports('-webkit-touch-callout', 'none')) ||
                             (function(){ try { return sessionStorage.getItem('fc_is_ios') === '1'; } catch(e){ return false; } })();
 
                 if (isIOS) {

@@ -199,6 +199,8 @@ export default function AboutPage() {
                     fill
                     sizes="48px"
                     className="object-contain p-1"
+                    priority
+                    loading="eager"
                   />
                 </div>
 

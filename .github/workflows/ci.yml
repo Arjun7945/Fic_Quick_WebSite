@@ -2,18 +2,22 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main, fic/website]
+    branches: [main]
   pull_request:
-    branches: [main, fic/website]
+    branches: [main]
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
-  validate:
+  test:
     name: Lint, Test & Build Validation
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     defaults:
       run:
@@ -69,10 +73,16 @@ jobs:
         run: npm run check:devices
 
   deploy:
-    name: Deploy to Netlify
-    needs: validate
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fic/website')
+    name: Deploy to Vercel (Production)
+    needs: test
+    # Production deployment is strictly reserved for 'main'. Feature branches (such as 'fic/website') run validation only.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    defaults:
+      run:
+        working-directory: ficcado-website-frontend
 
     steps:
       - name: Checkout Repository
@@ -87,17 +97,41 @@ jobs:
 
       - name: Install Dependencies
         run: npm ci
-        working-directory: ficcado-website-frontend
 
-      - name: Deploy to Netlify
+      - name: Verify Vercel Secrets
         env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
-          if [ -n "$NETLIFY_AUTH_TOKEN" ] && [ -n "$NETLIFY_SITE_ID" ]; then
-            echo "Deploying production build to Netlify..."
-            npx netlify-cli deploy --build --prod --auth "$NETLIFY_AUTH_TOKEN" --site "$NETLIFY_SITE_ID"
-          else
-            echo "NETLIFY_AUTH_TOKEN or NETLIFY_SITE_ID secret not set in GitHub repository."
-            echo "Skipping GitHub Actions CLI deploy. If using Netlify Git Integration, Netlify will auto-deploy on push."
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+            echo "::error::Missing required Vercel secrets: VERCEL_TOKEN, VERCEL_ORG_ID, or VERCEL_PROJECT_ID."
+            echo "Please configure these repository secrets in GitHub: Settings -> Secrets and variables -> Actions."
+            exit 1
           fi
+
+      - name: Pull Vercel Environment Information
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: npx vercel@latest pull --yes --environment=production --token=$VERCEL_TOKEN
+
+      - name: Build Project Artifacts via Vercel CLI
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: npx vercel@latest build --prod --token=$VERCEL_TOKEN
+
+      - name: Deploy Prebuilt Artifacts to Vercel
+        id: vercel_deploy
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          DEPLOY_URL=$(npx vercel@latest deploy --prebuilt --prod --token=$VERCEL_TOKEN)
+          echo "deploy_url=$DEPLOY_URL" >> $GITHUB_OUTPUT
+          echo "### Vercel Deployment Successful 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "Production URL: $DEPLOY_URL" >> $GITHUB_STEP_SUMMARY

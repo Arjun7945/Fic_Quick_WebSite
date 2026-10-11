@@ -6,7 +6,7 @@
 // and zero trackers loaded without consent.
 // =============================================================================
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ShieldCheck, Settings, X } from 'lucide-react';
 import { useConsent } from '@/context/ConsentContext';
@@ -29,6 +29,26 @@ export function CookieConsentBanner() {
   const [analyticsEnabled, setAnalyticsEnabled] = useState(
     consent?.analytics ?? false
   );
+
+  // Synchronize internal toggle states when settings modal opens or consent changes
+  useEffect(() => {
+    if (isSettingsOpen) {
+      setPreferencesEnabled(consent?.preferences ?? false);
+      setAnalyticsEnabled(consent?.analytics ?? false);
+    }
+  }, [isSettingsOpen, consent]);
+
+  // Handle escape key to dismiss settings modal
+  useEffect(() => {
+    if (!isSettingsOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeSettings();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isSettingsOpen, closeSettings]);
 
   // If already decided and settings modal is not explicitly opened, do not show
   if (hasDecided && !isSettingsOpen) {

@@ -229,16 +229,18 @@ export default function CheckoutPage() {
     };
   }, []);
 
-  // Save form draft on change (B-25: gated on preferences consent)
+  // Save form draft on change (B-25: strictly gated on affirmative preferences consent)
   useEffect(() => {
     try {
       const consentRaw = localStorage.getItem('ficcado-consent');
-      if (consentRaw) {
-        const parsed = JSON.parse(consentRaw);
-        if (parsed.preferences === false) {
-          localStorage.removeItem(FORM_STORAGE_KEY);
-          return;
-        }
+      if (!consentRaw) {
+        // Zero storage before consent decision
+        return;
+      }
+      const parsed = JSON.parse(consentRaw);
+      if (parsed.preferences !== true) {
+        localStorage.removeItem(FORM_STORAGE_KEY);
+        return;
       }
       localStorage.setItem(
         FORM_STORAGE_KEY,

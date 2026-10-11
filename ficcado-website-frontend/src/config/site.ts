@@ -52,7 +52,7 @@ export const BRAND = {
 };
 
 export const DEFAULT_FILTER_STATE: FilterState = {
-  priceRange: [1000, 5000],
+  priceRange: [1, 5000],
   categories: [],
   sizes: [],
   colors: [],

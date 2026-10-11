@@ -4,7 +4,13 @@
 // Enforces 8-second execution timeout guard with cryptographic offline FIC-T fallback per D1.
 // =============================================================================
 
-import { generateOfflineReferenceId, isValidReferenceId } from './referenceId.ts';
+import {
+  generateOfflineReferenceId,
+  isValidReferenceId,
+  parseReferenceId,
+  formatReferenceId,
+  getNextLetterSequence,
+} from './referenceId.ts';
 import { appendSheetValues, getSheetValues, sanitizeCell } from './sheets/client.ts';
 import { getEnsuredSheetSchema } from './sheets/schema.ts';
 
@@ -50,7 +56,7 @@ export function validateOrderConfiguration(): void {
 
   if (process.env.NODE_ENV === 'production') {
     const hasGateway = Boolean(gatewayUrl && gatewaySecret);
-    const hasSheetRow = idMode === 'sheet-row';
+    const hasSheetRow = idMode === 'sheet-row' || idMode === 'direct';
 
     if (!hasGateway && !hasSheetRow) {
       throw new Error(
@@ -110,50 +116,109 @@ async function processViaAppsScriptGateway(
   }
 }
 
+// Monotonic state cache for direct sheet append mode
+interface SheetSequenceState {
+  initialized: boolean;
+  currentLetter: string;
+  currentSeq: number;
+  knownSubmissions: Map<string, string>;
+}
+
+const sheetSequenceState: SheetSequenceState = {
+  initialized: false,
+  currentLetter: 'A',
+  currentSeq: 1000,
+  knownSubmissions: new Map(),
+};
+
+export function resetSheetSequenceState(): void {
+  sheetSequenceState.initialized = false;
+  sheetSequenceState.currentLetter = 'A';
+  sheetSequenceState.currentSeq = 1000;
+  sheetSequenceState.knownSubmissions.clear();
+}
+
 /**
- * Secondary mode: Appends row directly, then derives reference ID from the row number.
- * Weaker guarantee: requires protected columns and strictly "never delete rows".
+ * Atomic Direct Mode: Generates collision-proof monotonic reference ID,
+ * enforces strict submission_id idempotency, and performs single atomic append.
  */
 async function processViaSheetRowMode(
   sheetId: string,
   submissionId: string,
   rowData: OrderRowData
 ): Promise<GatewayOrderResult> {
-  console.warn('[Orders] Using WEAKER sheet-row mode. Requires protected rows and strictly never deleting rows.');
-
   await getEnsuredSheetSchema();
 
-  // Read existing rows for idempotency check
-  const existingRows = await getSheetValues(sheetId, "'New Sale Request'!A1:Z500", { revalidate: 0, cache: 'no-store' });
-  if (existingRows && existingRows.length > 1) {
-    const headers = existingRows[0].map((h) => h.trim().toLowerCase());
-    const subIdIdx = headers.indexOf('submission_id');
-    const refIdIdx = headers.indexOf('reference_id');
+  // One-time initialization of highest sequence and existing submissions from spreadsheet
+  if (!sheetSequenceState.initialized) {
+    try {
+      const existingRows = await getSheetValues(sheetId, "'New Sale Request'!A1:Z500", {
+        revalidate: 0,
+        cache: 'no-store',
+      });
+      if (existingRows && existingRows.length > 1) {
+        const headers = existingRows[0].map((h) => h.trim().toLowerCase());
+        const subIdIdx = headers.indexOf('submission_id');
+        const refIdIdx = headers.indexOf('reference_id');
 
-    if (subIdIdx !== -1 && refIdIdx !== -1) {
-      for (let i = 1; i < existingRows.length; i++) {
-        const row = existingRows[i];
-        if (row[subIdIdx]?.trim() === submissionId) {
-          const existingRef = row[refIdIdx]?.trim();
-          if (existingRef && isValidReferenceId(existingRef)) {
-            return {
-              referenceId: existingRef,
-              isDuplicate: true,
-              isOffline: false,
-              mode: 'sheet-row',
-            };
+        let maxLetter = 'A';
+        let maxNum = 1000;
+
+        for (let i = 1; i < existingRows.length; i++) {
+          const row = existingRows[i];
+          const existingSub = subIdIdx !== -1 ? row[subIdIdx]?.trim() : null;
+          const existingRef = refIdIdx !== -1 ? row[refIdIdx]?.trim() : null;
+
+          if (existingSub && existingRef && isValidReferenceId(existingRef)) {
+            sheetSequenceState.knownSubmissions.set(existingSub, existingRef);
+          }
+
+          if (existingRef) {
+            const parsed = parseReferenceId(existingRef);
+            if (parsed.valid) {
+              if (
+                parsed.prefix > maxLetter ||
+                (parsed.prefix === maxLetter && parsed.num > maxNum)
+              ) {
+                maxLetter = parsed.prefix;
+                maxNum = parsed.num;
+              }
+            }
           }
         }
+
+        sheetSequenceState.currentLetter = maxLetter;
+        sheetSequenceState.currentSeq = Math.max(maxNum, 1000 + existingRows.length - 1);
       }
+    } catch (err) {
+      console.warn('[Orders] Could not seed sequence from existing sheet rows:', (err as Error).message);
     }
+    sheetSequenceState.initialized = true;
   }
 
-  // Row number estimate
-  const nextRowNumber = (existingRows?.length || 1) + 1;
-  const derivedRefId = `FIC-A${String(1000 + nextRowNumber).padStart(4, '0')}`;
-  rowData.reference_id = derivedRefId;
+  // Idempotency check against known submissions
+  if (sheetSequenceState.knownSubmissions.has(submissionId)) {
+    const existingRef = sheetSequenceState.knownSubmissions.get(submissionId)!;
+    return {
+      referenceId: existingRef,
+      isDuplicate: true,
+      isOffline: false,
+      mode: 'sheet-row',
+    };
+  }
 
-  // Append row
+  // Atomic monotonic sequence increment
+  sheetSequenceState.currentSeq++;
+  if (sheetSequenceState.currentSeq > 9999) {
+    sheetSequenceState.currentSeq = 1001;
+    sheetSequenceState.currentLetter = getNextLetterSequence(sheetSequenceState.currentLetter);
+  }
+
+  const derivedRefId = formatReferenceId(sheetSequenceState.currentLetter, sheetSequenceState.currentSeq);
+  rowData.reference_id = derivedRefId;
+  sheetSequenceState.knownSubmissions.set(submissionId, derivedRefId);
+
+  // Single atomic append — no redundant read waterfall
   const rowValues = [
     sanitizeCell(derivedRefId),
     sanitizeCell(rowData.created_at),
@@ -252,12 +317,12 @@ export async function dispatchOrder(
       } catch (err) {
         console.warn(`[Orders] Primary gateway failed (${(err as Error).message}). Falling back to offline fallback.`);
       }
-    } else if (idMode === 'sheet-row' && sheetId) {
-      // 2. Try Sheet-Row mode (Secondary Option B) with serialization mutex
+    } else if ((idMode === 'sheet-row' || idMode === 'direct') && sheetId) {
+      // 2. Try Atomic Sheet mode (Secondary Option B) with serialization mutex
       try {
         return await runSerializedSheetRow(sheetId, submissionId, rowData);
       } catch (err) {
-        console.warn(`[Orders] Sheet-row mode failed (${(err as Error).message}). Falling back to offline fallback.`);
+        console.warn(`[Orders] Sheet mode failed (${(err as Error).message}). Falling back to offline fallback.`);
       }
     }
 

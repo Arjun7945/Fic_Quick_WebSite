@@ -47,7 +47,7 @@ if (isProd) {
   const privacyEmail = process.env.NEXT_PUBLIC_PRIVACY_EMAIL;
   if (!privacyEmail || typeof privacyEmail !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(privacyEmail)) {
     throw new Error(
-      `[CRITICAL BUILD ERROR] NEXT_PUBLIC_PRIVACY_EMAIL is required for production builds (got: "${privacyEmail}"). Configure in Netlify UI or .env.local.`
+      `[CRITICAL BUILD ERROR] NEXT_PUBLIC_PRIVACY_EMAIL is required for production builds (got: "${privacyEmail}"). Configure in Vercel project environment variables or .env.local.`
     );
   }
 
@@ -86,11 +86,53 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=()' },
+          { key: 'Strict-Transport-Security', value: 'max-age=31536000' },
+          {
+            key: 'Content-Security-Policy-Report-Only',
+            value:
+              "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https:; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https://api.whatsapp.com https://wa.me;",
+          },
+        ],
+      },
+      {
+        source: '/api/orders',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          },
+        ],
+      },
+      {
+        source: '/api/inquiry',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          },
+        ],
+      },
+      {
         source: '/images/:path*',
         headers: [
           {
             key: 'Cache-Control',
             value: 'public, max-age=0, must-revalidate',
+          },
+        ],
+      },
+      {
+        source: '/fonts/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
           },
         ],
       },

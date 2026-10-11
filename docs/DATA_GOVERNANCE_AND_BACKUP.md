@@ -12,7 +12,7 @@ To protect customer information and order integrity, the production Google Sprea
 
 | Entity | Identity | Role / Access Level | Authentication & Security Controls |
 |---|---|---|---|
-| **Web Application Backend** | `ficcado-quick-webapp@ficcado-quick-website.iam.gserviceaccount.com` | **Editor** (API writes & reads) | Authenticates via RS256 JWT using private key stored securely in Netlify environment variables (`GOOGLE_PRIVATE_KEY`). |
+| **Web Application Backend** | `ficcado-quick-webapp@ficcado-quick-website.iam.gserviceaccount.com` | **Editor** (API writes & reads) | Authenticates via RS256 JWT using private key stored securely in Vercel project environment variables (`GOOGLE_PRIVATE_KEY`). |
 | **Order Gateway Web App** | Deployed Google Apps Script | **Editor** (Atomic Reference ID & Counter) | Executes within Google workspace context via `LockService` and `PropertiesService`. |
 | **Operations & Finance** | `rohithficcado@gmail.com` (Rohith Murali, POG) | **Editor** (Fulfillment & Status Updates) | 2-Step Verification (2FA / Google Prompt) mandatory. |
 | **Creative & Operations** | Ganga Lakshmi | **Editor** (Product Management & Catalog) | 2-Step Verification (2FA) mandatory. |

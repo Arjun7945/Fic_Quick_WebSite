@@ -19,8 +19,10 @@ interface ProductCardProps {
 
 export function ProductCard({ product, priority = false }: ProductCardProps) {
   const { openProductModal } = useModal();
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const imageSrc = product.img || product.image_main || getProductMainImage(product.slug);
+  const isPriority = priority || Number(product.id) <= 8;
+  const displaySrc = imageError ? PLACEHOLDER_PRODUCT_IMAGE : (imageSrc || PLACEHOLDER_PRODUCT_IMAGE);
 
   return (
     <article
@@ -42,21 +44,20 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
       }}
       aria-label={`View ${product.name} — ₹${product.price.toLocaleString('en-IN')}`}
     >
-      {/* Image container with Ghost Skeleton Shimmer */}
+      {/* Image container */}
       <div
-        className="relative overflow-hidden skeleton"
-        style={{ aspectRatio: '3/4', background: 'var(--bg-surface-alt)' }}
+        className="relative overflow-hidden bg-[var(--bg-surface-alt)]"
+        style={{ aspectRatio: '3/4' }}
       >
         <Image
-          src={imageSrc || PLACEHOLDER_PRODUCT_IMAGE}
+          src={displaySrc}
           alt={product.name}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          className={`object-cover transition-all duration-500 group-hover:scale-105 ${
-            isLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
-          onLoad={() => setIsLoaded(true)}
-          priority={priority || product.id === 1}
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          onError={() => setImageError(true)}
+          priority={isPriority}
+          loading={isPriority ? 'eager' : 'lazy'}
         />
 
         {/* New Launch badge */}

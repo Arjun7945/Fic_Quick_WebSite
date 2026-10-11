@@ -23,7 +23,7 @@
 | **B10. Performance & UX** | **Pass** | Low | 0 | Responsive shell, Turbopack bundle compiled cleanly |
 | **B11. Architecture & Cleanliness**| **Pass** | Low | 0 | Strict TypeScript, feature-aligned path aliases |
 | **B12. Observability & Ops** | **Fail** | Medium | 1 | Console logging only; no centralized error telemetry |
-| **B13. Deployment Readiness** | **Fail** | Medium | 1 | Two conflicting `netlify.toml` files |
+| **B13. Deployment Readiness** | **Fail** | Medium | 1 | Conflicting legacy config files |
 | **B14. Pre-Mortem** | **Pass** | Low | 0 | Evaluated 25+ failure vectors with mitigation strategies |
 
 ---
@@ -35,11 +35,11 @@
 | **B-01** | **Blocker (Provisional)** | B8 Data Integrity | `src/app/api/orders/route.ts:L218-280` | Read-then-append logic for Reference ID. Reads recent rows, increments, then appends. | Concurrent orders read the same highest ID and create duplicate Reference IDs. Same `submission_id` passes duplicate check. | Google Apps Script lock/counter or atomic row-derived ID (Decision D1). Concurrency test required. |
 | **B-02** | **High** | B5 Scale / B8 Sheets | `src/app/api/orders/route.ts` | 3–4 Sheets reads + 1 write per order (catalog + courier + recent rows + append). | 15 orders/minute exhausts Google's 60 req/min quota, triggering 429 errors for all visitors. | Share cached catalog/couriers in `/api/orders`; bound recent row scan. |
 | **B-03** | **High** | B5 Scale / B6 Limits | `src/app/api/products`, `src/app/api/delivery-options` | `force-dynamic`, `no-store`, unauthenticated GET endpoints called by UI. | Bot loop directly calls endpoints and exhausts Google Sheets quota, taking down checkout. | Serve from shared cache with `s-maxage` + `stale-while-revalidate`, rate-limit, strip unused fields. |
-| **B-04** | **Medium** | B5 Scale | `src/lib/products.ts:L19`, `src/generated/` | Ephemeral runtime disk cache `products-cache.json` on read-only serverless filesystem. | Runtime write fails or vanishes on new instances; fallback is unavailable during outages. | Build-time static snapshot or Netlify Blobs platform cache. |
+| **B-04** | **Medium** | B5 Scale | `src/lib/products.ts:L19`, `src/generated/` | Ephemeral runtime disk cache `products-cache.json` on read-only serverless filesystem. | Runtime write fails or vanishes on new instances; fallback is unavailable during outages. | Build-time static snapshot or platform cache. |
 | **B-05** | **High** | B5 Scale | `src/lib/sheets/client.ts:L199` | `cache: 'no-store'` hardcoded in `getSheetValues` fetch options. | Blocks Next.js ISR from caching pages; `revalidate = 60` on routes is silently ignored. | Remove `no-store` or configure explicit Next.js revalidation cache controls. |
 | **B-06** | **Medium** | B6 Rate Limiting | `src/app/api/` (all routes) | Only `/api/orders` had partial abuse guard; `/api/inquiry` only has honeypot; GET endpoints open. | Abuse floods Google Sheets API and mailboxes. | Implement uniform rate limiting across every route in `/api/*` (Decision D2). |
-| **B-07** | **Medium** | B13 Deploy | `netlify.toml` (root & frontend) | Two `netlify.toml` files with overlapping directives. | Security & caching headers in frontend file may be skipped; manual `publish` conflicts with runtime. | Consolidate into single root `netlify.toml`, verify runtime defaults. |
-| **B-08** | **Medium** | B7 Security | `ficcado-website-frontend/netlify.toml` | Missing CSP, obsolete `X-XSS-Protection`, HSTS `preload` hard to reverse, no Origin check on POST. | Vulnerable to CSRF/XSS; difficult to change subdomains if preloaded. | Pragmatic/hash CSP, drop `preload` (D13), add Origin checks on mutating routes. |
+| **B-07** | **Medium** | B13 Deploy | Configuration | Legacy configuration files with overlapping directives. | Security & caching headers may be skipped; manual publish conflicts with runtime. | Consolidate and migrate into Next.js config headers, verify runtime defaults. |
+| **B-08** | **Medium** | B7 Security | `next.config.ts` | Missing CSP, obsolete `X-XSS-Protection`, HSTS `preload` hard to reverse, no Origin check on POST. | Vulnerable to CSRF/XSS; difficult to change subdomains if preloaded. | Pragmatic/hash CSP, drop `preload` (D13), add Origin checks on mutating routes. |
 | **B-09** | **Medium** | B2 Error Handling | `src/app/api/`, `src/app/` | Inconsistent API shapes (`{ ok, options }` vs `{ success, error }`), no `global-error.tsx`/`not-found.tsx`. | Inconsistent client error parsing; raw server exceptions unhandled. | Standardize API envelope `{ success, data, error: { code, message, requestId } }`; add Next boundaries. |
 | **B-10** | **Blocker** | B7 Security | `credentials/` | Local service account key file in repo workspace. | Potential credential exposure if git tracking or ignore rules fail. | **VERIFIED CLEAN:** 0 commits in git history, covered by `.gitignore`. Must remain untracked. |
 | **B-11** | **Low** | B11 Tasks Sync | `docs/tasks.md` | Audit findings previously missing corresponding task IDs. | Untracked tasks drop through the cracks. | Resolved: Full mapping table implemented in `docs/tasks.md`. |
@@ -99,10 +99,10 @@ The following items could not be measured in this environment and must be verifi
 1. **Lighthouse Mobile Score:** `NOT RUN: headless Chrome/Lighthouse CLI not configured in local Node runner`. Must be run against deployed preview.
 2. **Real-Device WhatsApp Deep Link:** `NOT RUN: requires physical iOS and Android devices with WhatsApp installed`.
 3. **Staging k6 Load Test:** `NOT RUN: requires deployed staging URL and isolated test spreadsheet`. Load-testing production spreadsheet is strictly prohibited.
-4. **Deployed Preview HTTP Response Headers:** `NOT RUN: requires live Netlify preview URL to test with curl -I`.
+4. **Deployed Preview HTTP Response Headers:** `NOT RUN: requires live Vercel preview URL to test with curl -I`.
 5. **Legal Compliance Certification:** `NOT RUN: legal compliance under DPDP Act 2023 / GDPR requires formal counsel review`.
 6. **Dedicated Secret Scanner:** `NOT VERIFIED: gitleaks/trufflehog binary not installed in local environment`. (Manual git log regex and commit inspection proved 0 real keys in history; strings are 3-char `...` placeholders).
 7. **GitHub Repo Visibility:** `NOT VERIFIED: currently public on GitHub web interface; requires owner action in GitHub repository settings to make private`.
 8. **Google Sheet Sharing Settings:** `NOT VERIFIED: exact ACLs and link-sharing status on the production sheet require manual Google Drive UI inspection by the owner`.
-9. **Netlify Runtime Filesystem Behavior:** `NOT VERIFIED: behavior of ephemeral local disk cache under multi-instance Netlify serverless execution cannot be validated locally`.
-10. **Netlify Plan Limits:** `NOT VERIFIED: whether active Netlify plan quotas (bandwidth, function invocations, execution minutes) accommodate 100,000 visitors requires account dashboard verification`.
+9. **Serverless Runtime Filesystem Behavior:** `NOT VERIFIED: behavior of ephemeral local disk cache under multi-instance serverless execution cannot be validated locally`.
+10. **Platform Plan Limits:** `NOT VERIFIED: whether active Vercel plan quotas (bandwidth, function invocations, execution minutes) accommodate 100,000 visitors requires account dashboard verification`.

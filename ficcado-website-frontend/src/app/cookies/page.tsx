@@ -53,7 +53,7 @@ const STORAGE_INVENTORY = [
     key: 'ficcado-checkout-draft',
     type: 'LocalStorage',
     category: 'Preferences & Functional',
-    purpose: 'Auto-saves your shipping name, address, and mobile number while typing so a page refresh does not lose your work.',
+    purpose: 'Auto-saves your shipping name, address, and mobile number (ficcado-checkout-form-draft) while typing so a page refresh does not lose your work.',
     duration: 'Persistent until order completion or rejected',
   },
   {
