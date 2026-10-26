@@ -10,6 +10,7 @@
     "dev": "next dev",
     "prebuild": "node scripts/clean-cache.mjs && npm run sheets:bootstrap && node scripts/build-item-image-manifest.mjs && node scripts/build-products-snapshot.mjs",
     "build": "next build",
+    "vercel-build": "npm run prebuild && next build",
     "prestart": "node scripts/clean-cache.mjs",
     "start": "next start",
     "prelint": "npm run generate",
