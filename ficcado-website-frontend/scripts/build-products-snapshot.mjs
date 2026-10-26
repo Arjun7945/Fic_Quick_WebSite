@@ -57,8 +57,12 @@ if (keyFileCandidate) {
   }
 }
 
-if (privateKey && !privateKey.includes('\n') && privateKey.includes('\\n')) {
-  privateKey = privateKey.replace(/\\n/g, '\n');
+if (privateKey) {
+  let cleaned = privateKey.trim();
+  while ((cleaned.startsWith('"') && cleaned.endsWith('"')) || (cleaned.startsWith("'") && cleaned.endsWith("'"))) {
+    cleaned = cleaned.slice(1, -1).trim();
+  }
+  privateKey = cleaned.replace(/\\n/g, '\n').replace(/\r/g, '');
 }
 
 function parsePrice(val) {

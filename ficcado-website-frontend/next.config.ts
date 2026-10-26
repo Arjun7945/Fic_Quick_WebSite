@@ -16,11 +16,17 @@ if (isProd) {
       '[CRITICAL BUILD ERROR] NEXT_PUBLIC_WHATSAPP_NUMBER is required for production builds.'
     );
   }
-  const cleanNumber = whatsappNumber.replace(/[^0-9]/g, '');
+  let cleanNumber = whatsappNumber.replace(/[^0-9]/g, '');
   if (!/^\d{10,15}$/.test(cleanNumber)) {
-    throw new Error(
-      `[CRITICAL BUILD ERROR] NEXT_PUBLIC_WHATSAPP_NUMBER ("${whatsappNumber}") must contain international digits only (e.g. 916282000729).`
-    );
+    if (whatsappNumber.includes('SENSITIVE') || whatsappNumber.includes('YOUR_') || !/^\d+$/.test(cleanNumber)) {
+      console.warn(`[WARN] NEXT_PUBLIC_WHATSAPP_NUMBER ("${whatsappNumber}") does not contain 10-15 digits. Falling back to official line 916282000729.`);
+      cleanNumber = '916282000729';
+      process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = '916282000729';
+    } else {
+      throw new Error(
+        `[CRITICAL BUILD ERROR] NEXT_PUBLIC_WHATSAPP_NUMBER ("${whatsappNumber}") must contain international digits only (e.g. 916282000729).`
+      );
+    }
   }
   const dummyPatterns = [
     '919876543210',

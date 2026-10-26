@@ -51,8 +51,12 @@ if (!clientEmail || !privateKey) {
   process.exit(process.env.SHEETS_STRICT === 'true' ? 1 : 0);
 }
 
-if (privateKey && !privateKey.includes('\n') && privateKey.includes('\\n')) {
-  privateKey = privateKey.replace(/\\n/g, '\n');
+if (privateKey) {
+  let cleaned = privateKey.trim();
+  while ((cleaned.startsWith('"') && cleaned.endsWith('"')) || (cleaned.startsWith("'") && cleaned.endsWith("'"))) {
+    cleaned = cleaned.slice(1, -1).trim();
+  }
+  privateKey = cleaned.replace(/\\n/g, '\n').replace(/\r/g, '');
 }
 
 function createJwt(email, key) {
