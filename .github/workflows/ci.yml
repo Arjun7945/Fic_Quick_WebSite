@@ -80,10 +80,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
-    defaults:
-      run:
-        working-directory: ficcado-website-frontend
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -96,7 +92,12 @@ jobs:
           cache-dependency-path: ficcado-website-frontend/package-lock.json
 
       - name: Install Dependencies
+        working-directory: ficcado-website-frontend
         run: npm ci
+
+      - name: Generate Build Manifests & Metadata
+        working-directory: ficcado-website-frontend
+        run: npm run generate
 
       - name: Verify Vercel Secrets
         env:
