@@ -21,6 +21,14 @@ const ITEM_COLOR_PRIORITY = {
   'echoes-of-the-empire': ['black', 'maroon', 'white'],
   'silent-sentinel': ['black', 'white'],
   'the-watchers': ['black'],
+  'ficcado-ronaldo-legend-oversized-t-shirt': ['black'],
+  'ficcado-messi-legend-oversized-t-shirt': ['black'],
+  'holiday-edition-starburst': ['forest-green', 'green'],
+  'christmas-winter-glow-tee': ['off-white', 'white'],
+  'christmas-chronicles-tee': ['red'],
+  'plain-white': ['white'],
+  'plain-black': ['black'],
+  'plain-blue': ['blue'],
 };
 
 function getColorPriority(folderName, fileName) {

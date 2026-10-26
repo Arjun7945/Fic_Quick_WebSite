@@ -8,7 +8,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { X, Maximize2 } from 'lucide-react';
+import { X, Maximize2, Sparkles } from 'lucide-react';
 import { useModal, getProductModalPayload } from '@/context/ModalContext';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
@@ -19,6 +19,7 @@ import { getSiteUrl } from '@/lib/siteUrl';
 import { ImageZoomModal } from '@/components/modals/ImageZoomModal';
 import { ImageGestureHint } from '@/components/ui/ImageGestureHint';
 import { getColorName, getColorKeyword } from '@/lib/colors';
+import { isSpecialDrop } from '@/lib/specialDrops';
 import type { Product, SizeOption } from '@/types';
 
 const DEFAULT_SIZES: SizeOption[] = ['S', 'M', 'L', 'XL'];
@@ -47,6 +48,7 @@ function ProductModalDialog({ product }: { product: Product }) {
   const [hasShownHint, setHasShownHint] = useState(false);
 
   const isLive = isCategoryLive(product.category);
+  const isSpecial = isSpecialDrop(product);
   const selectedColor = userColor || (product.colors && product.colors[0]) || 'Standard';
 
   const resolvedFromSlug = getItemImages(product.slug || product.name);
@@ -257,14 +259,21 @@ function ProductModalDialog({ product }: { product: Product }) {
               {/* Name + Price */}
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  {product.featured && (
+                  {isSpecial ? (
+                    <div className="mb-2">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider text-amber-200 bg-neutral-950/90 border border-amber-400/80 shadow-[0_0_16px_rgba(245,158,11,0.5)] backdrop-blur-md">
+                        <Sparkles size={12} className="text-amber-400 animate-pulse shrink-0" />
+                        <span>Ficcado Special Drops</span>
+                      </span>
+                    </div>
+                  ) : product.featured ? (
                     <div className="mb-1.5">
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-800 uppercase tracking-wider text-amber-300 bg-neutral-950/85 border border-amber-400/40 backdrop-blur-md shadow-xs">
                         <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
                         New Launch Drop
                       </span>
                     </div>
-                  )}
+                  ) : null}
                   <h2 className="text-xl md:text-2xl font-900 leading-tight" style={{ fontWeight: 900, color: 'var(--text-main)' }}>
                     {product.name}
                   </h2>

@@ -54,6 +54,7 @@ async function run() {
   console.log('Headers:', data.values[0]);
   console.log('First Item Row:', data.values[1]);
   console.log('Total Rows:', data.values.length);
+  data.values.forEach((r, idx) => console.log(`Row ${idx}:`, JSON.stringify(r)));
 }
 
 run().catch(console.error);
