@@ -192,4 +192,108 @@ describe('Order Flow & Concurrency Verification per D1', () => {
     // Restore correct gateway
     process.env.ORDER_GATEWAY_URL = serverUrl;
   });
+
+  test('30 concurrent orders in direct mode generate 30 strictly unique monotonic IDs', async () => {
+    delete process.env.ORDER_GATEWAY_URL;
+    delete process.env.ORDER_GATEWAY_SECRET;
+    process.env.ORDER_ID_MODE = 'sheet-row';
+    process.env.GOOGLE_SHEET_ID = 'test-sheet-id';
+
+    const originalFetch = globalThis.fetch;
+    const appendedRows = [];
+
+    globalThis.fetch = async (url, opts) => {
+      const urlStr = String(url);
+      if (urlStr.includes('oauth2.googleapis.com')) {
+        return new Response(JSON.stringify({ access_token: 'mock-token', expires_in: 3600 }), { status: 200 });
+      }
+      if (urlStr.includes('spreadsheets') && urlStr.includes(':append')) {
+        const body = JSON.parse(opts.body);
+        appendedRows.push(body.values[0]);
+        return new Response(JSON.stringify({ updates: { updatedRows: 1 } }), { status: 200 });
+      }
+      if (urlStr.includes('spreadsheets') && urlStr.includes('values')) {
+        return new Response(
+          JSON.stringify({
+            values: [
+              ['reference_id', 'created_at', 'status', 'final_order_id', 'customer_name', 'submission_id'],
+              ['FIC-A1005', '06 Oct 2026', 'NEW', '', 'John Doe', 'sub_existing_1'],
+            ],
+          }),
+          { status: 200 }
+        );
+      }
+      if (urlStr.includes('spreadsheets') && urlStr.includes('fields=properties.title')) {
+        return new Response(
+          JSON.stringify({
+            properties: { title: 'Test' },
+            sheets: [
+              { properties: { title: 'Item Management' } },
+              { properties: { title: 'Courier Partners' } },
+              { properties: { title: 'New Sale Request' } },
+              { properties: { title: 'Support Requests' } },
+              { properties: { title: 'Drop Notification List' } },
+            ],
+          }),
+          { status: 200 }
+        );
+      }
+      return originalFetch(url, opts);
+    };
+
+    try {
+      const count = 30;
+      const promises = [];
+      for (let i = 0; i < count; i++) {
+        const subId = `direct_concurrent_sub_${i}_${Date.now()}`;
+        promises.push(
+          dispatchOrder(subId, {
+            submission_id: subId,
+            customer_name: `Customer ${i}`,
+            customer_email: `customer${i}@example.com`,
+            customer_phone: '9876543210',
+            address_line1: '123 Street',
+            address_line2: '',
+            city: 'Bangalore',
+            state: 'Karnataka',
+            pincode: '560001',
+            landmark: '',
+            courier_partner_id: 'standard',
+            courier_partner_name: 'Standard Courier',
+            delivery_charge: 50,
+            subtotal: 999,
+            total_amount: 1049,
+            item_count: 1,
+            items_summary: 'Test Tee',
+            items_json: '[]',
+            created_at: '06 Oct 2026, 03:00 PM',
+            status: 'NEW',
+          })
+        );
+      }
+
+      const results = await Promise.all(promises);
+      const refIds = results.map((r) => r.referenceId);
+      const uniqueRefs = new Set(refIds);
+
+      assert.strictEqual(refIds.length, count);
+      assert.strictEqual(uniqueRefs.size, count, 'Every reference ID must be strictly unique under concurrency');
+
+      for (const res of results) {
+        assert.strictEqual(res.isDuplicate, false);
+        assert.strictEqual(res.isOffline, false);
+        assert.strictEqual(res.mode, 'sheet-row');
+        assert.ok(isValidReferenceId(res.referenceId));
+      }
+
+      // Check monotonicity starting from FIC-A1006 up to FIC-A1035
+      const sortedRefs = [...refIds].sort();
+      assert.strictEqual(sortedRefs[0], 'FIC-A1006');
+      assert.strictEqual(sortedRefs[sortedRefs.length - 1], `FIC-A${1005 + count}`);
+    } finally {
+      globalThis.fetch = originalFetch;
+      process.env.ORDER_GATEWAY_URL = serverUrl;
+      process.env.ORDER_GATEWAY_SECRET = 'test-secret';
+    }
+  });
 });

@@ -115,8 +115,8 @@ export function CartDrawer() {
                 >
                   {/* Thumbnail */}
                   <div
-                    className="relative shrink-0 overflow-hidden rounded-xl skeleton"
-                    style={{ width: 72, height: 72, background: 'var(--bg-surface)' }}
+                    className="relative shrink-0 overflow-hidden rounded-xl bg-[var(--bg-surface-alt)]"
+                    style={{ width: 72, height: 72 }}
                   >
                     <Image
                       src={item.flatImg || item.img || getProductFlatImage(item.slug) || PLACEHOLDER_PRODUCT_IMAGE}
@@ -124,6 +124,7 @@ export function CartDrawer() {
                       fill
                       sizes="72px"
                       className="object-cover"
+                      loading="eager"
                     />
                   </div>
 

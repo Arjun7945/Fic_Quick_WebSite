@@ -20,6 +20,7 @@ import {
   ShieldAlert,
 } from 'lucide-react';
 import { useToast } from '@/context/ToastContext';
+import { copyToClipboard } from '@/lib/clipboard';
 
 interface SavedOrderInfo {
   referenceId: string;
@@ -70,17 +71,19 @@ export default function WhatsAppContinuePage() {
     }
   }
 
-  function handleCopyDetails() {
+  async function handleCopyDetails() {
     if (orderInfo?.whatsappUrl) {
       try {
         const url = new URL(orderInfo.whatsappUrl);
         const text = url.searchParams.get('text') || '';
         if (text) {
-          navigator.clipboard?.writeText(text);
-          setCopied(true);
-          showToast('Order details copied to clipboard! 📋', 'success');
-          setTimeout(() => setCopied(false), 3000);
-          return;
+          const success = await copyToClipboard(text);
+          if (success) {
+            setCopied(true);
+            showToast('Order details copied to clipboard! 📋', 'success');
+            setTimeout(() => setCopied(false), 3000);
+            return;
+          }
         }
       } catch {
         // Fallback

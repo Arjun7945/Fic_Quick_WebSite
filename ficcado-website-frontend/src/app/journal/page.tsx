@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { useModal } from '@/context/ModalContext';
 import { useToast } from '@/context/ToastContext';
+import { copyToClipboard } from '@/lib/clipboard';
 
 interface Article {
   slug: string;
@@ -207,9 +208,9 @@ export default function JournalPage() {
     }
   };
 
-  const handleShare = (article: Article) => {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      navigator.clipboard.writeText(window.location.href);
+  const handleShare = async (article: Article) => {
+    const ok = await copyToClipboard(typeof window !== 'undefined' ? window.location.href : '');
+    if (ok) {
       showToast(`Link copied for "${article.title}"`, 'success');
     } else {
       showToast('Link ready to share!', 'info');

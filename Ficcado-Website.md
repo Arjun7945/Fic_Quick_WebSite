@@ -10,7 +10,7 @@
 - TypeScript: `^5.0.0`
 - Zod: `^4.6.5`
 - Node.js runtime: Node 20+ compatible (tested on Node v20/v22)
-- Hosting Target: Netlify (`@netlify/plugin-nextjs`, `netlify.toml`)
+- Hosting Target: Vercel (Edge CDN, Serverless Functions)
 
 ---
 
@@ -50,7 +50,7 @@ Ficcado is a contemporary unisex streetwear and apparel direct-to-consumer store
 | **Language** | `typescript` | `^5.0.0` | Type safety (`tsconfig.json`, `package.json#L33`) |
 | **Linting** | `eslint`, `eslint-config-next` | `^9.0.0` / `16.3.5` | Code quality enforcement (`package.json#L30-L31`) |
 | **Database** | Google Sheets API v4 | REST / OAuth2 | Database replacement (Item Management, Courier Partners, New Sale Request, Support Requests) |
-| **Hosting** | Netlify | Next.js Plugin | Serverless SSR & edge asset delivery (`netlify.toml`) |
+| **Hosting** | Vercel | Native Next.js | Serverless SSR & edge asset delivery |
 
 ### Available `package.json` Scripts
 - `npm run dev`: Runs `next dev` Turbopack local development server on port 3000.
@@ -94,13 +94,11 @@ Fic_Quick_WebSite/
 ├── docs/                                      # Knowledge Base directory (created in Phase 2)
 ├── EXPANSION.md                               # Architectural expansion guidelines
 ├── IMPOSTER.md                                # Universal production-readiness protocol
-├── netlify.toml                               # Root Netlify build configuration pointing to frontend
 ├── README.md                                  # Repository overview
 ├── ficcado-website-frontend/                  # Primary Next.js Web Application
 │   ├── .env.example                           # Frontend environment variables reference
 │   ├── .env.local                             # Local development environment overrides
 │   ├── eslint.config.mjs                      # ESLint 9 configuration
-│   ├── netlify.toml                           # Netlify headers, security headers & publish config
 │   ├── next.config.ts                         # Next.js configuration, environment guards & redirects
 │   ├── package.json                           # Dependencies, metadata & build scripts
 │   ├── postcss.config.mjs                     # PostCSS config with @tailwindcss/postcss
@@ -216,11 +214,10 @@ Fic_Quick_WebSite/
   - `/men/:path*`, `/women/:path*`, `/kids/:path*`, `/boys/:path*`, `/girls/:path*`, `/accessories/:path*`, `/collections/:path*` → `/categories`
   - `/blob/:path*`, `/blog/:path*` → `/journal`
 
-### 4.2 `netlify.toml` (Root & Frontend)
-- **Root `netlify.toml`:** Sets `base = "ficcado-website-frontend"`, `command = "npm run build"`, `publish = ".next"`, plugin `@netlify/plugin-nextjs`.
-- **Frontend `netlify.toml`:**
-  - Adds security headers: `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `X-XSS-Protection: 1; mode=block`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()`, `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`.
-  - Caching headers: `/_next/static/*` and `/fonts/*` cached immutable for 1 year (`max-age=31536000, immutable`). `/images/*` cached for 1 day with 7-day stale-while-revalidate.
+### 4.2 `next.config.ts` (Universal Security & Caching Headers)
+- Configures image optimization, responsive device sizes, and formats (AVIF/WebP).
+- Adds security headers: `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()`, `Strict-Transport-Security: max-age=31536000`, and `Content-Security-Policy-Report-Only`.
+- Caching headers: `/_next/static/*` and `/fonts/*` cached immutable for 1 year (`max-age=31536000, immutable`). `/images/*` cached for 1 day with 7-day stale-while-revalidate. `/api/orders` and `/api/inquiry` configured with `no-store`.
 
 ### 4.3 `tsconfig.json`
 - Strict TypeScript configuration (`"strict": true`), `"target": "ES2017"`, `"module": "esnext"`, path alias `@/*` mapping to `./src/*`.
@@ -538,7 +535,7 @@ Google Sheets API v4 limits are 60 read requests per minute per user and 60 writ
 
 ## 21. Security Posture (As Found)
 
-- **HTTP Security Headers:** Configured in `ficcado-website-frontend/netlify.toml` (`X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Strict-Transport-Security`, `Permissions-Policy`).
+- **HTTP Security Headers:** Configured in `next.config.ts` (`X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Strict-Transport-Security`, `Permissions-Policy`).
 - **Formula Injection Defense:** Implemented in `src/lib/sheets/client.ts` via `sanitizeCell()`.
 - **Input Validation:** Zod schemas applied to all mutating API endpoints (`/api/orders`, `/api/inquiry`).
 - **Honeypot Protection:** Honeypot field `botHp` protects `/api/inquiry` from automated form spam.
@@ -567,7 +564,7 @@ Google Sheets API v4 limits are 60 read requests per minute per user and 60 writ
   - `scripts/tests/order-system.test.mjs`: Tests Reference ID sequence generation, rollover logic, courier schemas, WhatsApp message builders, formula injection guards, and mobile/PIN normalization. (All pass).
   - `scripts/tests/phase2-discoverability.test.mjs`: Tests robots, sitemaps, JSON-LD schemas, and `llms.txt`.
     - **Current Failure:** 1 failing test expecting `docs/BACKLINK_PLAN.md` because prior docs were moved to `documents-1/BACKLINK_PLAN.md`.
-- **CI/CD:** No automated GitHub Actions workflow file (`.github/workflows/ci.yml`) exists in the repository. Deploys currently trigger directly via Netlify Git integration.
+- **CI/CD:** Automated GitHub Actions workflow file (`.github/workflows/ci.yml`) gates builds and tests before production deployment.
 
 ---
 
@@ -577,7 +574,7 @@ Google Sheets API v4 limits are 60 read requests per minute per user and 60 writ
   1. `npm run sheets:bootstrap`: Validates connection and initializes 4 required tabs.
   2. `node scripts/build-item-image-manifest.mjs`: Scans `public/images/items/` and writes `src/generated/item-images.json`.
 - **Build Step:** `next build` compiles TypeScript and creates optimized Turbopack bundles.
-- **Hosting:** Netlify with `@netlify/plugin-nextjs`. Serverless functions handle dynamic routes (`/`, `/api/*`).
+- **Hosting:** Vercel. Serverless functions handle dynamic routes (`/`, `/api/*`).
 
 ---
 
@@ -619,7 +616,7 @@ Google Sheets API v4 limits are 60 read requests per minute per user and 60 writ
 2. **Duplicate FAQ Content:** `content/faq.ts` exists in frontend root AND `src/content/faq.ts`. One should be the sole source of truth.
 3. **Hard-coded Dynamic Routes on High-Traffic Pages:** Home page (`/`) and category detail (`/categories/[slug]`) have `force-dynamic` with `revalidate = 0`. Every visitor triggers a Google Sheets API read, which risks Google API 429 quota exhaustion under heavy traffic.
 4. **Vulnerable Dependencies:** `next` 16.3.5 and `source-map-js` 1.2.1 flagged with security advisories.
-5. **No GitHub Actions CI:** Deploys rely on Netlify automatic builds without automated test/lint gating.
+5. **Automated CI Gating:** Gated with GitHub Actions CI workflow to ensure tests pass before deployment.
 6. **Credential File in Workspace:** `credentials/ficcado-quick-website-5fc91a2f02ba.json` resides in the project tree.
 
 ---
@@ -653,11 +650,11 @@ Google Sheets API v4 limits are 60 read requests per minute per user and 60 writ
 - **D5 (Consent Storage Expiry):** **RESOLVED & IMPLEMENTED** — 12-month consent record (`ficcado-consent`), equal-prominence Reject, categories: Necessary, Preferences, + empty Analytics slot.
 - **D6 (Test Coverage Thresholds):** **RESOLVED & IMPLEMENTED** — Comprehensive automated suite (51/51 tests passing across 14 suites); 100% test coverage on money, reference ID, formula sanitization, rate-limiting, and consent logic.
 - **D7 (Deploy Gating):** **RESOLVED & IMPLEMENTED** — GitHub Actions CI workflow (`.github/workflows/ci.yml`) and step-by-step setup guide (`docs/BRANCH_PROTECTION.md`).
-- **D8 (Netlify Plan & Peak Traffic):** **RESOLVED** — Target 100,000 visitors, 10,000 peak concurrent, 100 orders/minute peak. Caching (ISR 60s) absorbs storefront page traffic without burning Google Sheets quota.
+- **D8 (Hosting Plan & Peak Traffic):** **RESOLVED** — Target 100,000 visitors, 10,000 peak concurrent, 100 orders/minute peak. Caching (ISR 60s) absorbs storefront page traffic without burning Google Sheets quota.
 - **D9 (Combos Category Status):** **RESOLVED** — Coming soon ("combos are coming soon only as of now"). Catalog, FAQ, PRD, and memory updated consistently.
 - **D10 (Brand Facts Owner Confirmation):** **RESOLVED & APPROVED** — All current details confirmed correct: 2024 founding year, 240 GSM, drop-shoulder, anti-sag collar, colour packs.
 - **D11 (Credentials Remote Exposure):** **VERIFIED CLEAN** — 0 commits in git history contain private keys or service account credentials; credentials folder and .env.local verified git-ignored.
 - **D12 (`progress.md` Location):** **CONFIRMED** — `docs/progress.md` canonical living log.
-- **D13 (CSP Approach & HSTS Preload):** **RESOLVED & IMPLEMENTED** — Pragmatic `Content-Security-Policy-Report-Only` header; removed obsolete `X-XSS-Protection`; HSTS `max-age=31536000` (dropped `preload` and `includeSubDomains`). Consolidated to single root `netlify.toml`.
+- **D13 (CSP Approach & HSTS Preload):** **RESOLVED & IMPLEMENTED** — Pragmatic `Content-Security-Policy-Report-Only` header; removed obsolete `X-XSS-Protection`; HSTS `max-age=31536000` (dropped `preload` and `includeSubDomains`). Consolidated to `next.config.ts`.
 - **D14 (Replace Real Sheet ID / Key Filename):** **COMPLETED** — Sanitized with placeholders across all documentation.
 - **D15 (Privacy Policy Details):** **RESOLVED & IMPLEMENTED** — Contact email `ficcado.clothing@gmail.com`; support hours 7:00 AM – 7:00 PM IST; POG Rohith Murali (`rohithficcado@gmail.com`); data retention forever safe; physical parcel label sharing only; operational region INDIA. Production build guards verify `NEXT_PUBLIC_PRIVACY_EMAIL`.

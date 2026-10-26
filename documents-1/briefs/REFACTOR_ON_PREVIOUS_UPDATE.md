@@ -31,8 +31,8 @@ Each finding has an ID. Your completion report must list every ID with status: *
 | **C2** | **Prices and totals are trusted from the browser.** The Bag stores `price` in `localStorage`; the WhatsApp text is built client-side from that. | Anyone can open dev tools, change a price or total, and send a fake order. | Server must recompute everything from the catalog (Section B4). Client prices are display-only. |
 | **C3** | **Order ID is generated randomly in the browser** (`FKD-YYMMDD-XXXX`). | Not unique (collisions), not sequential, forgeable, and not the format the client wants. | Server-assigned sequential reference `FIC-A0001` style (Section B5). |
 | **C4** | **Google Sheets integration looks optional and inconsistent.** The report lists `GOOGLE_SHEET_ID` / `GOOGLE_APPS_SCRIPT_URL` as "(Optional)" and says to add products to "the Products tab **or `products.snapshot.json`**". `EXPANSION.md` says service-account env vars (`GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_PRIVATE_KEY`); the report says `GOOGLE_APPS_SCRIPT_URL`. | The live site may be silently running on the committed snapshot or `mockData.ts`, so sheet edits would never appear. Two different write mechanisms are documented. | Prove products actually load from Sheets in production mode. Pick **one** documented mechanism per direction (read/write). Delete `mockData.ts` from the runtime path. Section B3. |
-| **C5** | **Rate limiting is in-memory per IP** ("in-memory sliding window"). | On Netlify (serverless), every function instance has its own memory and cold starts reset it. This provides almost no protection under a burst. | Use platform-level or shared-state protection (see B4.7). Remove the false claim from docs. |
-| **C6** | **Contradictory Netlify configuration.** `netlify.toml` uses `cd ficcado-website-frontend && npm run build` and `publish = ficcado-website-frontend/.next`, while the deployment notes also set *Base directory = ficcado-website-frontend*. | With a base directory set, the `cd` command points to a folder that no longer exists from that location, and a manual `publish` for Next.js can conflict with Netlify's Next.js runtime. The deploy can fail or misbehave. | Define the base directory **once** (`[build] base = …` in `netlify.toml`), use plain `npm run build`, and let the Netlify Next.js runtime manage publish output. Verify against current Netlify Next.js docs and run a real `netlify build` (or CLI dry run) if possible. |
+| **C5** | **Rate limiting is in-memory per IP** ("in-memory sliding window"). | On Vercel (serverless), every function instance has its own memory and cold starts reset it. This provides almost no protection under a burst. | Use platform-level or shared-state protection (see B4.7). Remove the false claim from docs. |
+| **C6** | **Contradictory Vercel configuration.** `next.config.ts` uses `cd ficcado-website-frontend && npm run build` and `publish = ficcado-website-frontend/.next`, while the deployment notes also set *Base directory = ficcado-website-frontend*. | With a base directory set, the `cd` command points to a folder that no longer exists from that location, and a manual `publish` for Next.js can conflict with Vercel's Next.js runtime. The deploy can fail or misbehave. | Define the base directory **once** (`[build] base = …` in `next.config.ts`), use plain `npm run build`, and let the Vercel Next.js runtime manage publish output. Verify against current Vercel Next.js docs and run a real `Vercel build` (or CLI dry run) if possible. |
 | **C7** | **Over-claimed verification.** Pre-launch checklist fully ticked; no Lighthouse before/after numbers (both briefs required them); load-test script created but never reported as run; "keyboard navigation fully tested", "zero ESLint warnings", "26 routes" with no logs. | The client cannot trust the report. | Re-run and record evidence (Part D). |
 
 ## A2. HIGH
@@ -45,7 +45,7 @@ Each finding has an ID. Your completion report must list every ID with status: *
 | **H4** | **Sheet schema documented two different ways** (`EXPANSION.md §4.1` vs report §7: different columns). | One schema, defined in B3, regenerated in `docs/google-sheets-schema.md`; delete the older descriptions from `EXPANSION.md`. |
 | **H5** | WhatsApp sample shows each item linking to a **category page** (`/categories/t-shirts`), not the product page, and the domain `https://ficcado.store` looks hard-coded. | Per-item product URL; base URL from `NEXT_PUBLIC_SITE_URL`. |
 | **H6** | Order date in the message is taken from the **customer's device clock**. | Use the server timestamp in IST. |
-| **H7** | Redirects are configured in **both** `next.config.ts` and `netlify.toml`. | Keep one source (prefer `next.config.ts` unless Netlify edge redirects are measurably faster; document the choice). |
+| **H7** | Redirects are configured in **both** `next.config.ts` and `next.config.ts`. | Keep one source (prefer `next.config.ts` unless Vercel edge redirects are measurably faster; document the choice). |
 | **H8** | Route hygiene: both `/blob` ("Journal" link) and `/blog` exist; `/onboarding` and `/settings` were not reviewed for leftover auth/account/preferences logic; the original audit listed an **"Accessories"** department but the removal list only names Men/Women/Kids. | Decide the single journal route (`/blog`) and redirect `/blob`; audit `/onboarding` and `/settings` and remove or reduce them if they only served accounts; confirm Accessories is gone everywhere. |
 | **H9** | The report says changing `NEXT_PUBLIC_WHATSAPP_NUMBER` "automatically updates" everything. `NEXT_PUBLIC_*` values are inlined **at build time**, so a **redeploy is required**. `EXPANSION.md` also contains a dummy number (`+91 98765 43210`) in the diagram and env list. | Correct the docs. Remove dummy numbers from docs (use `<WHATSAPP_NUMBER>`). |
 | **H10** | **Sheets read pattern risk.** With ISR, each page may revalidate separately, multiplying reads. The `googleapis` npm package is very heavy for serverless cold starts. In-memory caches are not shared across instances. | One shared catalog fetch per revalidation window (single cached function/tag used by all pages). Use lightweight auth + REST (or Apps Script JSON) instead of `googleapis`. |
@@ -165,7 +165,7 @@ Implement `ensureSheetSchema()` that does the following **in order**:
 6. Seed (only if the tab has **zero data rows** and `SEED_SAMPLE_DATA=true`): `Item Management` from `docs/seed/item-management.csv`. **Do not seed fake courier partners or fake phone numbers.** The "Courier Partners" delivery option falls back to ₹100 from config if the tab is empty.
 7. Report a structured result (`ok`, `createdTabs`, `addedColumns`, `warnings`) to logs.
 
-**Where it runs (important: Netlify has no always-on server):**
+**Where it runs (important: Vercel has no always-on server):**
 - `npm run sheets:bootstrap`: runs as a pre-build step; **warns but does not fail the build** unless `SHEETS_STRICT=true`.
 - `instrumentation.ts` `register()` (Node runtime only): fire-and-forget on cold start, **memoized per instance**, never awaited on a visitor request.
 - Lazy guard in the order-write path: if the schema hasn't been verified in this instance, verify first.
@@ -247,7 +247,7 @@ Orders must **not** be lost because of Sheets. If the write fails or times out:
 
 ### B4.7 Abuse protection (replace the in-memory limiter)
 - Honeypot field + minimum-time-to-submit check.
-- Platform-level rate limiting if the Netlify plan supports it (verify current Netlify docs), plus an optional CAPTCHA hook (Cloudflare Turnstile): **ask me before enabling**.
+- Platform-level rate limiting if the Vercel plan supports it (verify current Vercel docs), plus an optional CAPTCHA hook (Cloudflare Turnstile): **ask me before enabling**.
 - Payload size limits, max items/quantities (e.g., max 20 lines, qty ≤ 10), strict zod validation.
 - Do not log personal data in plain logs.
 
@@ -346,7 +346,7 @@ Anything that is rarely-changing configuration may live in `config/*.ts`. Anythi
 - [ ] WhatsApp opens with the server-built message; works on mobile and desktop; the offline fallback works when Sheets is blocked (simulate).
 - [ ] Support page accepts Reference IDs and final Order IDs; no FKD validator remains.
 - [ ] No mock/remote/hard-coded data on the runtime path; `mockData.ts` removed.
-- [ ] Netlify config verified (single base, no conflicting publish).
+- [ ] Vercel config verified (single base, no conflicting publish).
 - [ ] Performance budgets in C.1 met, or each miss explained with numbers.
 - [ ] `npm run lint`, type-check, tests and `npm run build` pass; outputs pasted in the report.
 

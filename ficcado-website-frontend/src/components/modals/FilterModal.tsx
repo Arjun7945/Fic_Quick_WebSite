@@ -4,10 +4,12 @@
 // FilterModal — Price range slider, category chips, size & color filter sheet
 // =============================================================================
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { X, SlidersHorizontal } from 'lucide-react';
 import { useModal } from '@/context/ModalContext';
 import { DEFAULT_FILTER_STATE } from '@/config/site';
+import { REAL_CATALOG_COLORS } from '@/lib/colors';
 import type { ClothingCategory, FilterState, SizeOption } from '@/types';
 
 const CATEGORY_CHIPS: { label: string; slug: ClothingCategory | 'all' }[] = [
@@ -20,20 +22,40 @@ const CATEGORY_CHIPS: { label: string; slug: ClothingCategory | 'all' }[] = [
   { label: 'Sneakers', slug: 'sneakers' },
 ];
 const SIZE_OPTIONS: SizeOption[] = ['S', 'M', 'L', 'XL'];
-const COLOR_OPTIONS = [
-  { hex: '#2B62C6', name: 'Royal Blue' },
-  { hex: '#9FD2C7', name: 'Mint' },
-  { hex: '#111827', name: 'Black' },
-  { hex: '#FF6B00', name: 'Orange' },
-  { hex: '#B4D1EF', name: 'Ice Blue' },
-  { hex: '#9B1C1C', name: 'Crimson' },
-];
+const COLOR_OPTIONS = REAL_CATALOG_COLORS;
 
 export function FilterModal() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { activeModal, closeModal } = useModal();
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTER_STATE);
 
   const isOpen = activeModal === 'filterModal';
+
+  // Sync state with URL params when modal opens
+  useEffect(() => {
+    if (!isOpen) return;
+    const minParam = searchParams.get('min');
+    const maxParam = searchParams.get('max');
+    const sizesParam = searchParams.get('sizes');
+    const colorsParam = searchParams.get('colors');
+    const categoryParam = searchParams.get('category');
+
+    const min = minParam ? Math.max(1, Number(minParam)) : 1;
+    const max = maxParam ? Math.max(min, Number(maxParam)) : 5000;
+    const sizes = sizesParam ? (sizesParam.split(',').filter(Boolean) as SizeOption[]) : [];
+    const colors = colorsParam ? colorsParam.split(',').filter(Boolean) : [];
+    const categories = categoryParam ? (categoryParam.split(',').filter(Boolean) as ClothingCategory[]) : [];
+
+    setFilters((prev) => ({
+      ...prev,
+      priceRange: [min, max],
+      sizes,
+      colors,
+      categories,
+    }));
+  }, [isOpen, searchParams]);
 
   function toggleCategory(catSlug: ClothingCategory | 'all') {
     if (catSlug === 'all') {
@@ -71,7 +93,40 @@ export function FilterModal() {
   }
 
   function handleApply() {
-    // In a full integration, dispatch filter state upward via context or router params
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (filters.priceRange[0] > 1) {
+      params.set('min', String(filters.priceRange[0]));
+    } else {
+      params.delete('min');
+    }
+
+    if (filters.priceRange[1] < 5000) {
+      params.set('max', String(filters.priceRange[1]));
+    } else {
+      params.delete('max');
+    }
+
+    if (filters.sizes.length > 0) {
+      params.set('sizes', filters.sizes.join(','));
+    } else {
+      params.delete('sizes');
+    }
+
+    if (filters.colors.length > 0) {
+      params.set('colors', filters.colors.join(','));
+    } else {
+      params.delete('colors');
+    }
+
+    if (filters.categories.length > 0) {
+      params.set('category', filters.categories.join(','));
+    } else {
+      params.delete('category');
+    }
+
+    const targetUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+    router.push(targetUrl, { scroll: false });
     closeModal();
   }
 
@@ -91,11 +146,11 @@ export function FilterModal() {
         role="dialog"
         aria-modal="true"
         aria-label="Filter products"
-        className="animate-sheet-in md:animate-modal-in relative w-full max-w-[440px] md:max-w-lg lg:max-w-xl flex flex-col pointer-events-auto overflow-hidden rounded-[28px] sm:rounded-3xl md:rounded-3xl shadow-2xl border border-[var(--border-light)]"
+        className="animate-sheet-in md:animate-modal-in relative w-full max-w-[440px] md:max-w-lg lg:max-w-xl flex flex-col pointer-events-auto overflow-hidden rounded-[28px] sm:rounded-3xl md:rounded-3xl shadow-2xl border border-[var(--border-light)] max-h-[86dvh] md:max-h-[78dvh] mb-0 md:my-auto"
         style={{
-          maxHeight: 'min(84dvh, calc(100dvh - 3.5rem - var(--ios-bottom-bar-clearance, 0px)))',
           background: 'var(--bg-surface)',
           zIndex: 'var(--z-modal)',
+          maxHeight: 'min(86dvh, calc(100dvh - 3.5rem - var(--ios-bottom-bar-clearance, 0px)))',
         }}
       >
         {/* Drag handle (Mobile only) */}
@@ -127,20 +182,20 @@ export function FilterModal() {
             </div>
             <input
               type="range"
-              min={999}
-              max={7999}
-              step={100}
+              min={1}
+              max={5000}
+              step={50}
               value={filters.priceRange[1]}
               onChange={(e) =>
-                setFilters((f) => ({ ...f, priceRange: [f.priceRange[0], Number(e.target.value)] }))
+                setFilters((f) => ({ ...f, priceRange: [Math.max(1, f.priceRange[0]), Math.max(1, Number(e.target.value))] }))
               }
               className="w-full"
               style={{ accentColor: 'var(--primary)' }}
               aria-label="Maximum price filter"
             />
             <div className="flex justify-between text-xs mt-1 font-medium" style={{ color: 'var(--text-light)' }}>
-              <span>₹999</span>
-              <span>₹7,999</span>
+              <span>₹1</span>
+              <span>₹5,000</span>
             </div>
           </section>
 
@@ -201,7 +256,7 @@ export function FilterModal() {
           <section>
             <p className="text-sm font-700 mb-3" style={{ fontWeight: 700 }}>Color</p>
             <div className="flex gap-3 flex-wrap">
-              {COLOR_OPTIONS.map(({ hex, name }) => {
+              {COLOR_OPTIONS.map(({ hex, name }: { hex: string; name: string }) => {
                 const isActive = filters.colors.includes(hex);
                 return (
                   <button

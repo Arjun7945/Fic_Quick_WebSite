@@ -9,11 +9,11 @@
 
 ## 1. Google Lighthouse Audit Run Guide
 
-Execute Lighthouse audits against your live Netlify preview URL (or local `next start` server) using either the Google Chrome DevTools UI or the Lighthouse CLI.
+Execute Lighthouse audits against your live Vercel preview URL (or local `next start` server) using either the Google Chrome DevTools UI or the Lighthouse CLI.
 
 ### Option A: Using Chrome DevTools (Recommended for Mobile)
 1. Open Google Chrome.
-2. Navigate to your deployed preview URL (e.g., `https://deploy-preview-123--ficcado.netlify.app`).
+2. Navigate to your deployed preview URL (e.g., `https://ficcado-preview.vercel.app`).
 3. Press `F12` (or `Cmd+Option+I` on macOS) to open Chrome DevTools.
 4. Click the **Lighthouse** tab in the top tab strip.
 5. In the configuration panel:
@@ -35,7 +35,7 @@ Run the automated CLI report in an environment with Chrome installed:
 npm install -g lighthouse
 
 # Run mobile audit against preview URL
-lighthouse https://deploy-preview-123--ficcado.netlify.app \
+lighthouse https://ficcado-preview.vercel.app \
   --preset=desktop \
   --output=html \
   --output-path=./docs/lighthouse-report.html \

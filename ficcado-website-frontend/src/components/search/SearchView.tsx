@@ -114,10 +114,9 @@ export function SearchView({ initialProducts = [] }: SearchViewProps) {
     const updated = [clean, ...current.filter((t) => t.toLowerCase() !== clean.toLowerCase())].slice(0, 5);
     try {
       const consentRaw = localStorage.getItem('ficcado-consent');
-      if (consentRaw) {
-        const parsed = JSON.parse(consentRaw);
-        if (parsed.preferences === false) return;
-      }
+      if (!consentRaw) return; // Zero storage before consent decision
+      const parsed = JSON.parse(consentRaw);
+      if (parsed.preferences !== true) return;
       localStorage.setItem('ficcado-recent-searches', JSON.stringify(updated));
       notifyRecent();
     } catch {

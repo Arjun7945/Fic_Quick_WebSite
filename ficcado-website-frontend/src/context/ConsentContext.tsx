@@ -93,8 +93,9 @@ export function ConsentProvider({ children }: { children: React.ReactNode }) {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newConsent));
 
-      // Storage minimization: purge optional drafts if preferences are rejected
+      // Storage minimization: purge optional drafts if preferences are rejected or withdrawn
       if (!prefs.preferences) {
+        localStorage.removeItem('ficcado-checkout-form-draft');
         localStorage.removeItem('ficcado-checkout-draft');
         localStorage.removeItem('ficcado-recent-searches');
       }

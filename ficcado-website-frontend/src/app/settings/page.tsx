@@ -23,8 +23,10 @@ import {
   Menu,
   AtSign,
   Sparkles,
+  Cookie,
 } from 'lucide-react';
 import { useModal } from '@/context/ModalContext';
+import { useConsent } from '@/context/ConsentContext';
 import { getSiteUrl, getDomainName } from '@/lib/siteUrl';
 
 const QUICK_LINKS = [
@@ -48,6 +50,7 @@ const BRAND_PILLARS = [
 export default function SettingsPage() {
   const router = useRouter();
   const { openModal } = useModal();
+  const { openSettings: openConsentSettings } = useConsent();
 
   return (
     <div id="settings-page" className="min-h-full pb-16 animate-fade-in" style={{ background: 'var(--bg-app)' }}>
@@ -115,6 +118,8 @@ export default function SettingsPage() {
                 fill
                 sizes="56px"
                 className="object-contain p-1"
+                priority
+                loading="eager"
               />
             </div>
             <div>
@@ -208,6 +213,7 @@ export default function SettingsPage() {
               id="replay-brand-intro-btn"
               onClick={() => {
                 try {
+                  localStorage.removeItem('ficcado_first_visit_seen');
                   sessionStorage.removeItem('ficcado_brand_intro_seen');
                 } catch {}
                 router.push('/?splash=1');
@@ -278,6 +284,37 @@ export default function SettingsPage() {
             <p><strong className="text-[var(--text-main)]">Business Identity:</strong> Ficcado Clothing • <strong>GSTIN:</strong> 32CVNPR0498H1Z5</p>
             <p><strong>Support Hours:</strong> 7:00 AM to 7:00 PM IST • <strong>Live Chat:</strong> Mon–Fri, 10:00 AM – 6:00 PM IST</p>
             <p><strong>Registered Address:</strong> Manadath House, Thaikkattukara P O, Aluva 6, Pin: 683106 (Opposite metro pillar 116)</p>
+          </div>
+        </section>
+
+        {/* Privacy & Cookie Preferences */}
+        <section className="space-y-3">
+          <h2 className="text-xs font-800 uppercase tracking-widest text-[var(--text-muted)]">Privacy & Transparency</h2>
+          <div className="card p-4 sm:p-5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-light)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Cookie size={18} className="text-[var(--primary)]" />
+                <p className="text-sm font-800 text-[var(--text-main)]">Cookie & Storage Preferences</p>
+              </div>
+              <p className="text-xs text-[var(--text-muted)]">
+                Manage your storage choices, review our zero-tracker privacy policy, or customize non-essential preferences.
+              </p>
+              <div className="flex items-center gap-3 pt-1 text-[11px]">
+                <Link href="/cookies" className="text-[var(--primary)] hover:underline font-semibold">
+                  Cookie Policy
+                </Link>
+                <span className="text-[var(--text-muted)]">•</span>
+                <Link href="/privacy" className="text-[var(--primary)] hover:underline font-semibold">
+                  Privacy Policy
+                </Link>
+              </div>
+            </div>
+            <button
+              onClick={openConsentSettings}
+              className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-95 transition-all cursor-pointer shrink-0"
+            >
+              Manage Cookies
+            </button>
           </div>
         </section>
 

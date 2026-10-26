@@ -43,8 +43,8 @@ export function getClientIp(req: NextRequest): string {
   }
   const realIp = req.headers.get('x-real-ip');
   if (realIp) return realIp.trim();
-  const netlifyIp = req.headers.get('client-ip');
-  if (netlifyIp) return netlifyIp.trim();
+  const proxyIp = req.headers.get('x-vercel-forwarded-for') || req.headers.get('client-ip');
+  if (proxyIp) return proxyIp.split(',')[0].trim();
   return '127.0.0.1';
 }
 

@@ -8,7 +8,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { X, Maximize2 } from 'lucide-react';
+import { X, Maximize2, Sparkles } from 'lucide-react';
 import { useModal, getProductModalPayload } from '@/context/ModalContext';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
@@ -17,7 +17,9 @@ import { getItemImages, PLACEHOLDER_IMAGE } from '@/lib/itemImages';
 import { isCategoryLive } from '@/config/categories';
 import { getSiteUrl } from '@/lib/siteUrl';
 import { ImageZoomModal } from '@/components/modals/ImageZoomModal';
+import { ImageGestureHint } from '@/components/ui/ImageGestureHint';
 import { getColorName, getColorKeyword } from '@/lib/colors';
+import { isSpecialDrop } from '@/lib/specialDrops';
 import type { Product, SizeOption } from '@/types';
 
 const DEFAULT_SIZES: SizeOption[] = ['S', 'M', 'L', 'XL'];
@@ -43,8 +45,10 @@ function ProductModalDialog({ product }: { product: Product }) {
   const [activeImageIdx, setActiveImageIdx] = useState(0);
   const [expanded, setExpanded] = useState(false);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
+  const [hasShownHint, setHasShownHint] = useState(false);
 
   const isLive = isCategoryLive(product.category);
+  const isSpecial = isSpecialDrop(product);
   const selectedColor = userColor || (product.colors && product.colors[0]) || 'Standard';
 
   const resolvedFromSlug = getItemImages(product.slug || product.name);
@@ -195,7 +199,7 @@ function ProductModalDialog({ product }: { product: Product }) {
                 }
               }}
               aria-label={`Inspect ${product.name} image in high resolution`}
-              className="relative aspect-[4/3] md:aspect-auto md:flex-1 md:min-h-[300px] overflow-hidden cursor-zoom-in group select-none skeleton"
+              className="relative aspect-[4/3] md:aspect-auto md:flex-1 md:min-h-[300px] overflow-hidden cursor-zoom-in group select-none"
             >
               <Image
                 src={activeImage}
@@ -204,6 +208,7 @@ function ProductModalDialog({ product }: { product: Product }) {
                 sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                 priority
+                loading="eager"
               />
               {/* Tap to Zoom pill badge */}
               <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white text-[11px] font-bold shadow-lg transition-all group-hover:scale-105">
@@ -213,6 +218,11 @@ function ProductModalDialog({ product }: { product: Product }) {
               <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold text-white uppercase tracking-wider">
                 {product.category}
               </div>
+
+              {/* Gesture hint for zoom/close look: strictly once on the 1st image per item view */}
+              {!hasShownHint && activeImageIdx === 0 && (
+                <ImageGestureHint onDismiss={() => setHasShownHint(true)} />
+              )}
             </div>
 
             {/* Gallery Thumbnail Selector if multiple images exist */}
@@ -222,7 +232,7 @@ function ProductModalDialog({ product }: { product: Product }) {
                   <button
                     key={img}
                     onClick={() => setActiveImageIdx(idx)}
-                    className={`relative w-12 h-14 rounded-lg overflow-hidden border-2 transition-all cursor-pointer skeleton ${
+                    className={`relative w-12 h-14 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
                       activeImageIdx === idx
                         ? 'border-[var(--primary)] ring-2 ring-[var(--primary)]/20 scale-105'
                         : 'border-transparent opacity-70 hover:opacity-100'
@@ -235,6 +245,7 @@ function ProductModalDialog({ product }: { product: Product }) {
                       fill
                       sizes="48px"
                       className="object-cover"
+                      loading="eager"
                     />
                   </button>
                 ))}
@@ -248,14 +259,21 @@ function ProductModalDialog({ product }: { product: Product }) {
               {/* Name + Price */}
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  {product.featured && (
+                  {isSpecial ? (
+                    <div className="mb-2">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider text-amber-200 bg-neutral-950/90 border border-amber-400/80 shadow-[0_0_16px_rgba(245,158,11,0.5)] backdrop-blur-md">
+                        <Sparkles size={12} className="text-amber-400 animate-pulse shrink-0" />
+                        <span>Ficcado Special Drops</span>
+                      </span>
+                    </div>
+                  ) : product.featured ? (
                     <div className="mb-1.5">
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-800 uppercase tracking-wider text-amber-300 bg-neutral-950/85 border border-amber-400/40 backdrop-blur-md shadow-xs">
                         <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
                         New Launch Drop
                       </span>
                     </div>
-                  )}
+                  ) : null}
                   <h2 className="text-xl md:text-2xl font-900 leading-tight" style={{ fontWeight: 900, color: 'var(--text-main)' }}>
                     {product.name}
                   </h2>

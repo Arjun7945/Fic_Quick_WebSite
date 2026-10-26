@@ -29,7 +29,7 @@
 | **B-04** | `T-004` | Scaling / Fallback | Replace fragile runtime disk cache with build-time snapshot or platform cache. | **P0 (Done)** |
 | **B-05** | `T-005` | Caching / ISR | Remove `cache: 'no-store'` in Sheets client to unblock ISR; verify checkout price check. | **P0 (Done)** |
 | **B-06** | `T-006` | Rate Limiting | Rate limiting across all `/api/*` endpoints (Decision D2). Merged with `RATE-01`. | **P0 (Done)** |
-| **B-07** | `T-007` | Deployment | Merge root and frontend `netlify.toml` into single unified configuration. | **P0 (Done)** |
+| **B-07** | `T-007` | Deployment | Migrate headers to next.config.ts and remove legacy provider config files. | **P0 (Done)** |
 | **B-08** | `T-008` | Security | Pragmatic CSP, drop obsolete `X-XSS-Protection`, review HSTS `preload` (Decision D13). | **P0 (Done)** |
 | **B-09** | `T-009` | Error Handling | Unified API response envelope `{ success, data, error }`; Next error boundaries. | **P0 (Done)** |
 | **B-10** | `T-010` | Security | **VERIFIED CLEAN:** Git history & remote verified. Key file confirmed git-ignored. | **P0 (Done)** |
@@ -39,7 +39,7 @@
 | **B-14** | `T-014` | Legal Text | Handled by re-wording PRIV-01 in `audit-report.md` (no legal advice). | **P0 (Done)** |
 | **B-15** | `T-015` | Brand Facts | Sourced facts in `Ficcado-Website.md`, `prd.md`, and `memory.md` (`layout.tsx`, `journal/`). | **P0 (Done)** |
 | **B-16** | `T-016` | PRD Personas | Handled by marking personas as `ASSUMPTION` and adding `Success metrics: UNKNOWN`. | **P0 (Done)** |
-| **B-17** | `T-017` | Architecture Sync | Sourced ADR details and Netlify serverless limits in `docs/architecture.md`. | **P0 (Done)** |
+| **B-17** | `T-017` | Architecture Sync | Sourced ADR details and serverless limits in `docs/architecture.md`. | **P0 (Done)** |
 | **B-18** | `T-018` | Combos Status | Managed via Decision D9: "combos are coming soon only as of now". | **P0 (Done)** |
 | **B-19** | `T-019` | Secrets Sanitization | Sanitized real Sheet ID and service key filename with placeholders in all docs. | **P0 (Done)** |
 | **B-20** | `T-020` | Rules Completion | Completed missing folder, logging, testing, and never-do rules in `docs/rules.md`. | **P0 (Done)** |
@@ -93,9 +93,9 @@
 - **Acceptance Criteria:** Uniform rate limits with friendly 429 UI messages.
 - **Dependency:** Pending Decision D2.
 
-### `T-007` & `T-008` (Findings B-07, B-08) — Unified Netlify Configuration & Headers [Severity: Medium] [Status: Todo]
-- **Target Files:** `netlify.toml`, `ficcado-website-frontend/netlify.toml`
-- **Acceptance Criteria:** Single root `netlify.toml`; pragmatic CSP; obsolete `X-XSS-Protection` removed; Origin checks on POST.
+### `T-007` & `T-008` (Findings B-07, B-08) — Universal Next.js Configuration & Security Headers [Severity: Medium] [Status: Todo]
+- **Target Files:** `next.config.ts`
+- **Acceptance Criteria:** Universal `next.config.ts` security headers; pragmatic CSP; obsolete `X-XSS-Protection` removed; Origin checks on POST.
 
 ### `T-009` (Finding B-09) — Unified Error Response Envelope [Severity: Medium] [Status: Todo]
 - **Target Files:** `src/app/api/`, `src/app/global-error.tsx`, `src/app/not-found.tsx`

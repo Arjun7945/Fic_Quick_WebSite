@@ -5,6 +5,8 @@
 // Automatically adapts layout for Mobile (<768px), Tablet (768-1023px), and Desktop (>=1024px)
 // =============================================================================
 
+import React, { Suspense } from 'react';
+
 // Layout components
 import { BottomNav } from './BottomNav';
 import { ToastContainer } from './ToastContainer';
@@ -42,7 +44,9 @@ function ModalLayer() {
       {/* ── Product & Commerce ─────────────────────────── */}
       <ProductModal />
       <CartDrawer />
-      <FilterModal />
+      <Suspense fallback={null}>
+        <FilterModal />
+      </Suspense>
 
       {/* ── Informational & Navigation ─────────────────── */}
       <AboutModal />

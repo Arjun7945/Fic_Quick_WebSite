@@ -1,6 +1,6 @@
 # AGENT BRIEF 2: Fikado Team – Catalog Simplification, WhatsApp Ordering & Checkout Refactor
 
-> **Prerequisite:** Complete everything in `AGENT_BRIEF.md` first (project audit, `EXPANSION.md`, image structure, Google Sheets data layer, performance, Netlify prep).
+> **Prerequisite:** Complete everything in `AGENT_BRIEF.md` first (project audit, `EXPANSION.md`, image structure, Google Sheets data layer, performance, Vercel prep).
 > This brief builds on that work. **Where this brief conflicts with `AGENT_BRIEF.md`, this brief wins.** Specifically: checkout is **no longer** saved as an "order request" in Google Sheets. Orders now go to **WhatsApp** (see Section 7).
 
 **Read this whole file before editing code.** Do not redesign the UI. Keep the current look, spacing, branding and components. Only change what is listed here.
@@ -53,7 +53,7 @@ The Fikado website is now a **showcase + order-intent site**, not a full e-comme
 - **Remove "Track Live Order" and "Saved Items"** links from the footer.
 - Also delete everything that only existed for them: their pages/routes, components, context/state, API calls, sitemap entries, and any internal links elsewhere pointing to them.
 - Check for broken spacing/alignment in the footer columns after removal; keep the layout visually balanced.
-- If anyone visits the old URLs (`/track-order`, `/saved`, etc. – use the real paths you find), **redirect them** (via `next.config` or `netlify.toml`) to the Support page or Home. Document the redirects.
+- If anyone visits the old URLs (`/track-order`, `/saved`, etc. – use the real paths you find), **redirect them** (via `next.config` or `next.config.ts`) to the Support page or Home. Document the redirects.
 
 ---
 
@@ -162,7 +162,7 @@ Fields, with validation (react-hook-form + zod if already used, otherwise match 
 ### 8.5 Place Order → WhatsApp
 - The button label stays **"Place Order"** (optionally with a small WhatsApp icon and a one-line note: *"You'll continue your order on WhatsApp"*).
 - Validate the form → generate the Order ID → build the message → open WhatsApp.
-- **WhatsApp number:** read from an environment variable `NEXT_PUBLIC_WHATSAPP_NUMBER` (international format, digits only, e.g., `919497144795`). **Never hard-code the number.** Add it to `.env.example`, `netlify.toml` notes and `docs/DEPLOYMENT.md`. Fail loudly in development if missing.
+- **WhatsApp number:** read from an environment variable `NEXT_PUBLIC_WHATSAPP_NUMBER` (international format, digits only, e.g., `919497144795`). **Never hard-code the number.** Add it to `.env.example`, `next.config.ts` notes and `docs/DEPLOYMENT.md`. Fail loudly in development if missing.
 - **Link format:** `https://wa.me/<number>?text=<encodeURIComponent(message)>`.
 - **Reliability details:**
   - Open the link **directly inside the click handler** (no `await` before it) so mobile browsers/popup blockers don't block it. Use `window.open(url, "_blank", "noopener,noreferrer")` and fall back to `window.location.href` if blocked or on iOS Safari.
@@ -280,7 +280,7 @@ Create this file in the project root **after all work is complete**. It must be 
 9. **Testing Performed** – what was tested, on which viewports/browsers, and results.
 10. **Known Limitations & Assumptions** – e.g., Order IDs are not verifiable, no payment/tracking on site, WhatsApp URL length limits.
 11. **Open Questions / Items Needing Client Input** – anything you asked or deferred (waitlist, order logging to Sheets, policy wording).
-12. **Deployment Notes** – any new env vars to set in Netlify (including `NEXT_PUBLIC_WHATSAPP_NUMBER`).
+12. **Deployment Notes** – any new env vars to set in Vercel (including `NEXT_PUBLIC_WHATSAPP_NUMBER`).
 13. **Future Recommendations** – short, practical list.
 
 Also update `EXPANSION.md` with a pointer to this file.

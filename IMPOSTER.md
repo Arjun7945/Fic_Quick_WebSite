@@ -57,7 +57,7 @@ First, detect and record (with evidence) in a table:
 | Language / package manager / Node version | tsconfig, lockfile, `.nvmrc`, `engines` | |
 | Styling & UI libs | Tailwind/CSS Modules/etc. | |
 | Rendering modes | per-route static / ISR / dynamic / client | |
-| Hosting target | `netlify.toml`, `vercel.json`, Dockerfile, CI files | |
+| Hosting target | `next.config.ts`, `vercel.json`, Dockerfile, CI files | |
 | Data layer | Google Sheets, SQL/NoSQL, CMS, REST backend, none | **[IF GOOGLE SHEETS]** … |
 | Backend | separate service (Spring Boot, Express, etc.) or API routes only | **[IF BACKEND]** … |
 | Auth | NextAuth/Clerk/custom/none | **[IF AUTH]** … |
@@ -208,7 +208,7 @@ Audit existing tests; then **create what is missing**:
 ### B4. CI/CD pipeline
 - Detect the VCS/CI provider; if none, propose **GitHub Actions** and ask before adding.
 - **Pipeline stages** (see Appendix C template): install with frozen lockfile → lint → type-check → unit/integration tests with coverage → build → e2e against the built app → dependency audit → secret scan → (optional) Lighthouse CI + bundle budget → deploy.
-- **Deploy gating:** production deploys happen only after all required checks pass (protected branch + required status checks, or deploy from CI). Hosting platforms that auto-build on push (e.g., Netlify/Vercel) can bypass CI unless configured; **ask the developer how they want to gate** and document it.
+- **Deploy gating:** production deploys happen only after all required checks pass (protected branch + required status checks, or deploy from CI). Hosting platforms that auto-build on push (e.g., Vercel) can bypass CI unless configured; **ask the developer how they want to gate** and document it.
 - Separate **preview** (test data, `noindex`) and **production** environments with separate secrets and **separate Google Sheet for non-production** **[IF GOOGLE SHEETS]**.
 - Pin Node version (`.nvmrc`/`engines`), cache dependencies, keep pipeline under ~10 minutes.
 - Dependabot/Renovate for dependency updates.

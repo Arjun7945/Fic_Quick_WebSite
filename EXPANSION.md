@@ -1,9 +1,9 @@
 # Ficcado Storefront — Architecture, Data Backbone & Server-Verified WhatsApp Ordering (`EXPANSION.md`)
 
-> **Single Source of Truth** for Ficcado's storefront architecture, Google Sheets database backbone, server-verified checkout, asset hierarchy, Netlify edge deployment, and WhatsApp order handoff.
+> **Single Source of Truth** for Ficcado's storefront architecture, Google Sheets database backbone, server-verified checkout, asset hierarchy, Vercel edge deployment, and WhatsApp order handoff.
 > 
 > *Governing Specifications*:
-> - `docs/AGENT_BRIEF.md` (Initial Audit, Netlify Architecture, Performance)
+> - `docs/AGENT_BRIEF.md` (Initial Audit, Storefront Architecture, Performance)
 > - `docs/AGENT_BRIEF_2_WHATSAPP_ORDERING_REFACTOR.md` (Unisex Catalog, Direct WhatsApp Checkout, Removal of Mock Data)
 > - `docs/REFACTOR_ON_PREVIOUS_UPDATE.md` (Audit Fixes, 4-Tab Google Sheets Backbone, Server-Verified WhatsApp Orders, Reference ID Rollover)
 > - Complete Evidence Report: `REFACTOR_ON_PREVIOUS_UPDATE_COMPLETED.md`
@@ -24,7 +24,7 @@ flowchart TD
         SupportForm["Support Page (Accepts FIC- Reference ID or Order ID)"]
     end
 
-    subgraph Edge ["Netlify CDN / Next.js Serverless Runtime"]
+    subgraph Edge ["Vercel Edge / Next.js Serverless Runtime"]
         ISR["ISR Pages (Revalidate: 300s, Statically Generated)"]
         OrdersAPI["POST /api/orders (Server Price Recomputation & Anti-Injection)"]
         InquiryAPI["POST /api/inquiry (Spam Defense & Ticket Creation)"]

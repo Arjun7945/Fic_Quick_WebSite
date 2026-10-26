@@ -10,7 +10,7 @@
 // =============================================================================
 
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, SlidersHorizontal, Menu } from 'lucide-react';
+import { ArrowLeft, Menu } from 'lucide-react';
 import { useModal } from '@/context/ModalContext';
 import { CategoryCard } from '@/components/ui/CategoryCard';
 import { CATEGORIES_CONFIG, type CategoryConfig } from '@/config/categories';
@@ -35,15 +35,6 @@ export default function CategoriesPage() {
         </button>
         <h1 className="flex-1 text-base font-700" style={{ fontWeight: 700 }}>Categories & Drops</h1>
         <button
-          id="categories-filter-btn"
-          onClick={() => openModal('filterModal')}
-          className="btn-icon cursor-pointer"
-          style={{ background: 'var(--primary-light)' }}
-          aria-label="Open filters"
-        >
-          <SlidersHorizontal size={17} style={{ color: 'var(--primary)' }} />
-        </button>
-        <button
           onClick={() => openModal('mobileMenuDrawer')}
           className="btn-icon cursor-pointer"
           aria-label="Open menu"
@@ -65,13 +56,6 @@ export default function CategoriesPage() {
             Browse our official unisex collections. Explore our active drops and preview upcoming silhouettes.
           </p>
         </div>
-        <button
-          onClick={() => openModal('filterModal')}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl border border-[var(--border-light)] bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-alt)] text-xs font-bold text-[var(--text-main)] transition-colors cursor-pointer"
-        >
-          <SlidersHorizontal size={15} className="text-[var(--primary)]" />
-          <span>Filters</span>
-        </button>
       </div>
 
       {/* Category Grid: 2-col mobile, 3-col tablet/desktop */}
