@@ -123,6 +123,12 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          NODE_ENV: production
+          NEXT_PUBLIC_WHATSAPP_NUMBER: "916282000729"
+          NEXT_PUBLIC_SITE_URL: "https://ficcado.in"
+          NEXT_PUBLIC_PRIVACY_EMAIL: "ficcado.clothing@gmail.com"
+          ORDER_ID_MODE: "sheet-row"
+          RATE_LIMIT_STORE: "memory"
         run: npx vercel@latest build --prod --token=$VERCEL_TOKEN
 
       - name: Deploy Prebuilt Artifacts to Vercel

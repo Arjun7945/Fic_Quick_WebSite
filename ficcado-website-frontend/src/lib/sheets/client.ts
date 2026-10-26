@@ -15,13 +15,15 @@ export interface SheetCredentials {
 export function getCredentials(): SheetCredentials | null {
   // 1. Explicit private key & email in env
   const envEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  let envKey = process.env.GOOGLE_PRIVATE_KEY;
+  const envKey = process.env.GOOGLE_PRIVATE_KEY;
 
   if (envEmail && envKey) {
-    if (!envKey.includes('\n') && envKey.includes('\\n')) {
-      envKey = envKey.replace(/\\n/g, '\n');
+    let cleanedKey = envKey.trim();
+    while ((cleanedKey.startsWith('"') && cleanedKey.endsWith('"')) || (cleanedKey.startsWith("'") && cleanedKey.endsWith("'"))) {
+      cleanedKey = cleanedKey.slice(1, -1).trim();
     }
-    return { clientEmail: envEmail, privateKey: envKey };
+    cleanedKey = cleanedKey.replace(/\\n/g, '\n').replace(/\r/g, '');
+    return { clientEmail: envEmail, privateKey: cleanedKey };
   }
 
   // 2. File path in env or default local paths
