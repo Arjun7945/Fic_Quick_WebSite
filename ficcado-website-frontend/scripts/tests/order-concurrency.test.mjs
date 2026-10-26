@@ -199,6 +199,17 @@ describe('Order Flow & Concurrency Verification per D1', () => {
     process.env.ORDER_ID_MODE = 'sheet-row';
     process.env.GOOGLE_SHEET_ID = 'test-sheet-id';
 
+    const cryptoMod = await import('node:crypto');
+    const { privateKey } = cryptoMod.generateKeyPairSync('rsa', {
+      modulusLength: 1024,
+      publicKeyEncoding: { type: 'spki', format: 'pem' },
+      privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
+    });
+    const prevEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+    const prevKey = process.env.GOOGLE_PRIVATE_KEY;
+    process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL = 'mock-sa@example.iam.gserviceaccount.com';
+    process.env.GOOGLE_PRIVATE_KEY = privateKey;
+
     const originalFetch = globalThis.fetch;
     const appendedRows = [];
 
@@ -294,6 +305,16 @@ describe('Order Flow & Concurrency Verification per D1', () => {
       globalThis.fetch = originalFetch;
       process.env.ORDER_GATEWAY_URL = serverUrl;
       process.env.ORDER_GATEWAY_SECRET = 'test-secret';
+      if (prevEmail !== undefined) {
+        process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL = prevEmail;
+      } else {
+        delete process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+      }
+      if (prevKey !== undefined) {
+        process.env.GOOGLE_PRIVATE_KEY = prevKey;
+      } else {
+        delete process.env.GOOGLE_PRIVATE_KEY;
+      }
     }
   });
 });
